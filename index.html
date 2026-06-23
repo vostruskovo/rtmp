@@ -3837,6 +3837,56 @@
             });
         }
     }
+
+
+
+        // Setup history search
+function setupHistorySearch() {
+    const input = document.getElementById('historySearchInput');
+    const clearBtn = document.getElementById('clearHistorySearch');
+    if (!input) return;
+    
+    input.addEventListener('input', function() {
+        const query = this.value.trim();
+        clearBtn.classList.toggle('visible', query.length > 0);
+        renderHistoryList(query);
+    });
+    
+    clearBtn.addEventListener('click', function() {
+        input.value = '';
+        clearBtn.classList.remove('visible');
+        renderHistoryList('');
+        input.focus();
+    });
+    
+    // ESC key support
+/*    input.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            // Clear the search
+            this.value = '';
+            clearBtn.classList.remove('visible');
+            renderHistoryList('');
+            this.blur();
+            e.preventDefault();
+        }
+    });*/
+
+       input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        if (this.value.trim() !== '') {
+            // Clear the search if not empty
+            this.value = '';
+        } else {
+            // Otherwise close
+            clearBtn.classList.remove('visible');
+            renderHistoryList('');
+            this.blur();
+            e.preventDefault();
+        }
+    }
+
+    });
+}
 </script>
 </body>
 </html>
