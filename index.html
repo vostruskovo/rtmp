@@ -442,6 +442,109 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3200);
         }
 
+        // ----- FUNCIÓN INTELIGENTE PARA ICONOS -----
+        function getIconInfo(name) {
+            const lower = name.toLowerCase();
+            
+            // 🔥 Palabras clave específicas
+            if (lower.includes('map') || lower.includes('route') || lower.includes('gps') || lower.includes('navigation')) {
+                return {
+                    icon: 'fa-map-location-dot',
+                    label: '🗺️',
+                    desc: 'Interactive mapping & real-time routing',
+                    descIcon: 'fa-location-dot'
+                };
+            }
+            
+            if (lower.includes('med') || lower.includes('card') || lower.includes('health') || 
+                lower.includes('doctor') || lower.includes('hospital') || lower.includes('clinic')) {
+                return {
+                    icon: 'fa-heart-pulse',
+                    label: '💊',
+                    desc: 'Health records · patient management system',
+                    descIcon: 'fa-notes-medical'
+                };
+            }
+            
+            if (lower.includes('appoint') || lower.includes('calendar') || lower.includes('schedule') || 
+                lower.includes('booking') || lower.includes('meeting')) {
+                return {
+                    icon: 'fa-calendar-check',
+                    label: '📅',
+                    desc: 'Scheduling · appointments management',
+                    descIcon: 'fa-clock'
+                };
+            }
+            
+            if (lower.includes('car') || lower.includes('auto') || lower.includes('vehicle') || 
+                lower.includes('drive') || lower.includes('fleet')) {
+                return {
+                    icon: 'fa-car',
+                    label: '🚗',
+                    desc: 'Vehicle management · fleet control',
+                    descIcon: 'fa-road'
+                };
+            }
+            
+            if (lower.includes('chat') || lower.includes('message') || lower.includes('talk') || 
+                lower.includes('discord') || lower.includes('telegram')) {
+                return {
+                    icon: 'fa-comments',
+                    label: '💬',
+                    desc: 'Chat · real-time communication',
+                    descIcon: 'fa-message'
+                };
+            }
+            
+            if (lower.includes('video') || lower.includes('stream') || lower.includes('youtube') || 
+                lower.includes('watch') || lower.includes('movie')) {
+                return {
+                    icon: 'fa-video',
+                    label: '🎬',
+                    desc: 'Video · streaming platform',
+                    descIcon: 'fa-play'
+                };
+            }
+            
+            if (lower.includes('shop') || lower.includes('store') || lower.includes('buy') || 
+                lower.includes('cart') || lower.includes('market')) {
+                return {
+                    icon: 'fa-shop',
+                    label: '🛒',
+                    desc: 'E-commerce · online store',
+                    descIcon: 'fa-bag-shopping'
+                };
+            }
+            
+            if (lower.includes('blog') || lower.includes('post') || lower.includes('article') || 
+                lower.includes('news')) {
+                return {
+                    icon: 'fa-blog',
+                    label: '✍️',
+                    desc: 'Blog · content publishing',
+                    descIcon: 'fa-pen-fancy'
+                };
+            }
+            
+            if (lower.includes('game') || lower.includes('play') || lower.includes('fun') || 
+                lower.includes('arcade')) {
+                return {
+                    icon: 'fa-gamepad',
+                    label: '🎮',
+                    desc: 'Games · interactive entertainment',
+                    descIcon: 'fa-dice'
+                };
+            }
+
+            // 🔥 SI NO COINCIDE CON NADA → ICONO GENÉRICO "WWW" (World Wide Web)
+            return {
+                icon: 'fa-globe',
+                label: '🌐',
+                desc: `Web page · ${name}`,
+                descIcon: 'fa-link'
+            };
+        }
+
         // ----- FETCH FILES FROM GITHUB (100% AUTOMÁTICO) -----
         async function fetchHtmlFiles() {
             const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
@@ -456,7 +559,6 @@
                 const files = await response.json();
                 
                 // 🔥 FILTRO: SOLO archivos .html, excluyendo index.html
-                // ¡SIN LISTA MANUAL! Todo es automático
                 const htmlFiles = files
                     .filter(file => file.type === 'file' && file.name.endsWith('.html'))
                     .map(file => file.name)
@@ -466,8 +568,6 @@
                 
             } catch (error) {
                 console.error('❌ Error fetching from GitHub:', error);
-                
-                // Fallback: mensaje de error
                 return [];
             }
         }
@@ -499,46 +599,15 @@
                 const card = document.createElement('div');
                 card.className = 'card';
 
-                // ---- ICON LOGIC (automático según el nombre) ----
-                let iconClass = 'fa-file-code';
-                let iconLabel = '📄';
-                let descText = 'Route · dynamic content';
-                let descIcon = 'fa-link';
-
-                const lower = safeName.toLowerCase();
-                if (lower.includes('map') || lower.includes('route')) {
-                    iconClass = 'fa-map-location-dot';
-                    iconLabel = '🗺️';
-                    descText = 'Interactive mapping & real-time routing';
-                    descIcon = 'fa-location-dot';
-                } else if (lower.includes('med') || lower.includes('card') || lower.includes('health')) {
-                    iconClass = 'fa-heart-pulse';
-                    iconLabel = '💊';
-                    descText = 'Health records · patient management system';
-                    descIcon = 'fa-notes-medical';
-                } else if (lower.includes('appoint')) {
-                    iconClass = 'fa-calendar-check';
-                    iconLabel = '📅';
-                    descText = 'Scheduling · appointments management';
-                    descIcon = 'fa-clock';
-                } else if (lower.includes('car') || lower.includes('auto')) {
-                    iconClass = 'fa-car';
-                    iconLabel = '🚗';
-                    descText = 'Vehicle management · fleet control';
-                    descIcon = 'fa-road';
-                } else {
-                    iconClass = 'fa-file-lines';
-                    iconLabel = '📄';
-                    descText = `Route · ${safeName}`;
-                    descIcon = 'fa-arrow-right';
-                }
+                // ---- ICON LOGIC (INTELIGENTE) ----
+                const iconInfo = getIconInfo(safeName);
 
                 // ---- ICON ----
                 const iconWrapper = document.createElement('div');
                 iconWrapper.className = 'card-icon';
                 iconWrapper.innerHTML = `
-                    <i class="fas ${iconClass}"></i>
-                    <span class="icon-badge">${escapeHtml(iconLabel)}</span>
+                    <i class="fas ${iconInfo.icon}"></i>
+                    <span class="icon-badge">${escapeHtml(iconInfo.label)}</span>
                 `;
 
                 // ---- TITLE (nombre del archivo) ----
@@ -548,7 +617,7 @@
                 // ---- DESCRIPTION ----
                 const desc = document.createElement('div');
                 desc.className = 'desc';
-                desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
+                desc.innerHTML = `<i class="fas ${iconInfo.descIcon}"></i> ${escapeHtml(iconInfo.desc)}`;
 
                 // ---- BADGE (muestra el nombre del archivo) ----
                 const badge = document.createElement('div');
