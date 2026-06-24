@@ -2,27 +2,85 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Plain Routes Page</title>
+  <title>My Routes</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #1e3c72, #2a5298);
+      color: #fff;
+      margin: 0;
+      padding: 40px;
+    }
+    h1 {
+      text-align: center;
+      font-size: 2.5em;
+      margin-bottom: 30px;
+      letter-spacing: 2px;
+    }
+    .routes {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 20px;
+    }
+    .card {
+      background: rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 20px;
+      width: 220px;
+      text-align: center;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      transition: transform 0.3s ease, background 0.3s ease;
+    }
+    .card:hover {
+      transform: translateY(-8px);
+      background: rgba(255,255,255,0.2);
+    }
+    .card h2 {
+      margin: 0 0 10px;
+      font-size: 1.4em;
+      color: #ffd700;
+    }
+    .card a {
+      display: inline-block;
+      margin-top: 10px;
+      padding: 8px 14px;
+      background: #ffd700;
+      color: #000;
+      text-decoration: none;
+      border-radius: 6px;
+      font-weight: bold;
+      transition: background 0.3s ease;
+    }
+    .card a:hover {
+      background: #ffae00;
+    }
+  </style>
 </head>
 <body>
-  <h1>Available Routes</h1>
-  <div id="routes"></div>
+  <h1>🚀 My Routes</h1>
+  <div class="routes" id="routes"></div>
 
   <script>
-    let tools = ["routMap", "index02"];
+    let tools = ["routmap", "appointment"];
     let ext = ".html";
 
-    // Loop through the array
-    for (let i = 0; i < tools.length; i++) {
-      // Create a link element
-      let link = document.createElement("a");
-      link.href = tools[i] + ext;
-      link.textContent = tools[i] + ext;
+    tools.forEach(tool => {
+      let card = document.createElement("div");
+      card.className = "card";
 
-      // Add a line break after each link
-      document.getElementById("routes").appendChild(link);
-      document.getElementById("routes").appendChild(document.createElement("br"));
-    }
+      let title = document.createElement("h2");
+      title.textContent = tool.charAt(0).toUpperCase() + tool.slice(1);
+
+      let link = document.createElement("a");
+      link.href = tool + ext;
+      link.textContent = "Open " + tool + ext;
+
+      card.appendChild(title);
+      card.appendChild(link);
+
+      document.getElementById("routes").appendChild(card);
+    });
   </script>
 </body>
 </html>
