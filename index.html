@@ -1,546 +1,619 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>✦ My Routes · Nexus</title>
-  <!-- Font Awesome 6 (free) -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✦ My Routes · Nexus</title>
+    <!-- Font Awesome 6 (free) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <style>
+        /* ----- RESET & BASE ----- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background: radial-gradient(circle at 20% 30%, #0b1a33, #0a0f1f);
-      padding: 1.5rem;
-    }
+        body {
+            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 20% 30%, #0b1a33, #0a0f1f);
+            padding: 1.5rem;
+        }
 
-    /* glass-morphism container */
-    .dashboard {
-      max-width: 950px;
-      width: 100%;
-      background: rgba(12, 25, 45, 0.55);
-      backdrop-filter: blur(14px) saturate(180%);
-      -webkit-backdrop-filter: blur(14px) saturate(180%);
-      border-radius: 3.5rem;
-      padding: 2.8rem 2.5rem;
-      box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 215, 0, 0.15);
-      border: 1px solid rgba(255, 215, 0, 0.08);
-      transition: all 0.3s ease;
-    }
+        .dashboard {
+            max-width: 950px;
+            width: 100%;
+            background: rgba(12, 25, 45, 0.55);
+            backdrop-filter: blur(14px) saturate(180%);
+            -webkit-backdrop-filter: blur(14px) saturate(180%);
+            border-radius: 3.5rem;
+            padding: 2.8rem 2.5rem;
+            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 215, 0, 0.15);
+            border: 1px solid rgba(255, 215, 0, 0.08);
+            transition: all 0.3s ease;
+        }
 
-    /* header with counter */
-    .header-flex {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 0.8rem 1.5rem;
-      margin-bottom: 0.2rem;
-    }
+        .header-flex {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 0.8rem 1.5rem;
+            margin-bottom: 0.2rem;
+        }
 
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      background: linear-gradient(135deg, #f6e9a0, #f0c27f);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-    }
+        h1 {
+            font-size: 2.8rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #f6e9a0, #f0c27f);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
 
-    /* counter chip */
-    .route-counter {
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-      background: rgba(255, 215, 0, 0.08);
-      border: 1px solid rgba(255, 215, 0, 0.15);
-      border-radius: 60px;
-      padding: 0.4rem 1.2rem 0.4rem 1rem;
-      backdrop-filter: blur(8px);
-      box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
-      transition: all 0.3s ease;
-    }
+        .route-counter {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            border-radius: 60px;
+            padding: 0.4rem 1.2rem 0.4rem 1rem;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
+            transition: all 0.3s ease;
+        }
 
-    .route-counter:hover {
-      background: rgba(255, 215, 0, 0.14);
-      border-color: rgba(255, 215, 0, 0.3);
-      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
-    }
+        .route-counter:hover {
+            background: rgba(255, 215, 0, 0.14);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+        }
 
-    .route-counter i {
-      color: #ffd700;
-      font-size: 1.1rem;
-      filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.2));
-    }
+        .route-counter i {
+            color: #ffd700;
+            font-size: 1.1rem;
+            filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.2));
+        }
 
-    .route-counter .count-number {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: #fff;
-      letter-spacing: 0.5px;
-      background: linear-gradient(135deg, #ffd700, #f0b800);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      min-width: 2rem;
-      text-align: center;
-    }
+        .route-counter .count-number {
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #f0b800);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            min-width: 2rem;
+            text-align: center;
+        }
 
-    .route-counter .count-label {
-      font-size: 0.75rem;
-      font-weight: 400;
-      color: rgba(255, 255, 255, 0.5);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
+        .route-counter .count-label {
+            font-size: 0.75rem;
+            font-weight: 400;
+            color: rgba(255, 255, 255, 0.5);
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
 
-    .subhead {
-      text-align: center;
-      font-weight: 300;
-      letter-spacing: 2px;
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.5);
-      border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
-      padding-bottom: 1.8rem;
-      margin-bottom: 2.2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.8rem;
-      flex-wrap: wrap;
-    }
+        .subhead {
+            text-align: center;
+            font-weight: 300;
+            letter-spacing: 2px;
+            font-size: 1rem;
+            color: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
+            padding-bottom: 1.8rem;
+            margin-bottom: 2.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
 
-    .subhead i {
-      color: #f0c27f;
-      font-size: 1.1rem;
-    }
+        .subhead i {
+            color: #f0c27f;
+            font-size: 1.1rem;
+        }
 
-    .routes {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 2rem;
-    }
+        .routes {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 2rem;
+            min-height: 120px;
+        }
 
-    /* card — futuristic glow */
-    .card {
-      background: rgba(20, 40, 70, 0.5);
-      backdrop-filter: blur(4px);
-      -webkit-backdrop-filter: blur(4px);
-      border-radius: 2.2rem;
-      padding: 1.8rem 1.2rem 1.8rem 1.2rem;
-      width: 220px;
-      text-align: center;
-      box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 215, 0, 0.1);
-      transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
-      border: 1px solid rgba(255, 215, 0, 0.08);
-      position: relative;
-      overflow: hidden;
-    }
+        /* ----- CARDS ----- */
+        .card {
+            background: rgba(20, 40, 70, 0.5);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            border-radius: 2.2rem;
+            padding: 1.8rem 1.2rem;
+            width: 220px;
+            text-align: center;
+            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 215, 0, 0.1);
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
+            border: 1px solid rgba(255, 215, 0, 0.08);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
 
-    .card::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.03), transparent, rgba(255, 215, 0, 0.06), transparent);
-      animation: rotateGlow 12s linear infinite;
-      opacity: 0.3;
-      pointer-events: none;
-    }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.03), transparent, rgba(255, 215, 0, 0.06), transparent);
+            animation: rotateGlow 12s linear infinite;
+            opacity: 0.3;
+            pointer-events: none;
+        }
 
-    @keyframes rotateGlow {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
+        @keyframes rotateGlow {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
 
-    .card:hover {
-      transform: translateY(-10px) scale(1.02);
-      background: rgba(30, 55, 95, 0.7);
-      border-color: #ffd700;
-      box-shadow: 0 25px 40px -10px #000000cc, 0 0 30px rgba(255, 215, 0, 0.2);
-    }
+        .card:hover {
+            transform: translateY(-10px) scale(1.02);
+            background: rgba(30, 55, 95, 0.7);
+            border-color: #ffd700;
+            box-shadow: 0 25px 40px -10px #000000cc, 0 0 30px rgba(255, 215, 0, 0.2);
+        }
 
-    /* ----- CARD ICON — enhanced, with meaning ----- */
-    .card-icon {
-      font-size: 3.2rem;
-      margin-bottom: 0.2rem;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 0.2rem;
-      filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.25));
-      transition: transform 0.3s ease;
-    }
+        .card-icon {
+            font-size: 3.2rem;
+            margin-bottom: 0.2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.2rem;
+            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.25));
+            transition: transform 0.3s ease;
+        }
 
-    .card:hover .card-icon {
-      transform: scale(1.05) rotate(2deg);
-    }
+        .card:hover .card-icon {
+            transform: scale(1.05) rotate(2deg);
+        }
 
-    .card-icon i {
-      background: linear-gradient(145deg, #ffd700, #f0b800);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-    }
+        .card-icon i {
+            background: linear-gradient(145deg, #ffd700, #f0b800);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
 
-    .card-icon .icon-badge {
-      font-size: 0.8rem;
-      background: rgba(255, 215, 0, 0.15);
-      border-radius: 40px;
-      padding: 0.1rem 0.6rem;
-      color: #ffd700;
-      border: 1px solid rgba(255, 215, 0, 0.15);
-      backdrop-filter: blur(2px);
-      margin-left: 4px;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-    }
+        .card-icon .icon-badge {
+            font-size: 0.8rem;
+            background: rgba(255, 215, 0, 0.15);
+            border-radius: 40px;
+            padding: 0.1rem 0.6rem;
+            color: #ffd700;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            backdrop-filter: blur(2px);
+            margin-left: 4px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
 
-    .card h2 {
-      font-size: 1.5rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-      margin: 0.2rem 0 0.1rem 0;
-      color: #fff;
-      text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-      word-break: break-word;
-    }
+        .card h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+            margin: 0.2rem 0 0.1rem 0;
+            color: #fff;
+            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+            word-break: break-word;
+        }
 
-    .card .desc {
-      font-size: 0.75rem;
-      font-weight: 300;
-      color: rgba(255, 255, 255, 0.6);
-      letter-spacing: 0.3px;
-      margin: 0.1rem 0 0.6rem 0;
-      padding: 0 0.2rem;
-      line-height: 1.4;
-      min-height: 2.4rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.3rem;
-      flex-wrap: wrap;
-    }
+        .card .desc {
+            font-size: 0.75rem;
+            font-weight: 300;
+            color: rgba(255, 255, 255, 0.6);
+            letter-spacing: 0.3px;
+            margin: 0.1rem 0 0.6rem 0;
+            padding: 0 0.2rem;
+            line-height: 1.4;
+            min-height: 2.4rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
 
-    .card .desc i {
-      color: #ffd700;
-      font-size: 0.6rem;
-      opacity: 0.7;
-    }
+        .card .desc i {
+            color: #ffd700;
+            font-size: 0.6rem;
+            opacity: 0.7;
+        }
 
-    .card .badge {
-      display: inline-block;
-      background: rgba(255, 215, 0, 0.12);
-      color: #ffd700;
-      font-size: 0.6rem;
-      font-weight: 600;
-      padding: 0.2rem 0.9rem;
-      border-radius: 30px;
-      letter-spacing: 0.5px;
-      border: 1px solid rgba(255, 215, 0, 0.15);
-      margin: 0.1rem 0 0.8rem 0;
-      backdrop-filter: blur(2px);
-    }
+        .card .badge {
+            display: inline-block;
+            background: rgba(255, 215, 0, 0.12);
+            color: #ffd700;
+            font-size: 0.6rem;
+            font-weight: 600;
+            padding: 0.2rem 0.9rem;
+            border-radius: 30px;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            margin: 0.1rem 0 0.8rem 0;
+            backdrop-filter: blur(2px);
+        }
 
-    .card a {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.6rem;
-      margin-top: 0.2rem;
-      padding: 0.6rem 1.8rem;
-      background: linear-gradient(145deg, #ffd700, #f0b800);
-      color: #0b1a2e;
-      text-decoration: none;
-      border-radius: 60px;
-      font-weight: 600;
-      font-size: 0.85rem;
-      letter-spacing: 0.3px;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      backdrop-filter: blur(2px);
-    }
+        .card .route-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.6rem;
+            margin-top: 0.2rem;
+            padding: 0.6rem 1.8rem;
+            background: linear-gradient(145deg, #ffd700, #f0b800);
+            color: #0b1a2e;
+            text-decoration: none;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.3px;
+            transition: all 0.25s ease;
+            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(2px);
+            cursor: pointer;
+        }
 
-    .card a i {
-      font-size: 0.85rem;
-      transition: transform 0.2s ease;
-    }
+        .card .route-link i {
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+        }
 
-    .card a:hover {
-      background: linear-gradient(145deg, #ffe066, #f5c400);
-      transform: scale(1.03);
-      box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
-      color: #000;
-    }
+        .card .route-link:hover {
+            background: linear-gradient(145deg, #ffe066, #f5c400);
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+            color: #000;
+        }
 
-    .card a:hover i {
-      transform: translateX(4px);
-    }
+        .card .route-link:hover i {
+            transform: translateX(4px);
+        }
 
-    /* 404 toast */
-    .toast-404 {
-      position: fixed;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(10, 10, 20, 0.9);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 1rem 2.2rem;
-      border-radius: 60px;
-      border: 1px solid rgba(255, 80, 80, 0.3);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-      color: #ffb3b3;
-      font-weight: 500;
-      letter-spacing: 0.3px;
-      display: none;
-      align-items: center;
-      gap: 1rem;
-      z-index: 999;
-      pointer-events: none;
-      font-size: 0.95rem;
-    }
+        /* Loading state */
+        .loading-placeholder {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 2rem;
+            width: 100%;
+            justify-content: center;
+        }
 
-    .toast-404 i {
-      color: #ff6b6b;
-      font-size: 1.4rem;
-    }
+        .loading-placeholder i {
+            font-size: 2rem;
+            color: #ffd700;
+            opacity: 0.4;
+            animation: pulse 1.5s ease-in-out infinite;
+        }
 
-    @media (max-width: 600px) {
-      .dashboard { padding: 1.8rem 1rem; border-radius: 2.5rem; }
-      h1 { font-size: 2.2rem; }
-      .header-flex { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-      .route-counter { align-self: flex-start; }
-      .card { width: 180px; padding: 1.2rem 0.8rem; }
-      .card h2 { font-size: 1.2rem; }
-      .card a { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
-      .card .desc { font-size: 0.7rem; min-height: 2rem; }
-    }
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(1); }
+            50% { opacity: 0.9; transform: scale(1.1); }
+        }
 
-    .safe-badge {
-      display: inline-block;
-      background: rgba(0, 255, 200, 0.08);
-      border-radius: 40px;
-      padding: 0.1rem 0.9rem;
-      color: rgba(255, 255, 255, 0.3);
-      font-size: 0.7rem;
-      letter-spacing: 1px;
-      border: 1px solid rgba(255, 255, 255, 0.03);
-    }
-  </style>
+        .toast-404 {
+            position: fixed;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(10, 10, 20, 0.9);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            padding: 1rem 2.2rem;
+            border-radius: 60px;
+            border: 1px solid rgba(255, 80, 80, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            color: #ffb3b3;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+            display: none;
+            align-items: center;
+            gap: 1rem;
+            z-index: 999;
+            pointer-events: none;
+            font-size: 0.95rem;
+        }
+
+        .toast-404 i {
+            color: #ff6b6b;
+            font-size: 1.4rem;
+        }
+
+        @media (max-width: 600px) {
+            .dashboard { padding: 1.8rem 1rem; border-radius: 2.5rem; }
+            h1 { font-size: 2.2rem; }
+            .header-flex { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+            .route-counter { align-self: flex-start; }
+            .card { width: 180px; padding: 1.2rem 0.8rem; }
+            .card h2 { font-size: 1.2rem; }
+            .card .route-link { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
+            .card .desc { font-size: 0.7rem; min-height: 2rem; }
+        }
+
+        .safe-badge {
+            display: inline-block;
+            background: rgba(0, 255, 200, 0.08);
+            border-radius: 40px;
+            padding: 0.1rem 0.9rem;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+        }
+    </style>
 </head>
 <body>
 
 <div class="dashboard">
-  <!-- header with counter -->
-  <div class="header-flex">
-    <h1>
-      <i class="fas fa-compass" style="font-size: 2.2rem; color: #f0c27f; filter: drop-shadow(0 0 10px #ffd70055);"></i>
-      My Routes
-    </h1>
-    <div class="route-counter" id="routeCounter">
-      <i class="fas fa-cubes"></i>
-      <span class="count-number" id="countNumber">0</span>
-      <span class="count-label">routes</span>
+    <div class="header-flex">
+        <h1>
+            <i class="fas fa-compass" style="font-size: 2.2rem; color: #f0c27f; filter: drop-shadow(0 0 10px #ffd70055);"></i>
+            My Routes
+        </h1>
+        <div class="route-counter" id="routeCounter">
+            <i class="fas fa-cubes"></i>
+            <span class="count-number" id="countNumber">0</span>
+            <span class="count-label">routes</span>
+        </div>
     </div>
-  </div>
 
-  <div class="subhead">
-    <i class="fas fa-route"></i>
-    <span>nexus · 2026</span>
-    <i class="fas fa-bolt" style="color: #ffd700;"></i>
-    <span class="safe-badge"><i class="fas fa-shield-alt"></i> sanitized</span>
-  </div>
+    <div class="subhead">
+        <i class="fas fa-route"></i>
+        <span>nexus · 2026</span>
+        <i class="fas fa-bolt" style="color: #ffd700;"></i>
+        <span class="safe-badge"><i class="fas fa-shield-alt"></i> sanitized</span>
+    </div>
 
-  <div class="routes" id="routes"></div>
+    <div class="routes" id="routes">
+        <div class="loading-placeholder">
+            <i class="fas fa-spinner fa-pulse"></i>
+            <span>scanning files...</span>
+        </div>
+    </div>
 </div>
 
-<!-- 404 toast -->
 <div id="toast404" class="toast-404">
-  <i class="fas fa-exclamation-triangle"></i>
-  <span id="toastMessage">NOT FOUND 404 · redirecting to main route</span>
+    <i class="fas fa-exclamation-triangle"></i>
+    <span id="toastMessage">NOT FOUND 404 · redirecting to main route</span>
 </div>
 
 <script>
-  (function() {
-    // ----- TOOLS (exactly as required) -----
-    const tools = ["routMap", "MedCardPro"];   // routMap + MedCardPro
-    const ext = ".html";
+    (function() {
+        // ================================================================
+        // 🔥 EXACT TOOLS: routMap and MedCardPro ONLY
+        // ================================================================
+        // These are the ONLY tools we want to show
+        const tools = ["routMap", "MedCardPro"];
+        // ================================================================
 
-    // ---------- SANITIZATION (XSS protection) ----------
-    function escapeHtml(unsafe) {
-      if (!unsafe) return '';
-      return unsafe
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
-    }
+        const container = document.getElementById('routes');
+        const countNumber = document.getElementById('countNumber');
+        const toast = document.getElementById('toast404');
+        const toastMsg = document.getElementById('toastMessage');
 
-    function capitalise(str) {
-      if (!str || typeof str !== 'string') return '';
-      return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
-    }
+        // ----- helpers -----
+        function escapeHtml(unsafe) {
+            if (!unsafe) return '';
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
 
-    // ----- 404 TOAST -----
-    const toast = document.getElementById('toast404');
-    const toastMsg = document.getElementById('toastMessage');
+        function capitalise(str) {
+            if (!str || typeof str !== 'string') return '';
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+        }
 
-    function show404(fileName) {
-      const safeName = escapeHtml(fileName) || 'file';
-      toastMsg.innerHTML = `❌ NOT FOUND 404 · <strong>${safeName}</strong> · redirecting to main route`;
-      toast.style.display = 'flex';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, 3200);
-    }
+        function show404(fileName) {
+            const safeName = escapeHtml(fileName) || 'file';
+            toastMsg.innerHTML = `❌ NOT FOUND 404 · <strong>${safeName}</strong> · redirecting to main route`;
+            toast.style.display = 'flex';
+            setTimeout(() => { toast.style.display = 'none'; }, 3200);
+        }
 
-    // ----- RENDER CARDS & UPDATE COUNTER -----
-    const container = document.getElementById('routes');
-    const countNumber = document.getElementById('countNumber');
-    if (!container) return;
-    container.innerHTML = '';
+        // ----- VERIFY EACH TOOL EXISTS, THEN RENDER -----
+        function verifyAndRenderTools() {
+            const existingTools = [];
+            let checkedCount = 0;
 
-    // track rendered cards
-    let renderedCount = 0;
+            // Show loading state
+            container.innerHTML = `
+                <div class="loading-placeholder">
+                    <i class="fas fa-spinner fa-pulse"></i>
+                    <span>verifying tools...</span>
+                </div>
+            `;
 
-    tools.forEach((tool, index) => {
-      const safeTool = escapeHtml(tool);
-      if (!safeTool) return;
+            // Check each tool via HEAD request
+            tools.forEach((tool) => {
+                const fileName = tool + '.html';
+                
+                fetch(fileName, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            // ✅ File exists!
+                            existingTools.push(tool);
+                            console.log(`✅ Found: ${fileName}`);
+                        } else {
+                            console.warn(`⚠️ Not found: ${fileName}`);
+                        }
+                        checkedCount++;
+                        
+                        // When all checked, render
+                        if (checkedCount === tools.length) {
+                            renderRoutes(existingTools);
+                        }
+                    })
+                    .catch(() => {
+                        // File doesn't exist or network error
+                        console.warn(`⚠️ Error checking: ${fileName}`);
+                        checkedCount++;
+                        if (checkedCount === tools.length) {
+                            renderRoutes(existingTools);
+                        }
+                    });
+            });
 
-      const card = document.createElement('div');
-      card.className = 'card';
-
-      // --- CARD ICON ---
-      const iconWrapper = document.createElement('div');
-      iconWrapper.className = 'card-icon';
-
-      let iconClass = 'fa-map-location-dot';
-      let iconLabel = 'MAP';
-      let descText = 'Interactive route mapping & navigation';
-      let descIcon = 'fa-location-dot';
-
-      if (safeTool.toLowerCase() === 'routmap') {
-        iconClass = 'fa-map-location-dot';
-        iconLabel = 'ROUTE';
-        descText = 'Smart navigation · real-time routing';
-        descIcon = 'fa-route';
-      } else if (safeTool.toLowerCase() === 'medcardpro') {
-        iconClass = 'fa-heart-pulse';
-        iconLabel = 'MED';
-        descText = 'Health records · patient management';
-        descIcon = 'fa-notes-medical';
-      } else {
-        iconClass = 'fa-link';
-        iconLabel = 'APP';
-        descText = 'Secure · reliable · fast';
-        descIcon = 'fa-circle-check';
-      }
-
-      const iconHtml = `<i class="fas ${iconClass}"></i>`;
-      const badgeSpan = `<span class="icon-badge">${escapeHtml(iconLabel)}</span>`;
-      iconWrapper.innerHTML = iconHtml + badgeSpan;
-
-      // --- TITLE ---
-      const title = document.createElement('h2');
-      title.textContent = capitalise(safeTool);
-
-      // --- DESCRIPTION ---
-      const desc = document.createElement('div');
-      desc.className = 'desc';
-      desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
-
-      // --- BADGE ---
-      const badge = document.createElement('div');
-      badge.className = 'badge';
-      badge.textContent = '⚡ active';
-
-      // --- LINK ---
-      const link = document.createElement('a');
-      link.href = '#';
-      link.setAttribute('role', 'button');
-      link.setAttribute('aria-label', `Open ${capitalise(safeTool)}`);
-
-      const linkText = document.createTextNode(`Open ${capitalise(safeTool)}`);
-      const iconLink = document.createElement('i');
-      iconLink.className = 'fas fa-arrow-right';
-
-      link.appendChild(linkText);
-      link.appendChild(iconLink);
-
-      // assemble
-      card.appendChild(iconWrapper);
-      card.appendChild(title);
-      card.appendChild(desc);
-      card.appendChild(badge);
-      card.appendChild(link);
-      container.appendChild(card);
-
-      // increment counter
-      renderedCount++;
-
-      // --- CLICK HANDLER (file exists? 404 → index.html) ---
-      link.addEventListener('click', function(e) {
-        e.preventDefault();
-
-        const originalTool = tool; // from trusted array
-        const fileToFetch = originalTool + ext;
-
-        fetch(fileToFetch, { method: 'HEAD' })
-          .then(response => {
-            if (response.ok) {
-              window.location.href = fileToFetch;
-            } else {
-              show404(originalTool + ext);
-              setTimeout(() => {
-                window.location.href = 'index.html';
-              }, 600);
-            }
-          })
-          .catch(() => {
-            show404(originalTool + ext);
+            // Safety timeout: if some requests hang, render what we have
             setTimeout(() => {
-              window.location.href = 'index.html';
-            }, 600);
-          });
-      });
-    });
+                if (checkedCount < tools.length) {
+                    renderRoutes(existingTools);
+                }
+            }, 3000);
+        }
 
-    // ----- UPDATE COUNTER (dynamic) -----
-    if (countNumber) {
-      countNumber.textContent = renderedCount;
-    }
+        // ----- RENDER ROUTES (only the ones that exist) -----
+        function renderRoutes(routeNames) {
+            container.innerHTML = ''; // clear loading
 
-    // if no tools, show fallback
-    if (tools.length === 0) {
-      const emptyMsg = document.createElement('p');
-      emptyMsg.style.color = 'rgba(255,255,255,0.4)';
-      emptyMsg.textContent = '✨ no routes configured';
-      container.appendChild(emptyMsg);
-    }
+            if (!routeNames || routeNames.length === 0) {
+                const empty = document.createElement('div');
+                empty.className = 'loading-placeholder';
+                empty.innerHTML = `
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <span>no tools found · expected: ${tools.join(', ')}</span>
+                `;
+                container.appendChild(empty);
+                countNumber.textContent = '0';
+                return;
+            }
 
-    console.log(`🚀 Routes ready · ${renderedCount} routes · routMap & MedCardPro · secure & beautiful`);
-  })();
+            let renderedCount = 0;
+
+            routeNames.forEach((routeName) => {
+                const safeName = escapeHtml(routeName);
+                if (!safeName) return;
+
+                const fileName = routeName + '.html';
+                
+                const card = document.createElement('div');
+                card.className = 'card';
+
+                // ---- icon logic based on name ----
+                let iconClass = 'fa-file-code';
+                let iconLabel = 'PAGE';
+                let descText = 'Route · dynamic content';
+                let descIcon = 'fa-link';
+
+                const lower = safeName.toLowerCase();
+                if (lower.includes('map') || lower.includes('route')) {
+                    iconClass = 'fa-map-location-dot';
+                    iconLabel = '🗺️';
+                    descText = 'Interactive mapping & real-time routing';
+                    descIcon = 'fa-location-dot';
+                } else if (lower.includes('med') || lower.includes('card') || lower.includes('health')) {
+                    iconClass = 'fa-heart-pulse';
+                    iconLabel = '💊';
+                    descText = 'Health records · patient management system';
+                    descIcon = 'fa-notes-medical';
+                } else {
+                    iconClass = 'fa-file-lines';
+                    iconLabel = '📄';
+                    descText = `Route · ${safeName}`;
+                    descIcon = 'fa-arrow-right';
+                }
+
+                // icon
+                const iconWrapper = document.createElement('div');
+                iconWrapper.className = 'card-icon';
+                iconWrapper.innerHTML = `
+                    <i class="fas ${iconClass}"></i>
+                    <span class="icon-badge">${escapeHtml(iconLabel)}</span>
+                `;
+
+                // title — uses the EXACT filename (capitalized)
+                const title = document.createElement('h2');
+                title.textContent = capitalise(safeName);
+
+                // description
+                const desc = document.createElement('div');
+                desc.className = 'desc';
+                desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
+
+                // badge showing the actual file
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = '📁 ' + fileName;
+
+                // link/button
+                const link = document.createElement('div');
+                link.className = 'route-link';
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', `Open ${capitalise(safeName)}`);
+
+                const linkText = document.createTextNode(`Open ${capitalise(safeName)}`);
+                const iconLink = document.createElement('i');
+                iconLink.className = 'fas fa-arrow-right';
+
+                link.appendChild(linkText);
+                link.appendChild(iconLink);
+
+                // assemble
+                card.appendChild(iconWrapper);
+                card.appendChild(title);
+                card.appendChild(desc);
+                card.appendChild(badge);
+                card.appendChild(link);
+                container.appendChild(card);
+
+                renderedCount++;
+
+                // ---- CLICK: navigate to the actual file ----
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Navigate using hash-based routing
+                    // This creates URL like: https://yoursite.com/#routMap
+                    window.location.hash = routeName;
+                    
+                    // Navigate to the file
+                    window.location.href = fileName;
+                });
+            });
+
+            // update counter
+            if (countNumber) {
+                countNumber.textContent = renderedCount;
+            }
+            
+            console.log(`✅ Found ${renderedCount} tool(s):`, routeNames);
+            console.log(`📁 Expected: ${tools.join(', ')}`);
+        }
+
+        // ----- INIT: verify tools from actual files -----
+        verifyAndRenderTools();
+        
+    })();
 </script>
 </body>
 </html>
