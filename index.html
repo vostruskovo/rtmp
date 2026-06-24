@@ -409,9 +409,9 @@
         // ================================================================
         // 🔥 CONFIGURACIÓN DE GITHUB
         // ================================================================
-        const GITHUB_USER = "vostruskovo";  // Tu usuario de GitHub
-        const GITHUB_REPO = "rtmp";         // Tu repositorio
-        const BRANCH = "main";              // Rama principal
+        const GITHUB_USER = "vostruskovo";
+        const GITHUB_REPO = "rtmp";
+        const BRANCH = "main";
         // ================================================================
 
         const container = document.getElementById('routes');
@@ -442,7 +442,7 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3200);
         }
 
-        // ----- FETCH FILES FROM GITHUB -----
+        // ----- FETCH FILES FROM GITHUB (100% AUTOMÁTICO) -----
         async function fetchHtmlFiles() {
             const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
             
@@ -455,7 +455,8 @@
                 
                 const files = await response.json();
                 
-                // Filter: solo archivos .html, excluyendo index.html
+                // 🔥 FILTRO: SOLO archivos .html, excluyendo index.html
+                // ¡SIN LISTA MANUAL! Todo es automático
                 const htmlFiles = files
                     .filter(file => file.type === 'file' && file.name.endsWith('.html'))
                     .map(file => file.name)
@@ -466,9 +467,8 @@
             } catch (error) {
                 console.error('❌ Error fetching from GitHub:', error);
                 
-                // Fallback: lista manual si la API falla
-                console.warn('⚠️ Usando lista de respaldo (fallback)');
-                return ['routMap.html', 'MedCardPro.html'];
+                // Fallback: mensaje de error
+                return [];
             }
         }
 
@@ -481,7 +481,7 @@
                 empty.className = 'loading-placeholder';
                 empty.innerHTML = `
                     <i class="fas fa-folder-open"></i>
-                    <span>no HTML files found · add .html files</span>
+                    <span>no HTML files found in repository</span>
                 `;
                 container.appendChild(empty);
                 countNumber.textContent = '0';
@@ -499,7 +499,7 @@
                 const card = document.createElement('div');
                 card.className = 'card';
 
-                // ---- ICON LOGIC basado en el nombre ----
+                // ---- ICON LOGIC (automático según el nombre) ----
                 let iconClass = 'fa-file-code';
                 let iconLabel = '📄';
                 let descText = 'Route · dynamic content';
@@ -595,7 +595,7 @@
                 countNumber.textContent = renderedCount;
             }
             
-            console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML:`, fileNames);
+            console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML automáticamente:`, fileNames);
         }
 
         // ----- MAIN: fetch y renderizar -----
@@ -605,8 +605,7 @@
                 renderRoutes(htmlFiles);
             } catch (error) {
                 console.error('❌ Error en init:', error);
-                // Fallback
-                renderRoutes(['routMap.html', 'MedCardPro.html']);
+                renderRoutes([]);
             }
         }
 
