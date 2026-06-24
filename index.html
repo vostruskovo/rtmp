@@ -76,9 +76,26 @@
       link.href = tool + ext;
       link.textContent = "Open " + tool + ext;
 
+      // Check if file exists before navigating
+      link.addEventListener("click", function(e) {
+        e.preventDefault();
+        fetch(tool + ext, { method: "HEAD" })
+          .then(response => {
+            if (response.ok) {
+              window.location.href = tool + ext;
+            } else {
+              alert("❌ NOT FOUND 404\nRedirecting to main route...");
+              window.location.href = "index.html";
+            }
+          })
+          .catch(() => {
+            alert("❌ NOT FOUND 404\nRedirecting to main route...");
+            window.location.href = "index.html";
+          });
+      });
+
       card.appendChild(title);
       card.appendChild(link);
-
       document.getElementById("routes").appendChild(card);
     });
   </script>
