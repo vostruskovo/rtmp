@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Video Rotator & Aspect Studio | TikTok · YouTube · Instagram</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0b1120 0%, #0a0f1a 100%);
+            font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .main-card {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 1.8rem;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.5);
+        }
+
+        h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(120deg, #fff, #818cf8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            margin: 0;
+        }
+
+        .subhead {
+            color: #94a3b8;
+            margin-top: 6px;
+            margin-bottom: 28px;
+            border-left: 3px solid #3b82f6;
+            padding-left: 14px;
+        }
+
+        .two-columns {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1.8rem;
+        }
+
+        .controls {
+            flex: 1.2;
+            min-width: 260px;
+            background: rgba(0, 0, 0, 0.35);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+        }
+
+        .preview-area {
+            flex: 2.2;
+            min-width: 360px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 1.5rem;
+            padding: 1.2rem;
+        }
+
+        .upload-zone {
+            background: rgba(30, 41, 59, 0.6);
+            border: 2px dashed #3b4259;
+            border-radius: 1.2rem;
+            padding: 1.2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-bottom: 1.8rem;
+        }
+        .upload-zone:hover {
+            border-color: #3b82f6;
+            background: rgba(59,130,246,0.1);
+        }
+        .file-input-hidden {
+            display: none;
+        }
+
+        .format-buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 20px 0 20px 0;
+        }
+        .format-pill {
+            background: #1e293b;
+            border: none;
+            padding: 8px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .format-pill.active {
+            background: #3b82f6;
+            color: white;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+
+        .rotate-row {
+            display: flex;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .rotate-button {
+            background: #1e293b;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: 0.2s;
+        }
+        .rotate-button:hover {
+            background: #334155;
+            transform: scale(0.97);
+        }
+        .rotation-badge {
+            background: #0f172a;
+            padding: 6px 14px;
+            border-radius: 40px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #a5f3fc;
+        }
+
+        .download-btn {
+            background: linear-gradient(95deg, #10b981, #059669);
+            width: 100%;
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1rem;
+            color: white;
+            margin-top: 28px;
+            cursor: pointer;
+            transition: 0.2s;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .download-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #475569;
+        }
+
+        .video-preview-container {
+            background: #000;
+            border-radius: 24px;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 10px 30px -5px black;
+        }
+        canvas {
+            display: block;
+            width: 100%;
+            height: auto;
+            background: black;
+            border-radius: 20px;
+        }
+        .aspect-label {
+            text-align: center;
+            margin-top: 12px;
+            font-size: 0.75rem;
+            font-family: monospace;
+            background: #00000099;
+            display: inline-block;
+            padding: 4px 14px;
+            border-radius: 40px;
+        }
+        .file-name {
+            font-size: 0.75rem;
+            background: #111827;
+            padding: 5px 12px;
+            border-radius: 30px;
+            display: inline-block;
+            max-width: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .status {
+            font-size: 0.8rem;
+            margin-top: 14px;
+            color: #94a3b8;
+        }
+        hr {
+            border-color: #1e293b;
+            margin: 18px 0;
+        }
+        @media (max-width: 760px) {
+            .main-card { padding: 1rem; }
+            .two-columns { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-card">
+    <h1>🎬 AspectFlow</h1>
+    <div class="subhead">Rotate video • TikTok (9:16) • YouTube (16:9) • Instagram (1:1) • Download transformed video</div>
+
+    <div class="two-columns">
+        <!-- LEFT CONTROLS -->
+        <div class="controls">
+            <div class="upload-zone" id="uploadArea">
+                <div style="font-size: 2rem;">📹</div>
+                <div style="font-weight: 500; margin: 6px 0;">Click to upload video</div>
+                <div style="font-size: 0.7rem;">MP4, WebM, MOV supported</div>
+                <input type="file" id="fileInput" accept="video/mp4,video/webm,video/quicktime" class="file-input-hidden">
+            </div>
+            <div id="fileNameDisplay" class="file-name">📁 No video loaded</div>
+
+            <div class="format-buttons">
+                <button data-aspect="tiktok" class="format-pill active">📱 TikTok 9:16</button>
+                <button data-aspect="youtube" class="format-pill">▶️ YouTube 16:9</button>
+                <button data-aspect="instagram" class="format-pill">📸 Instagram 1:1</button>
+            </div>
+
+            <div class="rotate-row">
+                <button id="rotateLeftBtn" class="rotate-button">↺ Rotate Left 90°</button>
+                <button id="rotateRightBtn" class="rotate-button">↻ Rotate Right 90°</button>
+                <div id="rotIndicator" class="rotation-badge">📐 Rotation: 0°</div>
+            </div>
+
+            <button id="downloadVideoBtn" class="download-btn" disabled>💾 Download Adjusted Video</button>
+            <div id="statusMsg" class="status">✨ Upload video, rotate, choose ratio → download with all changes applied.</div>
+        </div>
+
+        <!-- RIGHT PREVIEW with CANVAS -->
+        <div class="preview-area">
+            <div class="video-preview-container" id="canvasContainer">
+                <canvas id="previewCanvas" width="720" height="1280" style="width:100%; height:auto; border-radius: 20px;"></canvas>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; flex-wrap: wrap;">
+                <span id="aspectDisplay" class="aspect-label">🎞️ 9:16 (TikTok)</span>
+                <span id="liveRotBadge" style="font-size: 11px; background:#0f172a; padding:3px 12px; border-radius:20px;">⚡ Rotation active</span>
+            </div>
+            <div style="font-size: 11px; text-align: center; margin-top: 12px; color: #7e8aa2;">
+                Live preview shows rotation + aspect ratio (fill/crop). Download applies same transformations.
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        // DOM elements
+        const fileInput = document.getElementById('fileInput');
+        const uploadArea = document.getElementById('uploadArea');
+        const fileNameSpan = document.getElementById('fileNameDisplay');
+        const previewCanvas = document.getElementById('previewCanvas');
+        const ctx = previewCanvas.getContext('2d');
+        const downloadBtn = document.getElementById('downloadVideoBtn');
+        const statusSpan = document.getElementById('statusMsg');
+        const rotateLeftBtn = document.getElementById('rotateLeftBtn');
+        const rotateRightBtn = document.getElementById('rotateRightBtn');
+        const rotIndicator = document.getElementById('rotIndicator');
+        const liveRotBadge = document.getElementById('liveRotBadge');
+        const aspectDisplay = document.getElementById('aspectDisplay');
+
+        // State
+        let videoFile = null;            // uploaded file
+        let videoElement = null;         // hidden video element for processing
+        let currentRotation = 0;         // 0, 90, 180, 270
+        let currentAspect = 'tiktok';    // tiktok, youtube, instagram
+        let animationFrameId = null;      // for realtime preview loop
+        let videoIsReady = false;
+        
+        // Aspect ratio mapping: width/height (target preview & export)
+        function getTargetDimensions(aspect) {
+            if (aspect === 'tiktok') return { width: 1080, height: 1920 };   // 9:16
+            if (aspect === 'youtube') return { width: 1920, height: 1080 };  // 16:9
+            if (aspect === 'instagram') return { width: 1080, height: 1080 }; // 1:1
+            return { width: 1080, height: 1920 };
+        }
+        
+        // Get aspect ratio name
+        function getAspectName(aspect) {
+            if (aspect === 'tiktok') return '9:16 (TikTok)';
+            if (aspect === 'youtube') return '16:9 (YouTube)';
+            return '1:1 (Instagram)';
+        }
+        
+        // Update UI for format
+        function updateFormatUI() {
+            aspectDisplay.innerText = `🎬 ${getAspectName(currentAspect)}`;
+            const dims = getTargetDimensions(currentAspect);
+            // resize canvas for preview (maintain visual)
+            previewCanvas.width = dims.width;
+            previewCanvas.height = dims.height;
+            // re-render current frame if video ready
+            if (videoIsReady && videoElement) {
+                drawFrameToCanvas();
+            }
+        }
+        
+        // Draw current video frame with rotation + aspect fill (cover) onto canvas
+        function drawFrameToCanvas() {
+            if (!videoElement || !videoIsReady || videoElement.readyState < 2) {
+                return;
+            }
+            
+            const targetW = previewCanvas.width;
+            const targetH = previewCanvas.height;
+            const sourceW = videoElement.videoWidth;
+            const sourceH = videoElement.videoHeight;
+            if (sourceW === 0 || sourceH === 0) return;
+            
+            // Clear canvas
+            ctx.clearRect(0, 0, targetW, targetH);
+            
+            // Step 1: Create offscreen canvas to apply rotation on source frame
+            let rotatedWidth, rotatedHeight;
+            const isPortraitRot = (currentRotation % 180 === 90);
+            if (isPortraitRot) {
+                rotatedWidth = sourceH;
+                rotatedHeight = sourceW;
+            } else {
+                rotatedWidth = sourceW;
+                rotatedHeight = sourceH;
+            }
+            
+            const offCanvas = document.createElement('canvas');
+            offCanvas.width = rotatedWidth;
+            offCanvas.height = rotatedHeight;
+            const offCtx = offCanvas.getContext('2d');
+            offCtx.clearRect(0, 0, rotatedWidth, rotatedHeight);
+            offCtx.save();
+            offCtx.translate(rotatedWidth/2, rotatedHeight/2);
+            offCtx.rotate(currentRotation * Math.PI / 180);
+            offCtx.drawImage(videoElement, -sourceW/2, -sourceH/2, sourceW, sourceH);
+            offCtx.restore();
+            
+            // Now we have rotated image (offCanvas) with size rotatedWidth x rotatedHeight
+            // We need to fill target canvas (cover mode: no empty spaces, crop edges)
+            const rotAspect = rotatedWidth / rotatedHeight;
+            const targetAspect = targetW / targetH;
+            
+            let drawW, drawH, offsetX, offsetY;
+            if (rotAspect > targetAspect) {
+                // rotated image is wider relative to target -> scale to match height, crop horizontally
+                drawH = targetH;
+                drawW = rotatedWidth * (targetH / rotatedHeight);
+                offsetX = (targetW - drawW) / 2;
+                offsetY = 0;
+            } else {
+                // rotated image is taller -> scale to match width, crop vertically
+                drawW = targetW;
+                drawH = rotatedHeight * (targetW / rotatedWidth);
+                offsetX = 0;
+                offsetY = (targetH - drawH) / 2;
+            }
+            
+            ctx.drawImage(offCanvas, offsetX, offsetY, drawW, drawH);
+        }
+        
+        // Preview loop: update canvas at ~30fps
+        function startPreviewLoop() {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            function update() {
+                if (videoElement && videoIsReady && !videoElement.paused && videoElement.readyState >= 2) {
+                    drawFrameToCanvas();
+                } else if (videoElement && videoIsReady) {
+                    drawFrameToCanvas(); // draw still frame
+                }
+                animationFrameId = requestAnimationFrame(update);
+            }
+            update();
+        }
+        
+        // Load video file and setup
+        function loadVideo(file) {
+            if (videoElement) {
+                videoElement.pause();
+                videoElement.src = '';
+            }
+            videoFile = file;
+            const url = URL.createObjectURL(file);
+            videoElement = document.createElement('video');
+            videoElement.src = url;
+            videoElement.muted = true;
+            videoElement.loop = true;
+            videoElement.crossOrigin = "Anonymous";
+            videoElement.preload = "auto";
+            
+            videoElement.onloadedmetadata = () => {
+                videoIsReady = true;
+                videoElement.play().catch(e => console.log("autoplay blocked, but preview works"));
+                // Update canvas dimensions based on current aspect
+                const dims = getTargetDimensions(currentAspect);
+                previewCanvas.width = dims.width;
+                previewCanvas.height = dims.height;
+                drawFrameToCanvas();
+                startPreviewLoop();
+                statusSpan.innerHTML = '✅ Video loaded. Rotate & choose aspect → download.';
+                downloadBtn.disabled = false;
+                fileNameSpan.innerHTML = `📁 ${file.name.substring(0, 40)} (${(file.size/1048576).toFixed(1)} MB)`;
+            };
+            videoElement.onerror = () => {
+                statusSpan.innerHTML = '❌ Error loading video.';
+                videoIsReady = false;
+                downloadBtn.disabled = true;
+            };
+            videoElement.load();
+        }
+        
+        // ========== EXPORT with full transformations (CanvasCapture + MediaRecorder) ==========
+        async function exportTransformedVideo() {
+            if (!videoFile || !videoElement || !videoIsReady) {
+                statusSpan.innerHTML = '❌ No video loaded.';
+                return;
+            }
+            
+            statusSpan.innerHTML = '⚙️ Rendering video with rotation & aspect ratio... please wait.';
+            downloadBtn.disabled = true;
+            
+            const targetDims = getTargetDimensions(currentAspect);
+            const outWidth = targetDims.width;
+            const outHeight = targetDims.height;
+            
+            // Create a temporary video element for precise seeking (independent from preview)
+            const sourceVideo = document.createElement('video');
+            const fileURL = URL.createObjectURL(videoFile);
+            sourceVideo.src = fileURL;
+            sourceVideo.muted = true;
+            sourceVideo.preload = "auto";
+            
+            await new Promise((resolve, reject) => {
+                sourceVideo.addEventListener('loadedmetadata', resolve, { once: true });
+                sourceVideo.addEventListener('error', reject);
+                sourceVideo.load();
+            });
+            
+            const vidWidth = sourceVideo.videoWidth;
+            const vidHeight = sourceVideo.videoHeight;
+            const duration = sourceVideo.duration;
+            
+            // Canvas for recording
+            const canvas = document.createElement('canvas');
+            canvas.width = outWidth;
+            canvas.height = outHeight;
+            const canvasCtx = canvas.getContext('2d');
+            
+            // Helper: draw rotated frame with aspect cover at given time
+            function drawTransformedFrame(time) {
+                return new Promise((resolve) => {
+                    sourceVideo.currentTime = time;
+                    sourceVideo.onseeked = () => {
+                        // same algorithm as preview
+                        const sW = vidWidth, sH = vidHeight;
+                        let rotW, rotH;
+                        if ((currentRotation % 180) === 90) {
+                            rotW = sH;
+                            rotH = sW;
+                        } else {
+                            rotW = sW;
+                            rotH = sH;
+                        }
+                        const offCanvas = document.createElement('canvas');
+                        offCanvas.width = rotW;
+                        offCanvas.height = rotH;
+                        const offCtx = offCanvas.getContext('2d');
+                        offCtx.clearRect(0, 0, rotW, rotH);
+                        offCtx.save();
+                        offCtx.translate(rotW/2, rotH/2);
+                        offCtx.rotate(currentRotation * Math.PI/180);
+                        offCtx.drawImage(sourceVideo, -sW/2, -sH/2, sW, sH);
+                        offCtx.restore();
+                        
+                        canvasCtx.clearRect(0, 0, outWidth, outHeight);
+                        const rotAspect = rotW / rotH;
+                        const targetAspect = outWidth / outHeight;
+                        let drawW, drawH, dx, dy;
+                        if (rotAspect > targetAspect) {
+                            drawH = outHeight;
+                            drawW = rotW * (outHeight / rotH);
+                            dx = (outWidth - drawW) / 2;
+                            dy = 0;
+                        } else {
+                            drawW = outWidth;
+                            drawH = rotH * (outWidth / rotW);
+                            dx = 0;
+                            dy = (outHeight - drawH) / 2;
+                        }
+                        canvasCtx.drawImage(offCanvas, dx, dy, drawW, drawH);
+                        resolve();
+                    };
+                });
+            }
+            
+            // Start capturing stream
+            const stream = canvas.captureStream(30);
+            const mediaRecorder = new MediaRecorder(stream, { mimeType: 'video/webm' });
+            let chunks = [];
+            mediaRecorder.ondataavailable = (e) => {
+                if (e.data.size > 0) chunks.push(e.data);
+            };
+            
+            mediaRecorder.start(100);
+            
+            // Render frame by frame
+            let currentTime = 0;
+            const fps = 30;
+            const step = 1 / fps;
+            
+            sourceVideo.play();
+            sourceVideo.pause();
+            
+            await drawTransformedFrame(0);
+            
+            const recordingPromise = new Promise((resolveRec) => {
+                mediaRecorder.onstop = () => {
+                    const finalBlob = new Blob(chunks, { type: 'video/webm' });
+                    const downloadUrl = URL.createObjectURL(finalBlob);
+                    const a = document.createElement('a');
+                    let ext = 'webm';
+                    let filename = `video_${currentAspect}_rot${currentRotation}.${ext}`;
+                    a.href = downloadUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(downloadUrl);
+                    URL.revokeObjectURL(fileURL);
+                    statusSpan.innerHTML = '✅ Download complete! Video transformed.';
+                    downloadBtn.disabled = false;
+                    resolveRec();
+                };
+                
+                function renderNext() {
+                    if (currentTime >= duration) {
+                        mediaRecorder.stop();
+                        return;
+                    }
+                    drawTransformedFrame(currentTime).then(() => {
+                        currentTime = Math.min(currentTime + step, duration);
+                        requestAnimationFrame(() => {
+                            if (currentTime < duration) renderNext();
+                            else mediaRecorder.stop();
+                        });
+                    });
+                }
+                
+                renderNext();
+            });
+            
+            // safety fallback
+            setTimeout(() => {
+                if (mediaRecorder.state === 'recording') mediaRecorder.stop();
+            }, duration * 1000 + 2000);
+            
+            return recordingPromise;
+        }
+        
+        // ----- UI Events -----
+        uploadArea.addEventListener('click', () => fileInput.click());
+        fileInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('video/')) {
+                loadVideo(file);
+            } else {
+                statusSpan.innerHTML = '⚠️ Please select a valid video file.';
+            }
+        });
+        
+        // Rotations
+        rotateLeftBtn.addEventListener('click', () => {
+            if (!videoFile) { statusSpan.innerHTML = 'Upload a video first.'; return; }
+            currentRotation = (currentRotation - 90 + 360) % 360;
+            rotIndicator.innerText = `📐 Rotation: ${currentRotation}°`;
+            liveRotBadge.innerText = `🔄 rotated ${currentRotation}°`;
+            drawFrameToCanvas();
+            statusSpan.innerHTML = `Rotation set to ${currentRotation}° (preview & export).`;
+        });
+        
+        rotateRightBtn.addEventListener('click', () => {
+            if (!videoFile) { statusSpan.innerHTML = 'Upload a video first.'; return; }
+            currentRotation = (currentRotation + 90) % 360;
+            rotIndicator.innerText = `📐 Rotation: ${currentRotation}°`;
+            liveRotBadge.innerText = `🔄 rotated ${currentRotation}°`;
+            drawFrameToCanvas();
+            statusSpan.innerHTML = `Rotation set to ${currentRotation}° (preview & export).`;
+        });
+        
+        // Format switching
+        document.querySelectorAll('.format-pill').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.format-pill').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const aspectVal = btn.getAttribute('data-aspect');
+                if (aspectVal === 'tiktok') currentAspect = 'tiktok';
+                else if (aspectVal === 'youtube') currentAspect = 'youtube';
+                else if (aspectVal === 'instagram') currentAspect = 'instagram';
+                updateFormatUI();
+                if (videoIsReady) drawFrameToCanvas();
+                statusSpan.innerHTML = `Aspect changed to ${getAspectName(currentAspect)}.`;
+            });
+        });
+        
+        // Download
+        downloadBtn.addEventListener('click', async () => {
+            if (!videoFile) {
+                statusSpan.innerHTML = 'No video uploaded.';
+                return;
+            }
+            downloadBtn.disabled = true;
+            try {
+                await exportTransformedVideo();
+            } catch (err) {
+                console.error(err);
+                statusSpan.innerHTML = '❌ Export error: ' + err.message;
+                downloadBtn.disabled = false;
+            }
+        });
+        
+        // initial canvas setup
+        const initDims = getTargetDimensions('tiktok');
+        previewCanvas.width = initDims.width;
+        previewCanvas.height = initDims.height;
+        updateFormatUI();
+        rotIndicator.innerText = `📐 Rotation: 0°`;
+    })();
+</script>
+</body>
+</html>
