@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Plain Routes Page</title>
+</head>
+<body>
+  <h1>Available Routes</h1>
+  <div id="routes"></div>
+
+  <script>
+    let tools = ["routMap", "index02"];
+    let ext = ".html";
+
+    // Loop through the array
+    for (let i = 0; i < tools.length; i++) {
+      // Create a link element
+      let link = document.createElement("a");
+      link.href = tools[i] + ext;
+      link.textContent = tools[i] + ext;
+
+      // Add a line break after each link
+      document.getElementById("routes").appendChild(link);
+      document.getElementById("routes").appendChild(document.createElement("br"));
+    }
+  </script>
+</body>
+</html>
