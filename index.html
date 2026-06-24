@@ -394,7 +394,7 @@
     <div class="routes" id="routes">
         <div class="loading-placeholder">
             <i class="fas fa-spinner fa-pulse"></i>
-            <span>scanning files...</span>
+            <span>fetching files from repository...</span>
         </div>
     </div>
 </div>
@@ -407,10 +407,12 @@
 <script>
     (function() {
         // ================================================================
-        // 🔥 EXACT TOOLS: routMap and MedCardPro ONLY
+        // 🔥 FETCH ALL HTML FILES FROM GITHUB REPOSITORY
         // ================================================================
-        // These are the ONLY tools we want to show
-        const tools = ["routMap", "MedCardPro","trimmed_3.3"];
+        // CONFIG: Cambia estos valores según tu repositorio
+        const GITHUB_USER = 'vostruskovo';  // <-- TU USUARIO DE GITHUB
+        const GITHUB_REPO = 'rtmp';         // <-- TU REPOSITORIO
+        const BRANCH = 'main';              // o 'master'
         // ================================================================
 
         const container = document.getElementById('routes');
@@ -441,67 +443,46 @@
             setTimeout(() => { toast.style.display = 'none'; }, 3200);
         }
 
-        // ----- VERIFY EACH TOOL EXISTS, THEN RENDER -----
-        function verifyAndRenderTools() {
-            const existingTools = [];
-            let checkedCount = 0;
-
-            // Show loading state
-            container.innerHTML = `
-                <div class="loading-placeholder">
-                    <i class="fas fa-spinner fa-pulse"></i>
-                    <span>verifying tools...</span>
-                </div>
-            `;
-
-            // Check each tool via HEAD request
-            tools.forEach((tool) => {
-                const fileName = tool + '.html';
+        // ----- FETCH FILES FROM GITHUB -----
+        async function fetchHtmlFiles() {
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
+            
+            try {
+                const response = await fetch(url);
                 
-                fetch(fileName, { method: 'HEAD' })
-                    .then(response => {
-                        if (response.ok) {
-                            // ✅ File exists!
-                            existingTools.push(tool);
-                            console.log(`✅ Found: ${fileName}`);
-                        } else {
-                            console.warn(`⚠️ Not found: ${fileName}`);
-                        }
-                        checkedCount++;
-                        
-                        // When all checked, render
-                        if (checkedCount === tools.length) {
-                            renderRoutes(existingTools);
-                        }
-                    })
-                    .catch(() => {
-                        // File doesn't exist or network error
-                        console.warn(`⚠️ Error checking: ${fileName}`);
-                        checkedCount++;
-                        if (checkedCount === tools.length) {
-                            renderRoutes(existingTools);
-                        }
-                    });
-            });
-
-            // Safety timeout: if some requests hang, render what we have
-            setTimeout(() => {
-                if (checkedCount < tools.length) {
-                    renderRoutes(existingTools);
+                if (!response.ok) {
+                    throw new Error(`GitHub API error: ${response.status}`);
                 }
-            }, 3000);
+                
+                const files = await response.json();
+                
+                // Filter: solo archivos .html, excluyendo index.html
+                const htmlFiles = files
+                    .filter(file => file.type === 'file' && file.name.endsWith('.html'))
+                    .map(file => file.name)
+                    .filter(name => name.toLowerCase() !== 'index.html');
+                
+                return htmlFiles;
+                
+            } catch (error) {
+                console.error('❌ Error fetching from GitHub:', error);
+                
+                // Fallback: lista manual si la API falla
+                console.warn('⚠️ Usando lista de respaldo (fallback)');
+                return ['routMap.html', 'MedCardPro.html'];
+            }
         }
 
-        // ----- RENDER ROUTES (only the ones that exist) -----
-        function renderRoutes(routeNames) {
+        // ----- RENDER ROUTES (desde archivos encontrados) -----
+        function renderRoutes(fileNames) {
             container.innerHTML = ''; // clear loading
 
-            if (!routeNames || routeNames.length === 0) {
+            if (!fileNames || fileNames.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'loading-placeholder';
                 empty.innerHTML = `
-                    <i class="fas fa-exclamation-triangle"></i>
-                    <span>no tools found · expected: ${tools.join(', ')}</span>
+                    <i class="fas fa-folder-open"></i>
+                    <span>no HTML files found · add .html files</span>
                 `;
                 container.appendChild(empty);
                 countNumber.textContent = '0';
@@ -510,18 +491,18 @@
 
             let renderedCount = 0;
 
-            routeNames.forEach((routeName) => {
-                const safeName = escapeHtml(routeName);
+            fileNames.forEach((fileName) => {
+                // Remove .html extension for display
+                const baseName = fileName.replace(/\.html$/i, '');
+                const safeName = escapeHtml(baseName);
                 if (!safeName) return;
 
-                const fileName = routeName + '.html';
-                
                 const card = document.createElement('div');
                 card.className = 'card';
 
-                // ---- icon logic based on name ----
+                // ---- ICON LOGIC basado en el nombre ----
                 let iconClass = 'fa-file-code';
-                let iconLabel = 'PAGE';
+                let iconLabel = '📄';
                 let descText = 'Route · dynamic content';
                 let descIcon = 'fa-link';
 
@@ -536,6 +517,16 @@
                     iconLabel = '💊';
                     descText = 'Health records · patient management system';
                     descIcon = 'fa-notes-medical';
+                } else if (lower.includes('appoint')) {
+                    iconClass = 'fa-calendar-check';
+                    iconLabel = '📅';
+                    descText = 'Scheduling · appointments management';
+                    descIcon = 'fa-clock';
+                } else if (lower.includes('car') || lower.includes('auto')) {
+                    iconClass = 'fa-car';
+                    iconLabel = '🚗';
+                    descText = 'Vehicle management · fleet control';
+                    descIcon = 'fa-road';
                 } else {
                     iconClass = 'fa-file-lines';
                     iconLabel = '📄';
@@ -543,7 +534,7 @@
                     descIcon = 'fa-arrow-right';
                 }
 
-                // icon
+                // ---- ICON ----
                 const iconWrapper = document.createElement('div');
                 iconWrapper.className = 'card-icon';
                 iconWrapper.innerHTML = `
@@ -551,21 +542,21 @@
                     <span class="icon-badge">${escapeHtml(iconLabel)}</span>
                 `;
 
-                // title — uses the EXACT filename (capitalized)
+                // ---- TITLE (nombre del archivo) ----
                 const title = document.createElement('h2');
                 title.textContent = capitalise(safeName);
 
-                // description
+                // ---- DESCRIPTION ----
                 const desc = document.createElement('div');
                 desc.className = 'desc';
                 desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
 
-                // badge showing the actual file
+                // ---- BADGE (muestra el nombre del archivo) ----
                 const badge = document.createElement('div');
                 badge.className = 'badge';
                 badge.textContent = '📁 ' + fileName;
 
-                // link/button
+                // ---- LINK/BOTÓN ----
                 const link = document.createElement('div');
                 link.className = 'route-link';
                 link.setAttribute('role', 'button');
@@ -578,7 +569,7 @@
                 link.appendChild(linkText);
                 link.appendChild(iconLink);
 
-                // assemble
+                // ---- ASSEMBLE CARD ----
                 card.appendChild(iconWrapper);
                 card.appendChild(title);
                 card.appendChild(desc);
@@ -588,30 +579,40 @@
 
                 renderedCount++;
 
-                // ---- CLICK: navigate to the actual file ----
+                // ---- CLICK: navegar al archivo ----
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
                     
-                    // Navigate using hash-based routing
-                    // This creates URL like: https://yoursite.com/#routMap
-                    window.location.hash = routeName;
+                    // Actualizar hash para navegación
+                    window.location.hash = baseName;
                     
-                    // Navigate to the file
+                    // Navegar al archivo
                     window.location.href = fileName;
                 });
             });
 
-            // update counter
+            // Update counter
             if (countNumber) {
                 countNumber.textContent = renderedCount;
             }
             
-            console.log(`✅ Found ${renderedCount} tool(s):`, routeNames);
-            console.log(`📁 Expected: ${tools.join(', ')}`);
+            console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML:`, fileNames);
         }
 
-        // ----- INIT: verify tools from actual files -----
-        verifyAndRenderTools();
+        // ----- MAIN: fetch y renderizar -----
+        async function init() {
+            try {
+                const htmlFiles = await fetchHtmlFiles();
+                renderRoutes(htmlFiles);
+            } catch (error) {
+                console.error('❌ Error en init:', error);
+                // Fallback
+                renderRoutes(['routMap.html', 'MedCardPro.html']);
+            }
+        }
+
+        // ----- EJECUTAR -----
+        init();
         
     })();
 </script>
