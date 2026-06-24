@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>✦ My Routes · Nexus</title>
-  <!-- Font Awesome (free icons) -->
+  <!-- Font Awesome 6 (free) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -25,7 +25,7 @@
 
     /* glass-morphism container */
     .dashboard {
-      max-width: 900px;
+      max-width: 950px;
       width: 100%;
       background: rgba(12, 25, 45, 0.55);
       backdrop-filter: blur(14px) saturate(180%);
@@ -35,6 +35,16 @@
       box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 215, 0, 0.15);
       border: 1px solid rgba(255, 215, 0, 0.08);
       transition: all 0.3s ease;
+    }
+
+    /* header with counter */
+    .header-flex {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.8rem 1.5rem;
+      margin-bottom: 0.2rem;
     }
 
     h1 {
@@ -47,11 +57,55 @@
       color: transparent;
       display: flex;
       align-items: center;
-      justify-content: center;
       gap: 0.6rem;
-      flex-wrap: wrap;
-      margin-bottom: 0.2rem;
       text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+
+    /* counter chip */
+    .route-counter {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: rgba(255, 215, 0, 0.08);
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      border-radius: 60px;
+      padding: 0.4rem 1.2rem 0.4rem 1rem;
+      backdrop-filter: blur(8px);
+      box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
+      transition: all 0.3s ease;
+    }
+
+    .route-counter:hover {
+      background: rgba(255, 215, 0, 0.14);
+      border-color: rgba(255, 215, 0, 0.3);
+      box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
+    }
+
+    .route-counter i {
+      color: #ffd700;
+      font-size: 1.1rem;
+      filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.2));
+    }
+
+    .route-counter .count-number {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: #fff;
+      letter-spacing: 0.5px;
+      background: linear-gradient(135deg, #ffd700, #f0b800);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      min-width: 2rem;
+      text-align: center;
+    }
+
+    .route-counter .count-label {
+      font-size: 0.75rem;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.5);
+      letter-spacing: 1px;
+      text-transform: uppercase;
     }
 
     .subhead {
@@ -89,7 +143,7 @@
       -webkit-backdrop-filter: blur(4px);
       border-radius: 2.2rem;
       padding: 1.8rem 1.2rem 1.8rem 1.2rem;
-      width: 200px;
+      width: 220px;
       text-align: center;
       box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 215, 0, 0.1);
       transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
@@ -123,34 +177,86 @@
       box-shadow: 0 25px 40px -10px #000000cc, 0 0 30px rgba(255, 215, 0, 0.2);
     }
 
+    /* ----- CARD ICON — enhanced, with meaning ----- */
     .card-icon {
-      font-size: 2.8rem;
+      font-size: 3.2rem;
+      margin-bottom: 0.2rem;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.2rem;
+      filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.25));
+      transition: transform 0.3s ease;
+    }
+
+    .card:hover .card-icon {
+      transform: scale(1.05) rotate(2deg);
+    }
+
+    .card-icon i {
+      background: linear-gradient(145deg, #ffd700, #f0b800);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+    }
+
+    .card-icon .icon-badge {
+      font-size: 0.8rem;
+      background: rgba(255, 215, 0, 0.15);
+      border-radius: 40px;
+      padding: 0.1rem 0.6rem;
       color: #ffd700;
-      filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.3));
-      margin-bottom: 0.4rem;
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      backdrop-filter: blur(2px);
+      margin-left: 4px;
+      font-weight: 500;
+      letter-spacing: 0.3px;
     }
 
     .card h2 {
       font-size: 1.5rem;
       font-weight: 600;
       letter-spacing: 0.5px;
-      margin: 0.2rem 0 0.2rem 0;
+      margin: 0.2rem 0 0.1rem 0;
       color: #fff;
       text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
       word-break: break-word;
     }
 
+    .card .desc {
+      font-size: 0.75rem;
+      font-weight: 300;
+      color: rgba(255, 255, 255, 0.6);
+      letter-spacing: 0.3px;
+      margin: 0.1rem 0 0.6rem 0;
+      padding: 0 0.2rem;
+      line-height: 1.4;
+      min-height: 2.4rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      flex-wrap: wrap;
+    }
+
+    .card .desc i {
+      color: #ffd700;
+      font-size: 0.6rem;
+      opacity: 0.7;
+    }
+
     .card .badge {
       display: inline-block;
-      background: rgba(255, 215, 0, 0.15);
+      background: rgba(255, 215, 0, 0.12);
       color: #ffd700;
-      font-size: 0.65rem;
+      font-size: 0.6rem;
       font-weight: 600;
-      padding: 0.2rem 0.8rem;
+      padding: 0.2rem 0.9rem;
       border-radius: 30px;
       letter-spacing: 0.5px;
-      border: 1px solid rgba(255, 215, 0, 0.2);
-      margin: 0.2rem 0 0.8rem 0;
+      border: 1px solid rgba(255, 215, 0, 0.15);
+      margin: 0.1rem 0 0.8rem 0;
       backdrop-filter: blur(2px);
     }
 
@@ -158,15 +264,15 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.4rem;
-      padding: 0.6rem 1.6rem;
+      gap: 0.6rem;
+      margin-top: 0.2rem;
+      padding: 0.6rem 1.8rem;
       background: linear-gradient(145deg, #ffd700, #f0b800);
       color: #0b1a2e;
       text-decoration: none;
       border-radius: 60px;
       font-weight: 600;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       letter-spacing: 0.3px;
       transition: all 0.25s ease;
       box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
@@ -175,7 +281,7 @@
     }
 
     .card a i {
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       transition: transform 0.2s ease;
     }
 
@@ -190,7 +296,7 @@
       transform: translateX(4px);
     }
 
-    /* 404 fallback alert – subtle inline */
+    /* 404 toast */
     .toast-404 {
       position: fixed;
       bottom: 2rem;
@@ -219,21 +325,17 @@
       font-size: 1.4rem;
     }
 
-    /* small screen */
     @media (max-width: 600px) {
       .dashboard { padding: 1.8rem 1rem; border-radius: 2.5rem; }
       h1 { font-size: 2.2rem; }
-      .card { width: 160px; padding: 1.2rem 0.8rem; }
+      .header-flex { flex-direction: column; align-items: stretch; gap: 0.5rem; }
+      .route-counter { align-self: flex-start; }
+      .card { width: 180px; padding: 1.2rem 0.8rem; }
       .card h2 { font-size: 1.2rem; }
       .card a { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
+      .card .desc { font-size: 0.7rem; min-height: 2rem; }
     }
 
-    /* extra glow for header */
-    .glow-text {
-      text-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
-    }
-
-    /* sanitized output – no XSS */
     .safe-badge {
       display: inline-block;
       background: rgba(0, 255, 200, 0.08);
@@ -249,10 +351,19 @@
 <body>
 
 <div class="dashboard">
-  <h1>
-    <i class="fas fa-compass" style="font-size: 2.2rem; color: #f0c27f; filter: drop-shadow(0 0 10px #ffd70055);"></i>
-    My Routes
-  </h1>
+  <!-- header with counter -->
+  <div class="header-flex">
+    <h1>
+      <i class="fas fa-compass" style="font-size: 2.2rem; color: #f0c27f; filter: drop-shadow(0 0 10px #ffd70055);"></i>
+      My Routes
+    </h1>
+    <div class="route-counter" id="routeCounter">
+      <i class="fas fa-cubes"></i>
+      <span class="count-number" id="countNumber">0</span>
+      <span class="count-label">routes</span>
+    </div>
+  </div>
+
   <div class="subhead">
     <i class="fas fa-route"></i>
     <span>nexus · 2026</span>
@@ -263,7 +374,7 @@
   <div class="routes" id="routes"></div>
 </div>
 
-<!-- hidden 404 toast (will be shown via JS) -->
+<!-- 404 toast -->
 <div id="toast404" class="toast-404">
   <i class="fas fa-exclamation-triangle"></i>
   <span id="toastMessage">NOT FOUND 404 · redirecting to main route</span>
@@ -271,12 +382,11 @@
 
 <script>
   (function() {
-    // ----- SECURE & STYLISH ROUTE DASHBOARD -----
-    // tools list (sanitized)
-    const tools = ["routMap", "appointment"];
+    // ----- TOOLS (exactly as required) -----
+    const tools = ["routMap", "MedCardPro"];   // routMap + MedCardPro
     const ext = ".html";
 
-    // ---------- SANITIZATION HELPERS (XSS protection) ----------
+    // ---------- SANITIZATION (XSS protection) ----------
     function escapeHtml(unsafe) {
       if (!unsafe) return '';
       return unsafe
@@ -287,13 +397,12 @@
         .replace(/'/g, "&#039;");
     }
 
-    // capitalise first letter (safe)
     function capitalise(str) {
       if (!str || typeof str !== 'string') return '';
       return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
     }
 
-    // ----- 404 TOAST (non‑blocking, elegant) -----
+    // ----- 404 TOAST -----
     const toast = document.getElementById('toast404');
     const toastMsg = document.getElementById('toastMessage');
 
@@ -301,114 +410,128 @@
       const safeName = escapeHtml(fileName) || 'file';
       toastMsg.innerHTML = `❌ NOT FOUND 404 · <strong>${safeName}</strong> · redirecting to main route`;
       toast.style.display = 'flex';
-      // auto‑hide after 3.2s
       setTimeout(() => {
         toast.style.display = 'none';
       }, 3200);
     }
 
-    // ----- RENDER CARDS -----
+    // ----- RENDER CARDS & UPDATE COUNTER -----
     const container = document.getElementById('routes');
+    const countNumber = document.getElementById('countNumber');
     if (!container) return;
-
-    // clear potential garbage (just in case)
     container.innerHTML = '';
 
+    // track rendered cards
+    let renderedCount = 0;
+
     tools.forEach((tool, index) => {
-      // sanitize tool name (prevent any XSS)
       const safeTool = escapeHtml(tool);
-      // if tool is empty skip
       if (!safeTool) return;
 
-      // card
       const card = document.createElement('div');
       card.className = 'card';
 
-      // ----- icon (based on tool) -----
-      const iconElem = document.createElement('div');
-      iconElem.className = 'card-icon';
-      // choose icon: map or calendar
+      // --- CARD ICON ---
+      const iconWrapper = document.createElement('div');
+      iconWrapper.className = 'card-icon';
+
       let iconClass = 'fa-map-location-dot';
-      if (safeTool.toLowerCase().includes('appoint')) {
-        iconClass = 'fa-calendar-check';
-      } else if (safeTool.toLowerCase().includes('map')) {
+      let iconLabel = 'MAP';
+      let descText = 'Interactive route mapping & navigation';
+      let descIcon = 'fa-location-dot';
+
+      if (safeTool.toLowerCase() === 'routmap') {
         iconClass = 'fa-map-location-dot';
+        iconLabel = 'ROUTE';
+        descText = 'Smart navigation · real-time routing';
+        descIcon = 'fa-route';
+      } else if (safeTool.toLowerCase() === 'medcardpro') {
+        iconClass = 'fa-heart-pulse';
+        iconLabel = 'MED';
+        descText = 'Health records · patient management';
+        descIcon = 'fa-notes-medical';
       } else {
         iconClass = 'fa-link';
+        iconLabel = 'APP';
+        descText = 'Secure · reliable · fast';
+        descIcon = 'fa-circle-check';
       }
-      iconElem.innerHTML = `<i class="fas ${iconClass}"></i>`;
 
-      // title (sanitized)
+      const iconHtml = `<i class="fas ${iconClass}"></i>`;
+      const badgeSpan = `<span class="icon-badge">${escapeHtml(iconLabel)}</span>`;
+      iconWrapper.innerHTML = iconHtml + badgeSpan;
+
+      // --- TITLE ---
       const title = document.createElement('h2');
-      // capitalise safely, then escape again (double‑safe)
-      const displayName = capitalise(safeTool);
-      title.textContent = displayName; // textContent = no XSS
+      title.textContent = capitalise(safeTool);
 
-      // badge (extra flavour)
+      // --- DESCRIPTION ---
+      const desc = document.createElement('div');
+      desc.className = 'desc';
+      desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
+
+      // --- BADGE ---
       const badge = document.createElement('div');
       badge.className = 'badge';
-      // add a small emoji / indicator
       badge.textContent = '⚡ active';
 
-      // link (anchor) – we will override click to check file
+      // --- LINK ---
       const link = document.createElement('a');
       link.href = '#';
       link.setAttribute('role', 'button');
-      link.setAttribute('aria-label', `Open ${displayName}`);
+      link.setAttribute('aria-label', `Open ${capitalise(safeTool)}`);
 
-      // link content (safe)
-      const linkText = document.createTextNode(`Open ${displayName}`);
+      const linkText = document.createTextNode(`Open ${capitalise(safeTool)}`);
       const iconLink = document.createElement('i');
       iconLink.className = 'fas fa-arrow-right';
 
       link.appendChild(linkText);
       link.appendChild(iconLink);
 
-      // assemble card
-      card.appendChild(iconElem);
+      // assemble
+      card.appendChild(iconWrapper);
       card.appendChild(title);
+      card.appendChild(desc);
       card.appendChild(badge);
       card.appendChild(link);
+      container.appendChild(card);
 
-      // ----- CLICK HANDLER with file existence check (HEAD) + XSS safe -----
+      // increment counter
+      renderedCount++;
+
+      // --- CLICK HANDLER (file exists? 404 → index.html) ---
       link.addEventListener('click', function(e) {
         e.preventDefault();
 
-        // construct file name safely
-        const fileName = safeTool + ext;   // safeTool already escaped, but ext is hardcoded safe
-        // but we need to check the actual file: we use the original tool name (unsanitized but from trusted array)
-        // we use the original tool variable (which is from the array, safe)
-        const originalTool = tool; // from array, no user input
-        const fileToFetch = originalTool + ext; 
+        const originalTool = tool; // from trusted array
+        const fileToFetch = originalTool + ext;
 
-        // fetch HEAD to check existence
         fetch(fileToFetch, { method: 'HEAD' })
           .then(response => {
             if (response.ok) {
-              // file exists → navigate
               window.location.href = fileToFetch;
             } else {
-              // 404
               show404(originalTool + ext);
-              // redirect to index.html after short delay
               setTimeout(() => {
                 window.location.href = 'index.html';
               }, 600);
             }
           })
           .catch(() => {
-            // network error or other → treat as 404
             show404(originalTool + ext);
             setTimeout(() => {
               window.location.href = 'index.html';
             }, 600);
           });
       });
-
-      container.appendChild(card);
     });
 
-    // ----- extra: if no tools, show fallback (but we have 2) -----
+    // ----- UPDATE COUNTER (dynamic) -----
+    if (countNumber) {
+      countNumber.textContent = renderedCount;
+    }
+
+    // if no tools, show fallback
     if (tools.length === 0) {
       const emptyMsg = document.createElement('p');
       emptyMsg.style.color = 'rgba(255,255,255,0.4)';
@@ -416,10 +539,7 @@
       container.appendChild(emptyMsg);
     }
 
-    // ----- global safeguard: override any dangerous injection (already safe) -----
-    // Also ensure that any tool from array cannot contain <script> etc.
-    // we already escaped via escapeHtml.
-    console.log('🚀 Routes ready · secure & stylish');
+    console.log(`🚀 Routes ready · ${renderedCount} routes · routMap & MedCardPro · secure & beautiful`);
   })();
 </script>
 </body>
