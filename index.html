@@ -938,6 +938,19 @@
         }
         .itinerary-item .step-content * { color:#ffffff !important; opacity:1 !important; }
         .itinerary-item .step-dist { color:var(--accent) !important; }
+        
+        .speed-display {
+            display: inline-block;
+            background: rgba(245, 184, 122, 0.15);
+            border: 1px solid var(--gold);
+            border-radius: 30px;
+            padding: 2px 12px;
+            font-size: 0.55rem;
+            color: var(--gold);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .speed-display i { margin-right: 4px; }
     </style>
 </head>
 <body>
@@ -1085,11 +1098,12 @@
         <div class="panel-scroll" id="panelScroll"><div id="panelSteps"><div class="itinerary-empty"><i class="bi bi-map"></i><span>✨ Add a driver, add passengers, then click "Find Optimal Path"</span></div></div></div>
         <div class="panel-footer">
             <div class="stats-badge mb-1" id="statsBadge">
-                <span class="stat-item"><i class="bi bi-pin-map"></i> <span class="stat-value" id="statStops">0</span> stops</span>
-                <span class="stat-item"><i class="bi bi-rulers"></i> <span class="stat-value" id="statDistance">0</span> km</span>
-                <span class="stat-item"><i class="bi bi-clock"></i> <span class="stat-value" id="statTime">0</span> min</span>
-                <span class="stat-item"><i class="bi bi-fuel-pump"></i> <span class="stat-value" id="statFuel">0</span> L</span>
-            </div>
+    <span class="stat-item"><i class="bi bi-pin-map"></i> <span class="stat-value" id="statStops">0</span> stops</span>
+    <span class="stat-item"><i class="bi bi-rulers"></i> <span class="stat-value" id="statDistance">0</span></span>
+    <span class="stat-item"><i class="bi bi-clock"></i> <span class="stat-value" id="statTime">0</span> min</span>
+    <span class="stat-item"><i class="bi bi-fuel-pump"></i> <span class="stat-value" id="statFuel">0</span></span>
+    <span class="stat-item speed-display" id="statSpeed"><i class="bi bi-speedometer2"></i> <span class="stat-value" id="statSpeedValue">0</span></span>
+</div>
             <span class="total-dist" id="panelTotalDistance">📏 Total: ---</span>
         </div>
     </div>
@@ -1204,7 +1218,17 @@
             searchRoute: '🔍 Search in route...',
             historyEntryDeleted: '🗑️ History entry deleted!',
             copied: '✅ Copied!',
-            copy: '📋 Copy'
+            copy: '📋 Copy',
+            // Units
+            distanceUnit: 'mi',
+            fuelUnit: 'gal',
+            speedUnit: 'mph',
+            distanceLabel: 'mi',
+            fuelLabel: 'gal',
+            speedLabel: 'mph',
+            distanceUnit: 'mi',
+        fuelUnit: 'gal',
+        speedUnit: 'mph'
         },
         es: { 
             apiStatus: '📍 Añade conductor y pasajeros', 
@@ -1260,7 +1284,17 @@
             searchRoute: '🔍 Buscar en ruta...',
             historyEntryDeleted: '🗑️ Entrada de historial eliminada!',
             copied: '✅ Copiado!',
-            copy: '📋 Copiar'
+            copy: '📋 Copiar',
+            distanceUnit: 'km',
+            fuelUnit: 'L',
+            speedUnit: 'km/h',
+            distanceLabel: 'km',
+            fuelLabel: 'L',
+            speedLabel: 'km/h',
+            distanceUnit: 'km',
+        fuelUnit: 'L',
+        speedUnit: 'km/h'
+
         },
         pt: { 
             apiStatus: '📍 Adicione motorista e passageiros', 
@@ -1316,11 +1350,40 @@
             searchRoute: '🔍 Buscar na rota...',
             historyEntryDeleted: '🗑️ Entrada do histórico excluída!',
             copied: '✅ Copiado!',
-            copy: '📋 Copiar'
+            copy: '📋 Copiar',
+            distanceUnit: 'km',
+            fuelUnit: 'L',
+            speedUnit: 'km/h',
+            distanceLabel: 'km',
+            fuelLabel: 'L',
+            speedLabel: 'km/h',
+            distanceUnit: 'km',
+        fuelUnit: 'L',
+        speedUnit: 'km/h'
         }
     };
     let currentLang = 'en';
     function t(key, repl = {}) { let txt = translations[currentLang][key] || key; for (let [k,v] of Object.entries(repl)) txt = txt.replace(`{${k}}`, v); return txt; }
+
+    // ----- UNIT CONVERSION HELPERS -----
+    function getUnits() {
+        const isEnglish = currentLang === 'en';
+        return {
+            distance: isEnglish ? 0.621371 : 1, // km to miles
+            fuel: isEnglish ? 0.264172 : 1, // liters to gallons
+            speed: isEnglish ? 0.621371 : 1, // km/h to mph
+            distUnit: isEnglish ? 'mi' : 'km',
+            fuelUnit: isEnglish ? 'gal' : 'L',
+            speedUnit: isEnglish ? 'mph' : 'km/h'
+        };
+    }
+
+    function convertDistance(km) { return km * getUnits().distance; }
+    function convertFuel(liters) { return liters * getUnits().fuel; }
+    function convertSpeed(kmh) { return kmh * getUnits().speed; }
+    function getDistUnit() { return getUnits().distUnit; }
+    function getFuelUnit() { return getUnits().fuelUnit; }
+    function getSpeedUnit() { return getUnits().speedUnit; }
 
     // ----- HELPERS -----
     function haversine(lat1, lon1, lat2, lon2) { const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180; const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2; return R*2*Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); }
@@ -2277,12 +2340,29 @@
 
     // ----- MAP INIT -----
     function initMap() {
-        if(map){ map.invalidateSize(); return; }
-        const container = document.getElementById('map');
-        if(!container){ setTimeout(initMap,400); return; }
-        map = L.map('map', { center:[40.7128,-74.0060], zoom:13, zoomControl:true, fadeAnimation:true, preferCanvas:true });
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; OSM', maxZoom:19, subdomains:'abcd' }).addTo(map);
-        map.whenReady(()=>setTimeout(()=>map.invalidateSize(),100));
+    if(map){ map.invalidateSize(); return; }
+    const container = document.getElementById('map');
+    if(!container){ setTimeout(initMap,400); return; }
+    
+    // Check if we have a saved driver location first
+    let center = [0, 0];
+    let zoom = 2;
+    
+    // Try to load saved state first
+    try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+            const state = JSON.parse(raw);
+            if (state.driver && state.driver.lat) {
+                center = [state.driver.lat, state.driver.lng];
+                zoom = 13;
+            }
+        }
+    } catch(e) {}
+    
+    map = L.map('map', { center: center, zoom: zoom, zoomControl:true, fadeAnimation:true, preferCanvas:true });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { attribution:'&copy; OSM', maxZoom:19, subdomains:'abcd' }).addTo(map);
+    map.whenReady(()=>setTimeout(()=>map.invalidateSize(),100));
         setTimeout(()=>{ if(map) map.invalidateSize(); }, 300);
         map.on('click', handleMapClick);
         setupSearch();
@@ -2610,15 +2690,35 @@
         }
         updateStats();
     }
-    function updateStats() {
-        const totalDist=parseFloat(document.getElementById('panelTotalDistance').textContent.replace(/[^0-9.]/g,''))||0;
-        document.getElementById('statStops').textContent=currentOrder.length||0;
-        document.getElementById('statDistance').textContent=totalDist.toFixed(1);
-        const estTime=Math.round(totalDist/30*60);
-        document.getElementById('statTime').textContent=estTime||0;
-        const fuel=(totalDist/100*8);
-        document.getElementById('statFuel').textContent=fuel.toFixed(1);
+
+ function updateStats() {
+    const totalDist=parseFloat(document.getElementById('panelTotalDistance').textContent.replace(/[^0-9.]/g,''))||0;
+    const isEnglish = currentLang === 'en';
+    const distKm = totalDist;
+    const distConverted = isEnglish ? distKm * 0.621371 : distKm;
+    const estTimeMin = Math.round(distKm / 30 * 60);
+    const fuelLiters = distKm / 100 * 8;
+    const fuelConverted = isEnglish ? fuelLiters * 0.264172 : fuelLiters;
+    
+    const distUnit = t('distanceUnit');
+    const fuelUnit = t('fuelUnit');
+    const speedUnit = t('speedUnit');
+    
+    document.getElementById('statStops').textContent=currentOrder.length||0;
+    document.getElementById('statDistance').textContent=distConverted.toFixed(1) + ' ' + distUnit;
+    document.getElementById('statTime').textContent=estTimeMin||0;
+    document.getElementById('statFuel').textContent=fuelConverted.toFixed(1) + ' ' + fuelUnit;
+    
+    // Calculate speed
+    const estTimeHours = estTimeMin / 60;
+    let speedKmh = 0;
+    if (estTimeHours > 0 && distKm > 0) {
+        speedKmh = distKm / estTimeHours;
     }
+    if (speedKmh > 120) speedKmh = 120;
+    const speedConverted = isEnglish ? speedKmh * 0.621371 : speedKmh;
+    document.getElementById('statSpeedValue').textContent = speedConverted.toFixed(1) + ' ' + speedUnit;
+}
 
     function updatePassengerUI() {
         const container=document.getElementById('paxListContainer');
@@ -3216,7 +3316,10 @@
             updateItineraryPanel(orderedNodes, total, segs);
             updatePassengerBadge();
             
-            setStatus(`✅ Route updated • ${total.toFixed(1)} km • ${currentOrder.length} stops`, 'success');
+            const distUnit = t('distanceUnit');
+            const distLabel = t('distanceLabel');
+            const totalDisplay = currentLang === 'en' ? (total * 0.621371).toFixed(1) : total.toFixed(1);
+            setStatus(`✅ Route updated • ${totalDisplay} ${distUnit} • ${currentOrder.length} stops`, 'success');
             
             if (!isReadOnly && currentOrder.length > 0) {
                 setTimeout(() => {
@@ -3269,25 +3372,29 @@
             </div>
         </div>`;
         
+        const distUnit = t('distanceUnit');
         for (let i = 1; i < nodes.length; i++) {
             const p = nodes[i];
             let phoneHtml = p.phone ? 
                 `<span class="step-phone" style="font-size:0.5rem;opacity:0.5;background:rgba(255,255,255,0.06);padding:0 8px;border-radius:20px;color:#fff;cursor:pointer;">${escapeHtml(p.phone)}</span>` : 
                 `<span class="step-phone" style="font-size:0.5rem;opacity:0.3;background:rgba(255,255,255,0.06);padding:0 8px;border-radius:20px;color:#fff;font-style:italic;cursor:pointer;">${t('phonePlaceholder')}</span>`;
             const dist = segs[i - 1] || 0;
+            const distDisplay = currentLang === 'en' ? (dist * 0.621371).toFixed(1) : dist.toFixed(1);
             html += `<div class="itinerary-item" data-step="${i}" data-type="passenger" data-id="${p.id}">
                 <span class="step-number">${i}</span>
                 <div class="step-content">
                     <span class="step-name" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);padding:0 4px;">${escapeHtml(p.name)}</span>
                     ${phoneHtml}
                     <span class="step-address" style="cursor:pointer;border-bottom:1px dashed rgba(255,255,255,0.2);padding:0 4px;">${escapeHtml(p.address)}</span>
-                    <span class="step-dist">${dist.toFixed(1)}km</span>
+                    <span class="step-dist">${distDisplay} ${distUnit}</span>
                 </div>
             </div>`;
         }
         html += '</div>';
         stepsDiv.innerHTML = html;
-        document.getElementById('panelTotalDistance').innerHTML = `${t('total')} ${total.toFixed(1)} km`;
+        
+        const totalDisplay = currentLang === 'en' ? (total * 0.621371).toFixed(1) : total.toFixed(1);
+        document.getElementById('panelTotalDistance').innerHTML = `${t('total')} ${totalDisplay} ${t('distanceUnit')}`;
         document.getElementById('stopCount').textContent = `${nodes.length - 1} ${t('stops')}`;
         updateStats();
         
@@ -3699,6 +3806,7 @@
         document.querySelector('.panel-header h5 span:first-child').innerHTML='<i class="bi bi-list-ul me-1"></i> '+t('optimalRoute');
         updateDriverUI(); updatePassengerUI();
         if(cachedRouteData){ const {orderedNodes,totalDistance,segmentDistances}=cachedRouteData; updateItineraryPanel(orderedNodes,totalDistance,segmentDistances); updatePassengerBadge(); } else resetItinerary();
+        updateStats();
     }
 
     // ----- EVENTS -----
@@ -3838,7 +3946,37 @@
         }
     }
 
+    // Setup history search
+    function setupHistorySearch() {
+        const input = document.getElementById('historySearchInput');
+        const clearBtn = document.getElementById('clearHistorySearch');
+        if (!input) return;
+        
+        input.addEventListener('input', function() {
+            const query = this.value.trim();
+            clearBtn.classList.toggle('visible', query.length > 0);
+            renderHistoryList(query);
+        });
+        
+        clearBtn.addEventListener('click', function() {
+            input.value = '';
+            clearBtn.classList.remove('visible');
+            renderHistoryList('');
+            input.focus();
+        });
 
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                if (this.value.trim() !== '') {
+                    this.value = '';
+                    clearBtn.classList.remove('visible');
+                    renderHistoryList('');
+                    this.blur();
+                    e.preventDefault();
+                }
+            }
+        });
+    }
 
         // Setup history search
 function setupHistorySearch() {
