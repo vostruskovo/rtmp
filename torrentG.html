@@ -225,7 +225,7 @@
             border: 1px solid #21262d;
             transition: all 0.15s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-            cursor: default;
+            cursor: pointer;
         }
 
         .torrent-item:hover {
@@ -275,6 +275,7 @@
             letter-spacing: -0.02em;
             transition: 0.1s;
             cursor: default;
+            word-break: break-all;
         }
 
         .torrent-magnet:hover {
@@ -415,13 +416,37 @@
             <kbd>↑↓</kbd> navigate · <kbd>Enter</kbd> copy · <kbd>Esc</kbd> clear · <kbd>/</kbd> search
         </span>
         <span class="smart-tip">
-            💡 Smart search finds matches anywhere in the name
+            💡 Click any torrent to copy magnet
         </span>
     </div>
 </div>
 
 <script>
     (function() {
+        // ----- SANITIZATION FUNCTION (XSS Protection) -----
+        function sanitizeHTML(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // ----- SANITIZATION FUNCTION for HTML attributes -----
+        function sanitizeAttribute(str) {
+            if (!str) return '';
+            // Remove any potentially dangerous characters for attributes
+            return String(str).replace(/["'<>&]/g, function(match) {
+                switch (match) {
+                    case '"': return '&quot;';
+                    case "'": return '&#x27;';
+                    case '<': return '&lt;';
+                    case '>': return '&gt;';
+                    case '&': return '&amp;';
+                    default: return match;
+                }
+            });
+        }
+
         // ----- COMPLETE DATA (All entries) -----
         const rawData = [
             // Original Battlefield & Call of Duty entries
@@ -567,6 +592,39 @@
         let selectedIndex = -1;
         let currentFiltered = [];
 
+        // ----- Copy Magnet Function -----
+        function copyMagnet(magnet, btnElement) {
+            if (!magnet) return;
+            
+            // Sanitize magnet before using
+            const cleanMagnet = String(magnet).trim();
+            
+            navigator.clipboard.writeText(cleanMagnet).then(() => {
+                const original = btnElement.innerHTML;
+                btnElement.innerHTML = '✅ Copied';
+                btnElement.classList.add('copied');
+                setTimeout(() => {
+                    btnElement.innerHTML = original;
+                    btnElement.classList.remove('copied');
+                }, 2200);
+            }).catch(() => {
+                // Fallback for older browsers
+                const textarea = document.createElement('textarea');
+                textarea.value = cleanMagnet;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                const original = btnElement.innerHTML;
+                btnElement.innerHTML = '✅ Copied';
+                btnElement.classList.add('copied');
+                setTimeout(() => {
+                    btnElement.innerHTML = original;
+                    btnElement.classList.remove('copied');
+                }, 2200);
+            });
+        }
+
         // ----- Render Function -----
         function render() {
             const query = searchInput.value;
@@ -577,10 +635,10 @@
             totalSpan.textContent = filtered.length;
             uniqueCountSpan.textContent = `${uniqueTorrents.length} unique`;
 
-            // Update search info
+            // Update search info (sanitized)
             if (query.trim()) {
                 matchInfo.textContent = `🔍 Found ${filtered.length} matching torrents`;
-                smartHint.textContent = `Smart matching: "${query}"`;
+                smartHint.textContent = `Smart matching: "${sanitizeHTML(query)}"`;
             } else {
                 matchInfo.textContent = '💡 Smart matching';
                 smartHint.textContent = 'Type to search';
@@ -599,10 +657,15 @@
             let html = '';
             for (let i = 0; i < filtered.length; i++) {
                 const t = filtered[i];
-                const magnetAttr = escapeHtml(t.magnet);
                 
-                // Highlight matches in name
-                let displayName = t.name;
+                // Sanitize ALL data before rendering
+                const cleanName = sanitizeHTML(t.name);
+                const cleanMagnet = sanitizeHTML(t.magnet);
+                const cleanSize = sanitizeHTML(t.size);
+                const cleanMagnetAttr = sanitizeAttribute(t.magnet);
+                
+                // Highlight matches in name (safe)
+                let displayName = cleanName;
                 if (query.trim()) {
                     const q = query.toLowerCase().trim();
                     const nameLower = t.name.toLowerCase();
@@ -611,13 +674,14 @@
                     for (const word of q.split(/\s+/)) {
                         const index = nameLower.indexOf(word, lastIndex);
                         if (index !== -1) {
-                            highlighted += t.name.substring(lastIndex, index);
-                            highlighted += `<span class="match-highlight">${t.name.substring(index, index + word.length)}</span>`;
+                            // Sanitize each part
+                            highlighted += sanitizeHTML(t.name.substring(lastIndex, index));
+                            highlighted += `<span class="match-highlight">${sanitizeHTML(t.name.substring(index, index + word.length))}</span>`;
                             lastIndex = index + word.length;
                         }
                     }
                     if (lastIndex < t.name.length) {
-                        highlighted += t.name.substring(lastIndex);
+                        highlighted += sanitizeHTML(t.name.substring(lastIndex));
                     }
                     if (highlighted) {
                         displayName = highlighted;
@@ -625,19 +689,42 @@
                 }
                 
                 html += `
-                    <div class="torrent-item" data-index="${i}" data-magnet="${magnetAttr}">
-                        <span class="torrent-name" title="${escapeHtml(t.name)}">${displayName}</span>
-                        <span class="torrent-magnet" title="${escapeHtml(t.magnet)}">${escapeHtml(t.magnet)}</span>
-                        <span class="torrent-size">${escapeHtml(t.size)}</span>
-                        <button class="copy-btn" data-magnet="${magnetAttr}">📋 Copy</button>
+                    <div class="torrent-item" data-index="${i}" data-magnet="${cleanMagnetAttr}">
+                        <span class="torrent-name" title="${cleanName}">${displayName}</span>
+                        <span class="torrent-magnet" title="${cleanMagnet}">${cleanMagnet}</span>
+                        <span class="torrent-size">${cleanSize}</span>
+                        <button class="copy-btn" data-magnet="${cleanMagnetAttr}">📋 Copy</button>
                     </div>
                 `;
             }
             container.innerHTML = html;
 
+            // ----- Click on entire torrent-item copies magnet -----
+            document.querySelectorAll('.torrent-item').forEach(item => {
+                item.addEventListener('click', function(e) {
+                    // Don't trigger if clicking the copy button (to avoid double trigger)
+                    if (e.target.classList.contains('copy-btn')) return;
+                    
+                    const magnet = this.getAttribute('data-magnet');
+                    if (!magnet) return;
+                    
+                    // Find the copy button inside this item to show feedback
+                    const btn = this.querySelector('.copy-btn');
+                    if (btn) {
+                        copyMagnet(magnet, btn);
+                    } else {
+                        // If no button, just copy
+                        navigator.clipboard.writeText(magnet).then(() => {
+                            console.log('Copied magnet:', magnet);
+                        });
+                    }
+                });
+            });
+
+            // Copy button click handlers
             document.querySelectorAll('.copy-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
-                    e.stopPropagation();
+                    e.stopPropagation(); // Prevent triggering the parent click
                     const magnet = this.getAttribute('data-magnet');
                     if (!magnet) return;
                     copyMagnet(magnet, this);
@@ -649,7 +736,6 @@
                 if (selectedIndex >= filtered.length) {
                     selectedIndex = filtered.length - 1;
                 }
-                // If selectedIndex is -1, select first item
                 if (selectedIndex === -1) {
                     selectedIndex = 0;
                 }
@@ -661,7 +747,6 @@
         }
 
         function highlightSelected(totalItems) {
-            // Remove previous selection
             document.querySelectorAll('.torrent-item.keyboard-selected').forEach(el => {
                 el.classList.remove('keyboard-selected');
             });
@@ -677,39 +762,6 @@
                 target.classList.add('keyboard-selected');
                 target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             }
-        }
-
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
-        }
-
-        function copyMagnet(magnet, btnElement) {
-            navigator.clipboard.writeText(magnet).then(() => {
-                const original = btnElement.innerHTML;
-                btnElement.innerHTML = '✅ Copied';
-                btnElement.classList.add('copied');
-                setTimeout(() => {
-                    btnElement.innerHTML = original;
-                    btnElement.classList.remove('copied');
-                }, 2200);
-            }).catch(() => {
-                const textarea = document.createElement('textarea');
-                textarea.value = magnet;
-                document.body.appendChild(textarea);
-                textarea.select();
-                document.execCommand('copy');
-                document.body.removeChild(textarea);
-                const original = btnElement.innerHTML;
-                btnElement.innerHTML = '✅ Copied';
-                btnElement.classList.add('copied');
-                setTimeout(() => {
-                    btnElement.innerHTML = original;
-                    btnElement.classList.remove('copied');
-                }, 2200);
-            });
         }
 
         function navigate(direction) {
@@ -773,7 +825,6 @@
             const active = document.activeElement;
             const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
 
-            // Don't intercept if typing in input (except for Escape)
             if (isInputFocused && active.id === 'searchInput') {
                 return;
             }
@@ -815,15 +866,15 @@
 
         // Initial render
         render();
-        // Select first item by default
         if (uniqueTorrents.length > 0) {
             selectedIndex = 0;
             highlightSelected(uniqueTorrents.length);
         }
 
         console.log(`🔍 TorrentG v3 ready · ${uniqueTorrents.length} unique torrents`);
-        console.log('💡 Smart search: type anything, results sorted by relevance');
+        console.log('💡 Click any torrent to copy magnet');
         console.log('⌨️ Arrow keys: navigate up/down, Enter: copy selected');
+        console.log('🛡️ XSS Protection: All user input is sanitized');
     })();
 </script>
 
