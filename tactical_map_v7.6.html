@@ -1,0 +1,1468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>⚡ TACTICAL MAP · Layer Buttons Fixed</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    
+    <style>
+        * { user-select: none; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #0a1f12, #030b05);
+            font-family: 'Segoe UI', 'Georgia', serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .war-room {
+            background: #1a150edd;
+            backdrop-filter: blur(3px);
+            border-radius: 48px;
+            padding: 20px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.7);
+            border: 3px solid #dba551;
+            width: fit-content;
+            max-width: 98vw;
+        }
+        .top-command-bar {
+            background: #18140cee;
+            backdrop-filter: blur(12px);
+            border-radius: 60px;
+            padding: 6px 12px;
+            margin-bottom: 16px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            border: 1px solid #e2bc6e;
+        }
+        .unit-palette-compact { 
+            display: flex; gap: 3px; background: #0f0a05aa; padding: 3px 8px; border-radius: 40px; flex-wrap: wrap;
+        }
+        .unit-card-compact { 
+            background: #2f2a1f; border-radius: 30px; padding: 2px 6px; cursor: pointer; display: flex; 
+            align-items: center; gap: 4px; border: 2px solid #b89048; transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .unit-card-compact canvas { width: 30px !important; height: 30px !important; }
+        .unit-card-compact.selected { background: #5f794b; border: 2px solid #ffd966; box-shadow: 0 0 8px gold; transform: scale(1.05); }
+        .unit-card-compact:hover { transform: scale(1.08); box-shadow: 0 0 12px rgba(255, 217, 0, 0.5); }
+        .unit-card-compact span { font-size: 10px !important; margin-left: 2px !important; }
+        .flag-dropdown {
+            background: #3c2e1c; color: #ffefcf; font-weight: bold; border: 2px solid #e6bc6e;
+            border-radius: 30px; padding: 3px 10px; cursor: pointer; font-size: 0.75rem;
+            font-family: monospace; min-width: 100px;
+        }
+        .flag-dropdown option { background: #2f2a1f; color: #ffefcf; }
+        .btn-compact { 
+            background: #3c2b1a; border: none; font-weight: bold; padding: 3px 10px;
+            border-radius: 30px; color: #fce6b4; cursor: pointer; font-size: 0.75rem;
+            transition: all 0.1s ease;
+        }
+        .btn-compact:hover { transform: translateY(-2px); filter: brightness(1.1); }
+        .btn-compact:active { transform: translateY(2px); }
+        .reset-btn { background: #8b3a2a; }
+        .download-btn { background: #2a6b3a; }
+        .undo-btn { background: #6b4a2a; }
+        .redo-btn { background: #4a6b2a; }
+        .save-btn { background: #2a4a6b; }
+        .load-btn { background: #6b2a4a; }
+        .stats-btn { background: #5f3a5f; }
+
+        /* ===== LAYER BUTTONS — RELIABLE ===== */
+        .layer-btn-group {
+            display: flex;
+            gap: 3px;
+            background: #0f0a05aa;
+            padding: 3px 6px;
+            border-radius: 40px;
+            flex-wrap: wrap;
+        }
+        .layer-btn {
+            background: #2a1a1a;
+            border: 2px solid #5a4a3a;
+            border-radius: 30px;
+            padding: 2px 10px;
+            color: #8a7a6a;
+            cursor: pointer;
+            font-size: 0.65rem;
+            font-weight: bold;
+            transition: all 0.15s ease;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .layer-btn:hover {
+            background: #3a2a2a;
+            color: #ffefcf;
+            transform: scale(1.05);
+        }
+        .layer-btn.active {
+            background: #2a5f5f;
+            border-color: #dba551;
+            color: #ffd966;
+            box-shadow: 0 0 12px rgba(219, 165, 81, 0.3);
+        }
+        .layer-btn .layer-emoji { margin-right: 2px; }
+
+        .map-container {
+            background: #0a1a0f;
+            border-radius: 24px;
+            padding: 10px;
+            box-shadow: inset 0 0 0 3px #ecd99b, inset 0 0 0 8px #5a3e1f;
+            position: relative;
+            overflow: hidden;
+        }
+        #leafletMap {
+            width: 1200px;
+            height: 700px;
+            border-radius: 16px;
+            background: #1a3a4a;
+            cursor: crosshair;
+        }
+        .leaflet-control-zoom {
+            border: 2px solid #dba551 !important;
+            transform: scale(0.8);
+        }
+        .leaflet-control-zoom a {
+            background: #1a150e !important;
+            color: #ffefcf !important;
+            border-color: #dba551 !important;
+        }
+        .leaflet-control-zoom a:hover { background: #2a251e !important; }
+        .leaflet-popup-content-wrapper {
+            background: #1a150e !important;
+            color: #ffefcf !important;
+            border: 1px solid #dba551 !important;
+            border-radius: 8px !important;
+        }
+        .leaflet-popup-tip { background: #1a150e !important; }
+        .leaflet-control-attribution {
+            background: rgba(0,0,0,0.7) !important;
+            color: #aaa !important;
+            font-size: 9px !important;
+        }
+        .leaflet-control-attribution a { color: #dba551 !important; }
+
+        .custom-marker {
+            background: transparent !important;
+            border: none !important;
+            text-align: center;
+            line-height: 1;
+            filter: drop-shadow(0 2px 8px rgba(0,0,0,0.9));
+            transition: all 0.15s ease;
+            cursor: grab;
+        }
+        .custom-marker:hover {
+            filter: drop-shadow(0 0 20px gold) drop-shadow(0 2px 8px rgba(0,0,0,0.9));
+            z-index: 1000 !important;
+        }
+        .custom-marker.dragging {
+            cursor: grabbing !important;
+            filter: drop-shadow(0 0 30px gold) drop-shadow(0 2px 8px rgba(0,0,0,0.9)) !important;
+            z-index: 2000 !important;
+            transform: scale(1.15);
+        }
+        .custom-marker .marker-container { position: relative; display: inline-block; }
+        .custom-marker .marker-image {
+            border: none !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            background: transparent !important;
+            width: 44px;
+            height: 52px;
+            pointer-events: none;
+            display: block;
+        }
+        .custom-marker .marker-image.selected {
+            filter: drop-shadow(0 0 18px gold) drop-shadow(0 0 40px rgba(255, 215, 0, 0.3));
+        }
+        .custom-marker .marker-image.grouped {
+            filter: drop-shadow(0 0 18px #44ff44) drop-shadow(0 0 40px rgba(68, 255, 68, 0.2));
+        }
+        .custom-marker .marker-label {
+            position: absolute;
+            bottom: -16px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 8px;
+            font-family: 'Segoe UI', monospace;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 6px black, 0 0 12px black;
+            white-space: nowrap;
+            background: rgba(0,0,0,0.4);
+            padding: 1px 5px;
+            border-radius: 3px;
+            pointer-events: none;
+            letter-spacing: 0.5px;
+        }
+        .custom-marker .marker-image.selected + .marker-label {
+            color: #ffd700;
+            text-shadow: 0 0 10px gold, 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .selection-overlay {
+            position: absolute;
+            border: 2px dashed #ffd700;
+            background: rgba(255, 217, 0, 0.08);
+            pointer-events: none;
+            z-index: 1000;
+            display: none;
+            animation: pulse 1s ease-in-out infinite;
+        }
+        @keyframes pulse { 0%, 100% { border-color: #ffd700; } 50% { border-color: #ff6b00; } }
+
+        .status-bar {
+            margin-top: 10px;
+            background: #020812cc;
+            border-radius: 14px;
+            padding: 8px 12px;
+            font-family: monospace;
+            color: #d4f0b0;
+            text-align: center;
+            font-size: 0.75rem;
+            border: 1px solid #ad8842;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .unit-counter { background: #2a2418; padding: 2px 10px; border-radius: 16px; }
+        .hotkey-hint { background: #2c2418; padding: 2px 10px; border-radius: 16px; font-weight: bold; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background: #1a150e;
+            border: 2px solid #dba551;
+            border-radius: 20px;
+            padding: 20px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            color: #ffefcf;
+        }
+        .modal-content h3 { margin-top: 0; color: #ffd966; }
+        .modal-content pre { background: #0a0a0a; padding: 10px; border-radius: 8px; overflow-x: auto; font-size: 12px; }
+
+        .context-menu {
+            position: fixed;
+            background: #2a2418;
+            border: 2px solid #dba551;
+            border-radius: 8px;
+            padding: 4px 0;
+            z-index: 100;
+            display: none;
+            min-width: 140px;
+        }
+        .context-menu-item { padding: 6px 16px; cursor: pointer; color: #ffefcf; font-size: 13px; transition: background 0.1s; }
+        .context-menu-item:hover { background: #5f794b; }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.9);
+            color: #ffefcf;
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: 1px solid #dba551;
+            z-index: 2000;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            font-size: 13px;
+        }
+        .toast.show { opacity: 1; }
+        .drag-indicator {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+            background: rgba(255,215,0,0.1);
+            border: 2px dashed gold;
+            border-radius: 8px;
+            display: none;
+        }
+
+        @media (max-width: 1300px) { #leafletMap { width: 90vw; height: 55vh; } }
+        @media (max-width: 768px) {
+            .top-command-bar { flex-direction: column; align-items: stretch; gap: 4px; padding: 6px 10px; }
+            .unit-palette-compact { justify-content: center; }
+            #leafletMap { width: 95vw; height: 45vh; }
+            .leaflet-control-zoom { display: none !important; }
+            .custom-marker .marker-image { width: 36px !important; height: 44px !important; }
+            .layer-btn-group { justify-content: center; }
+            .layer-btn { font-size: 0.55rem; padding: 2px 8px; }
+        }
+    </style>
+</head>
+<body>
+<div class="war-room">
+    <div class="top-command-bar">
+        <div class="unit-palette-compact" id="unitPalette"></div>
+        <select id="flagDropdown" class="flag-dropdown"></select>
+        <button class="btn-compact undo-btn" id="undoBtn">↩️</button>
+        <button class="btn-compact redo-btn" id="redoBtn">↪️</button>
+        <button class="btn-compact save-btn" id="saveBtn">💾</button>
+        <button class="btn-compact load-btn" id="loadBtn">📂</button>
+        
+        <!-- ===== LAYER BUTTONS — RELIABLE ===== -->
+        <div class="layer-btn-group" id="layerBtnGroup">
+            <button class="layer-btn active" data-layer="dark">🌙 Dark</button>
+            <button class="layer-btn" data-layer="light">☀️ Light</button>
+            <button class="layer-btn" data-layer="satellite">🛰️ Sat</button>
+            <button class="layer-btn" data-layer="topo">🗺️ Topo</button>
+            <button class="layer-btn" data-layer="streets">🏙️ Streets</button>
+        </div>
+        
+        <button class="btn-compact stats-btn" id="statsBtn">📊</button>
+        <button class="btn-compact download-btn" id="downloadBtn">📸</button>
+        <button class="btn-compact reset-btn" id="resetBtn">🗑️</button>
+    </div>
+
+    <div class="map-container" id="mapContainer">
+        <div id="leafletMap"></div>
+        <div class="selection-overlay" id="selectionRect"></div>
+        <div class="status-bar">
+            <span id="infoBar">🌍 WORLD MAP</span>
+            <span class="unit-counter" id="unitCounter">Units: 0</span>
+            <span class="hotkey-hint" id="selectionInfo">Selected: None</span>
+        </div>
+    </div>
+</div>
+
+<div class="context-menu" id="contextMenu">
+    <div class="context-menu-item" data-action="health">❤️ Set Health</div>
+    <div class="context-menu-item" data-action="rotate">🔄 Rotate</div>
+    <div class="context-menu-item" data-action="invert">🪞 Invert</div>
+    <div class="context-menu-item" data-action="delete">🗑️ Delete</div>
+    <div class="context-menu-item" data-action="duplicate">📋 Duplicate</div>
+    <div class="context-menu-item" data-action="formation">📐 Formation</div>
+</div>
+
+<div class="modal" id="helpModal">
+    <div class="modal-content">
+        <h3>⌨️ Keyboard Shortcuts</h3>
+        <pre>
+1-6      - Select unit type
+R        - Rotate selected unit
+I        - Invert selected unit
+Delete   - Delete selected unit
+G        - Group/ungroup units
+Ctrl+C   - Copy selected units
+Ctrl+V   - Paste units
+Ctrl+Z   - Undo
+Ctrl+Y   - Redo
+Ctrl+S   - Save scenario
+Ctrl+L   - Load scenario
+Ctrl+A   - Select all
+F        - Select same type
+L        - Toggle map layers
+Escape   - Clear selection
+?        - Show this help menu
+        </pre>
+        <button class="btn-compact" onclick="document.getElementById('helpModal').style.display='none'">Close</button>
+    </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<div class="drag-indicator" id="dragIndicator"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // ===== UNIT DRAWING =====
+    function drawTankSmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = "#3a3a2a"; ctx.fillRect(x-14, y-7, 6, 14); ctx.fillRect(x+8, y-7, 6, 14);
+        ctx.fillStyle = c1; ctx.fillRect(x-11, y-5, 22, 11);
+        ctx.fillStyle = c2; ctx.beginPath(); ctx.ellipse(x, y-1, 10, 7, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#555"; ctx.fillRect(x+7, y-3, 14, 3); ctx.fillRect(x+18, y-4, 5, 5);
+        ctx.fillStyle = "#ffcc00"; ctx.fillRect(x-2, y-2, 2, 2); ctx.fillRect(x+1, y-2, 2, 2);
+        ctx.fillStyle = "#444"; ctx.beginPath(); ctx.arc(x-8, y+4, 3, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+8, y+4, 3, 0, Math.PI*2); ctx.fill();
+        ctx.shadowBlur = 0;
+    }
+    function drawHeliSmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = "#888"; ctx.fillRect(x-20, y-10, 40, 3); ctx.fillRect(x-2, y-18, 4, 16);
+        ctx.fillStyle = c1; ctx.fillRect(x+6, y-2, 14, 3); ctx.fillRect(x+16, y-3, 3, 6);
+        ctx.fillStyle = "#888"; ctx.fillRect(x+19, y-8, 2, 10);
+        ctx.fillStyle = c1; ctx.beginPath(); ctx.ellipse(x, y, 11, 6, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#88ccff"; ctx.beginPath(); ctx.ellipse(x-2, y-1, 6, 4, 0, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = c2; ctx.fillRect(x-5, y-3, 4, 2); ctx.fillRect(x-5, y+1, 4, 2);
+        ctx.fillStyle = "#555"; ctx.fillRect(x-7, y+5, 3, 3); ctx.fillRect(x+4, y+5, 3, 3);
+        ctx.shadowBlur = 0;
+    }
+    function drawSoldierSmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = c1; ctx.fillRect(x-5, y-12, 10, 4); ctx.fillRect(x-4, y-13, 8, 3);
+        ctx.fillStyle = "#dbb87c"; ctx.beginPath(); ctx.arc(x, y-8, 4, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = c2; ctx.fillRect(x-4, y-4, 8, 9);
+        ctx.fillStyle = c1; ctx.fillRect(x-8, y-4, 4, 8); ctx.fillRect(x+4, y-4, 4, 8);
+        ctx.fillStyle = "#4a3a2a"; ctx.fillRect(x-3, y+4, 3, 7); ctx.fillRect(x+0, y+4, 3, 7);
+        ctx.fillStyle = "#555"; ctx.fillRect(x+4, y-6, 10, 2); ctx.fillRect(x+12, y-7, 2, 5);
+        ctx.shadowBlur = 0;
+    }
+    function drawShipSmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = c1; ctx.beginPath(); ctx.moveTo(x-16, y); ctx.lineTo(x-10, y+8); ctx.lineTo(x+10, y+8); ctx.lineTo(x+16, y); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = c2; ctx.fillRect(x-12, y-2, 24, 4);
+        ctx.fillStyle = "#8B7355"; ctx.fillRect(x-2, y-18, 4, 18);
+        ctx.fillStyle = "#cc3333"; ctx.fillRect(x-1, y-24, 2, 7); ctx.fillRect(x-6, y-21, 12, 3);
+        ctx.fillStyle = "#555"; ctx.fillRect(x-8, y-7, 4, 6); ctx.fillRect(x+4, y-7, 4, 6);
+        ctx.shadowBlur = 0;
+    }
+    function drawPlaneSmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = c1; ctx.fillRect(x-16, y-3, 32, 6);
+        ctx.fillStyle = "#88ccff"; ctx.fillRect(x-6, y-5, 8, 4);
+        ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(x-4, y-3); ctx.lineTo(x-18, y-14); ctx.lineTo(x-4, y-9); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x-4, y+3); ctx.lineTo(x-18, y+14); ctx.lineTo(x-4, y+9); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = c2; ctx.beginPath(); ctx.moveTo(x+12, y-3); ctx.lineTo(x+20, y-10); ctx.lineTo(x+16, y-3); ctx.closePath(); ctx.fill();
+        ctx.beginPath(); ctx.moveTo(x+12, y+3); ctx.lineTo(x+20, y+10); ctx.lineTo(x+16, y+3); ctx.closePath(); ctx.fill();
+        ctx.fillStyle = "#ff6600"; ctx.fillRect(x+12, y-2, 4, 4);
+        ctx.shadowBlur = 0;
+    }
+    function drawArtillerySmall(ctx, x, y, c1, c2) {
+        ctx.shadowColor = 'rgba(0,0,0,0.3)'; ctx.shadowBlur = 6;
+        ctx.fillStyle = c1; ctx.fillRect(x-12, y+2, 24, 5);
+        ctx.fillStyle = "#3a3a2a"; ctx.beginPath(); ctx.arc(x-8, y+7, 5, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+8, y+7, 5, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = "#555"; ctx.beginPath(); ctx.arc(x-8, y+7, 2, 0, Math.PI*2); ctx.fill(); ctx.beginPath(); ctx.arc(x+8, y+7, 2, 0, Math.PI*2); ctx.fill();
+        ctx.fillStyle = c2; ctx.fillRect(x-4, y-9, 8, 11);
+        ctx.fillStyle = "#555"; ctx.fillRect(x+2, y-8, 15, 4); ctx.fillRect(x+14, y-9, 5, 6);
+        ctx.fillStyle = "#888"; ctx.fillRect(x-2, y-6, 4, 3);
+        ctx.fillStyle = "#8B0000"; ctx.fillRect(x-7, y-2, 3, 4);
+        ctx.shadowBlur = 0;
+    }
+
+    const UNIT_TYPES = {
+        tank: { name: "TANK", size: 32, health: 45, draw: drawTankSmall },
+        heli: { name: "HELI", size: 30, health: 38, draw: drawHeliSmall },
+        soldier: { name: "SOLDIER", size: 26, health: 22, draw: drawSoldierSmall },
+        ship: { name: "SHIP", size: 34, health: 52, draw: drawShipSmall },
+        plane: { name: "PLANE", size: 32, health: 48, draw: drawPlaneSmall },
+        artillery: { name: "ARTILLERY", size: 30, health: 55, draw: drawArtillerySmall }
+    };
+
+    const NATIONS = [
+        { flag: "🇺🇸", code: "USA", c1: "#b22234", c2: "#3c3b6e" },
+        { flag: "🇬🇧", code: "UK",  c1: "#012169", c2: "#c8102e" },
+        { flag: "🇫🇷", code: "FRA", c1: "#0055a4", c2: "#ef4135" },
+        { flag: "🇩🇪", code: "GER", c1: "#000000", c2: "#dd0000" },
+        { flag: "🇮🇹", code: "ITA", c1: "#009246", c2: "#ce2b37" },
+        { flag: "🇪🇸", code: "ESP", c1: "#aa151b", c2: "#f1bf00" },
+        { flag: "🇷🇺", code: "RUS", c1: "#0033a0", c2: "#da291c" },
+        { flag: "🇨🇦", code: "CAN", c1: "#ff0000", c2: "#ffffff" },
+        { flag: "🇧🇷", code: "BRA", c1: "#009c3b", c2: "#ffdf00" },
+        { flag: "🇯🇵", code: "JPN", c1: "#bc002d", c2: "#ffffff" },
+        { flag: "🇨🇳", code: "CHN", c1: "#de2910", c2: "#ffde00" },
+        { flag: "🇮🇳", code: "IND", c1: "#ff9933", c2: "#138808" },
+        { flag: "🇺🇦", code: "UKR", c1: "#0057b8", c2: "#ffd700" },
+        { flag: "🇵🇸", code: "PLE", c1: "#007a3d", c2: "#000000" },
+        { flag: "🇮🇱", code: "ISR", c1: "#0038b8", c2: "#ffffff" },
+        { flag: "🇦🇺", code: "AUS", c1: "#00008b", c2: "#ff0000" },
+        { flag: "🇦🇷", code: "ARG", c1: "#75aadb", c2: "#ffffff" },
+        { flag: "🇧🇪", code: "BEL", c1: "#000000", c2: "#fdda24" },
+        { flag: "🇨🇱", code: "CHL", c1: "#003399", c2: "#ffffff" },
+        { flag: "🇨🇴", code: "COL", c1: "#003893", c2: "#ce1126" },
+        { flag: "🇨🇷", code: "CRI", c1: "#002b7f", c2: "#ce1126" },
+        { flag: "🇨🇿", code: "CZE", c1: "#11457e", c2: "#d7141a" },
+        { flag: "🇩🇰", code: "DEN", c1: "#c8102e", c2: "#ffffff" },
+        { flag: "🇩🇴", code: "DOM", c1: "#002d62", c2: "#ce1126" },
+        { flag: "🇪🇨", code: "ECU", c1: "#fdd116", c2: "#003893" },
+        { flag: "🇪🇬", code: "EGY", c1: "#ce1126", c2: "#000000" },
+        { flag: "🇫🇮", code: "FIN", c1: "#002f6c", c2: "#ffffff" },
+        { flag: "🇬🇷", code: "GRE", c1: "#0d5eaf", c2: "#ffffff" },
+        { flag: "🇭🇺", code: "HUN", c1: "#ce2939", c2: "#ffffff" },
+        { flag: "🇮🇸", code: "ISL", c1: "#02529c", c2: "#dc1e35" },
+        { flag: "🇮🇷", code: "IRN", c1: "#239f40", c2: "#da0000" },
+        { flag: "🇮🇶", code: "IRQ", c1: "#ce1126", c2: "#000000" },
+        { flag: "🇮🇪", code: "IRL", c1: "#169b62", c2: "#ff883e" },
+        { flag: "🇯🇲", code: "JAM", c1: "#009b3a", c2: "#ffd700" },
+        { flag: "🇰🇪", code: "KEN", c1: "#000000", c2: "#ce1126" },
+        { flag: "🇰🇼", code: "KUW", c1: "#007a3d", c2: "#ce1126" },
+        { flag: "🇱🇧", code: "LIB", c1: "#ce1126", c2: "#ffffff" },
+        { flag: "🇱🇾", code: "LBY", c1: "#239f40", c2: "#000000" },
+        { flag: "🇲🇾", code: "MAS", c1: "#010066", c2: "#cc0000" },
+        { flag: "🇲🇽", code: "MEX", c1: "#006341", c2: "#ce1126" },
+        { flag: "🇲🇦", code: "MAR", c1: "#c1272d", c2: "#006233" },
+        { flag: "🇳🇱", code: "NED", c1: "#ae1c28", c2: "#21468b" },
+        { flag: "🇳🇿", code: "NZL", c1: "#00247d", c2: "#cc0000" },
+        { flag: "🇳🇬", code: "NGA", c1: "#008751", c2: "#ffffff" },
+        { flag: "🇰🇵", code: "PRK", c1: "#024fa2", c2: "#ce1126" },
+        { flag: "🇳🇴", code: "NOR", c1: "#ef2b2d", c2: "#002868" },
+        { flag: "🇵🇰", code: "PAK", c1: "#01411c", c2: "#ffffff" },
+        { flag: "🇵🇦", code: "PAN", c1: "#00529b", c2: "#ce1126" },
+        { flag: "🇵🇾", code: "PAR", c1: "#003399", c2: "#ce1126" },
+        { flag: "🇵🇪", code: "PER", c1: "#d91023", c2: "#ffffff" },
+        { flag: "🇵🇭", code: "PHI", c1: "#0032a0", c2: "#ce1126" },
+        { flag: "🇵🇱", code: "POL", c1: "#dc143c", c2: "#ffffff" },
+        { flag: "🇵🇹", code: "POR", c1: "#006600", c2: "#ff0000" },
+        { flag: "🇶🇦", code: "QAT", c1: "#8d1b3d", c2: "#ffffff" },
+        { flag: "🇷🇴", code: "ROM", c1: "#002b7f", c2: "#ce1126" },
+        { flag: "🇸🇦", code: "KSA", c1: "#006c35", c2: "#ffffff" },
+        { flag: "🇸🇳", code: "SEN", c1: "#00853f", c2: "#fdde25" },
+        { flag: "🇷🇸", code: "SRB", c1: "#003893", c2: "#ce1126" },
+        { flag: "🇸🇬", code: "SIN", c1: "#ce1126", c2: "#ffffff" },
+        { flag: "🇸🇰", code: "SVK", c1: "#0b4ea2", c2: "#ee1c25" },
+        { flag: "🇿🇦", code: "RSA", c1: "#de3831", c2: "#002395" },
+        { flag: "🇰🇷", code: "KOR", c1: "#003478", c2: "#cd2e3a" },
+        { flag: "🇸🇪", code: "SWE", c1: "#005b99", c2: "#fecc00" },
+        { flag: "🇨🇭", code: "SUI", c1: "#da291c", c2: "#ffffff" },
+        { flag: "🇹🇼", code: "TWN", c1: "#fe0000", c2: "#000095" },
+        { flag: "🇹🇭", code: "THA", c1: "#00247a", c2: "#ce1126" },
+        { flag: "🇹🇷", code: "TUR", c1: "#e30a17", c2: "#ffffff" },
+        { flag: "🇦🇪", code: "UAE", c1: "#00732f", c2: "#ffffff" },
+        { flag: "🇺🇾", code: "URU", c1: "#003893", c2: "#ffffff" },
+        { flag: "🇻🇪", code: "VEN", c1: "#003893", c2: "#ce1126" },
+        { flag: "🇻🇳", code: "VIE", c1: "#da251d", c2: "#ffff00" },
+        { flag: "🇾🇪", code: "YEM", c1: "#ce1126", c2: "#000000" }
+    ];
+
+    const uniqueNations = [];
+    const seenCodes = new Set();
+    NATIONS.forEach(n => { if (!seenCodes.has(n.code)) { seenCodes.add(n.code); uniqueNations.push(n); } });
+    uniqueNations.sort((a, b) => a.code.localeCompare(b.code));
+
+    let defaultFlag = "🇺🇸", defaultCode = "USA", defaultColor1 = "#b22234", defaultColor2 = "#3c3b6e";
+
+    class Unit {
+        constructor(id, type, lat, lng, groupId = null) {
+            this.id = id; this.type = type; this.lat = lat; this.lng = lng;
+            this.health = UNIT_TYPES[type].health; this.maxHealth = UNIT_TYPES[type].health;
+            this.rotation = 0; this.inverted = false;
+            this.flag = defaultFlag; this.code = defaultCode;
+            this.color1 = defaultColor1; this.color2 = defaultColor2;
+            this.groupId = groupId; this.marker = null;
+        }
+        rotate() { this.rotation = (this.rotation + 90) % 360; }
+        invert() { this.inverted = !this.inverted; }
+        setFlag(flag, code, c1, c2) { this.flag = flag; this.code = code; this.color1 = c1; this.color2 = c2; }
+        setHealth(health) { this.health = Math.min(this.maxHealth, Math.max(0, health)); }
+    }
+
+    let units = [], nextId = 1, selectedUnitType = "tank";
+    let selectedUnitIds = new Set(), lastSelectedId = null;
+    let groups = new Map(), nextGroupId = 1, clipboard = [];
+    let map = null, unitMarkers = new Map();
+    let isSelecting = false, selectStart = null;
+    let currentLayer = 'dark', currentTileLayer = null;
+    let isDraggingMulti = false, dragStartLatLng = null, dragGroupOffsets = new Map();
+    let clickTimer = null, isClick = false, mouseDownPos = null;
+    const DRAG_THRESHOLD = 8;
+
+    const history = {
+        states: [], index: -1, maxStates: 50,
+        saveState() {
+            this.states = this.states.slice(0, this.index + 1);
+            const state = units.map(u => ({ id: u.id, type: u.type, lat: u.lat, lng: u.lng, health: u.health, rotation: u.rotation, inverted: u.inverted, flag: u.flag, code: u.code, color1: u.color1, color2: u.color2, groupId: u.groupId }));
+            this.states.push(JSON.stringify(state));
+            if (this.states.length > this.maxStates) this.states.shift();
+            this.index = this.states.length - 1;
+        },
+        undo() { if (this.index > 0) { this.index--; this.restore(); return true; } return false; },
+        redo() { if (this.index < this.states.length - 1) { this.index++; this.restore(); return true; } return false; },
+        restore() {
+            const data = JSON.parse(this.states[this.index]);
+            unitMarkers.forEach(m => { if (map) map.removeLayer(m); });
+            unitMarkers.clear();
+            units = data.map(u => { const unit = new Unit(u.id, u.type, u.lat, u.lng, u.groupId); Object.assign(unit, u); return unit; });
+            groups.clear();
+            units.forEach(u => { if (u.groupId) { if (!groups.has(u.groupId)) groups.set(u.groupId, new Set()); groups.get(u.groupId).add(u.id); } });
+            selectedUnitIds.clear();
+            renderAllMarkers();
+            updateStatusBar();
+            updateInfoBar("↩️ Restored");
+        }
+    };
+
+    const toast = document.getElementById("toast");
+    let toastTimeout = null;
+    function showToast(msg) { toast.textContent = msg; toast.classList.add('show'); clearTimeout(toastTimeout); toastTimeout = setTimeout(() => toast.classList.remove('show'), 2500); }
+    function updateInfoBar(msg) { document.getElementById('infoBar').textContent = msg; }
+    function updateStatusBar() {
+        document.getElementById('unitCounter').textContent = `Units: ${units.length}`;
+        if (selectedUnitIds.size === 0) document.getElementById('selectionInfo').textContent = "Selected: None";
+        else if (selectedUnitIds.size === 1) {
+            const unit = units.find(u => u.id === Array.from(selectedUnitIds)[0]);
+            document.getElementById('selectionInfo').textContent = unit ? `Selected: ${unit.code} ${UNIT_TYPES[unit.type].name}` : "Selected: None";
+        } else document.getElementById('selectionInfo').textContent = `Selected: ${selectedUnitIds.size} units`;
+    }
+
+    // ===== LAYER CONFIG =====
+    const LAYER_CONFIG = {
+        dark: { icon: '🌙', name: 'Dark', tile: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', attribution: '© OpenStreetMap, CartoDB', subdomains: 'abcd', maxZoom: 19 },
+        light: { icon: '☀️', name: 'Light', tile: 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', attribution: '© OpenStreetMap, CartoDB', subdomains: 'abcd', maxZoom: 19 },
+        satellite: { icon: '🛰️', name: 'Satellite', tile: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', attribution: '© Esri', maxZoom: 19 },
+        topo: { icon: '🗺️', name: 'Topo', tile: 'https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', attribution: '© OpenTopoMap', maxZoom: 17 },
+        streets: { icon: '🏙️', name: 'Streets', tile: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', attribution: '© OpenStreetMap', maxZoom: 19 }
+    };
+
+    // ===== SET LAYER =====
+    function setLayer(layerKey) {
+        currentLayer = layerKey;
+        const config = LAYER_CONFIG[layerKey];
+        
+        // Update buttons
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.layer === layerKey);
+        });
+        
+        // Update map
+        if (currentTileLayer && map) map.removeLayer(currentTileLayer);
+        currentTileLayer = L.tileLayer(config.tile, {
+            attribution: config.attribution,
+            subdomains: config.subdomains || 'abc',
+            maxZoom: config.maxZoom || 19
+        }).addTo(map);
+        
+        showToast(`🗺️ ${config.icon} ${config.name}`);
+        updateInfoBar(`🗺️ ${config.icon} ${config.name}`);
+        try { localStorage.setItem('tacticalMapLayer', layerKey); } catch(e) {}
+    }
+
+    function cycleLayer() {
+        const layers = Object.keys(LAYER_CONFIG);
+        const idx = layers.indexOf(currentLayer);
+        setLayer(layers[(idx + 1) % layers.length]);
+    }
+
+    // ===== MAP INIT =====
+    function initMap() {
+        map = L.map('leafletMap', {
+            center: [20, 0], zoom: 2, zoomControl: true,
+            fadeAnimation: true, zoomAnimation: true, markerZoomAnimation: true,
+            dragging: true, touchZoom: true, scrollWheelZoom: true, doubleClickZoom: true
+        });
+
+        let savedLayer = 'dark';
+        try { const saved = localStorage.getItem('tacticalMapLayer'); if (saved && LAYER_CONFIG[saved]) savedLayer = saved; } catch(e) {}
+
+        const config = LAYER_CONFIG[savedLayer];
+        currentTileLayer = L.tileLayer(config.tile, {
+            attribution: config.attribution,
+            subdomains: config.subdomains || 'abc',
+            maxZoom: config.maxZoom || 19
+        }).addTo(map);
+        currentLayer = savedLayer;
+
+        // Set active button
+        document.querySelectorAll('.layer-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.layer === savedLayer);
+        });
+
+        L.control.scale({ position: 'bottomright' }).addTo(map);
+
+        map.on('click', onMapClick);
+        map.on('mousedown', onMapMouseDown);
+        map.on('mousemove', onMapMouseMove);
+        map.on('mouseup', onMapMouseUp);
+        map.on('contextmenu', onMapContextMenu);
+        map.on('dragstart', () => { document.getElementById('leafletMap').style.cursor = 'grabbing'; });
+        map.on('dragend', () => { document.getElementById('leafletMap').style.cursor = 'crosshair'; });
+
+        setTimeout(() => fitMapToUnits(), 300);
+        return map;
+    }
+
+    // ===== MAP INTERACTIONS =====
+    function onMapClick(e) {
+        if (isSelecting || isDraggingMulti) return;
+        if (isClick) {
+            const latlng = e.latlng;
+            const clicked = getUnitAt(latlng);
+            if (clicked) {
+                selectUnit(clicked, e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+                updateInfoBar(`🎯 Selected ${clicked.code} ${UNIT_TYPES[clicked.type].name}`);
+            } else {
+                addUnit(selectedUnitType, latlng.lat, latlng.lng);
+            }
+            isClick = false;
+        }
+    }
+
+    function onMapMouseDown(e) {
+        if (e.originalEvent.button !== 0) return;
+        mouseDownPos = { x: e.originalEvent.clientX, y: e.originalEvent.clientY };
+        isClick = true;
+        if (clickTimer) clearTimeout(clickTimer);
+        const latlng = e.latlng;
+        const clicked = getUnitAt(latlng);
+        if (clicked && (e.originalEvent.ctrlKey || e.originalEvent.metaKey)) {
+            selectUnit(clicked, true);
+            isClick = false;
+            return;
+        }
+        if (clicked && !e.originalEvent.ctrlKey && !e.originalEvent.metaKey) {
+            isDraggingMulti = true;
+            dragStartLatLng = latlng;
+            dragGroupOffsets.clear();
+            if (!selectedUnitIds.has(clicked.id)) selectUnit(clicked, false);
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) {
+                    const pos = u.marker.getLatLng();
+                    dragGroupOffsets.set(id, { latOffset: pos.lat - latlng.lat, lngOffset: pos.lng - latlng.lng });
+                }
+            });
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) { const el = u.marker.getElement(); if (el) el.classList.add('dragging'); }
+            });
+            map.getContainer().style.cursor = 'grabbing';
+            return;
+        }
+        if (!clicked) {
+            clickTimer = setTimeout(() => {
+                if (isClick) {
+                    isSelecting = true;
+                    selectStart = latlng;
+                    document.getElementById('selectionRect').style.display = 'block';
+                    updateSelectionRect(latlng, latlng);
+                    isClick = false;
+                }
+            }, 300);
+        }
+    }
+
+    function onMapMouseMove(e) {
+        if (mouseDownPos && isClick) {
+            const dx = e.originalEvent.clientX - mouseDownPos.x;
+            const dy = e.originalEvent.clientY - mouseDownPos.y;
+            if (Math.sqrt(dx*dx + dy*dy) > DRAG_THRESHOLD) { isClick = false; if (clickTimer) clearTimeout(clickTimer); }
+        }
+        const latlng = e.latlng;
+        const hovered = getUnitAt(latlng);
+        map.getContainer().style.cursor = (hovered && !isDraggingMulti) ? 'pointer' : 'crosshair';
+        if (isDraggingMulti && dragStartLatLng) {
+            const dx = latlng.lng - dragStartLatLng.lng;
+            const dy = latlng.lat - dragStartLatLng.lat;
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) {
+                    const offset = dragGroupOffsets.get(id);
+                    if (offset) {
+                        u.lat = dragStartLatLng.lat + dy + offset.latOffset;
+                        u.lng = dragStartLatLng.lng + dx + offset.lngOffset;
+                        u.marker.setLatLng([u.lat, u.lng]);
+                    }
+                }
+            });
+            const indicator = document.getElementById('dragIndicator');
+            indicator.style.display = 'block';
+            indicator.style.left = (e.originalEvent.clientX - 20) + 'px';
+            indicator.style.top = (e.originalEvent.clientY - 20) + 'px';
+            indicator.style.width = '40px';
+            indicator.style.height = '40px';
+            indicator.style.borderRadius = '50%';
+            indicator.style.background = 'rgba(255,215,0,0.15)';
+            indicator.style.border = '2px dashed gold';
+            return;
+        }
+        if (isSelecting && selectStart) updateSelectionRect(selectStart, latlng);
+    }
+
+    function onMapMouseUp(e) {
+        if (clickTimer) { clearTimeout(clickTimer); clickTimer = null; }
+        if (isDraggingMulti) {
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) { const el = u.marker.getElement(); if (el) el.classList.remove('dragging'); }
+            });
+            document.getElementById('dragIndicator').style.display = 'none';
+            if (dragStartLatLng) {
+                const latlng = e.latlng;
+                const dist = map.distance(dragStartLatLng, latlng);
+                if (dist > 10) { history.saveState(); updateInfoBar(`📍 Moved ${selectedUnitIds.size} unit(s)`); showToast(`📍 Moved ${selectedUnitIds.size} unit(s)`); }
+            }
+            isDraggingMulti = false; dragStartLatLng = null; dragGroupOffsets.clear();
+            map.getContainer().style.cursor = 'crosshair';
+            return;
+        }
+        if (isSelecting && selectStart) {
+            const end = e.latlng;
+            const unitsInRect = getUnitsInRect(selectStart, end);
+            if (unitsInRect.length > 0) {
+                selectUnits(unitsInRect.map(u => u.id), e.originalEvent.ctrlKey || e.originalEvent.metaKey);
+                updateInfoBar(`📦 Selected ${unitsInRect.length} unit(s)`);
+            }
+            isSelecting = false; selectStart = null;
+            document.getElementById('selectionRect').style.display = 'none';
+        }
+        mouseDownPos = null;
+    }
+
+    function onMapContextMenu(e) {
+        e.originalEvent.preventDefault();
+        const latlng = e.latlng;
+        const clicked = getUnitAt(latlng);
+        if (clicked) {
+            if (!selectedUnitIds.has(clicked.id)) selectUnit(clicked, false);
+            const contextMenu = document.getElementById('contextMenu');
+            contextMenu.style.display = 'block';
+            contextMenu.style.left = e.originalEvent.clientX + 'px';
+            contextMenu.style.top = e.originalEvent.clientY + 'px';
+        }
+    }
+
+    function updateSelectionRect(start, end) {
+        const container = document.getElementById('mapContainer');
+        const rect = container.getBoundingClientRect();
+        const mapRect = map.getContainer().getBoundingClientRect();
+        const startPx = map.latLngToContainerPoint(start);
+        const endPx = map.latLngToContainerPoint(end);
+        const left = Math.min(startPx.x, endPx.x);
+        const right = Math.max(startPx.x, endPx.x);
+        const top = Math.min(startPx.y, endPx.y);
+        const bottom = Math.max(startPx.y, endPx.y);
+        const sel = document.getElementById('selectionRect');
+        sel.style.left = (mapRect.left + left - rect.left) + 'px';
+        sel.style.top = (mapRect.top + top - rect.top) + 'px';
+        sel.style.width = (right - left) + 'px';
+        sel.style.height = (bottom - top) + 'px';
+    }
+
+    // ===== UNIT MANAGEMENT =====
+    function getUnitAt(latlng) {
+        for (let i = units.length - 1; i >= 0; i--) {
+            const u = units[i];
+            if (map.distance([u.lat, u.lng], [latlng.lat, latlng.lng]) < 35) return u;
+        }
+        return null;
+    }
+
+    function getUnitsInRect(start, end) {
+        const bounds = L.latLngBounds([start, end]);
+        return units.filter(u => bounds.contains([u.lat, u.lng]));
+    }
+
+    function selectUnits(ids, add = false) {
+        if (!add) selectedUnitIds.clear();
+        ids.forEach(id => selectedUnitIds.add(id));
+        lastSelectedId = ids[ids.length - 1] || null;
+        updateMarkers();
+        updateStatusBar();
+    }
+
+    function selectUnit(unit, add = false) {
+        if (!add) selectedUnitIds.clear();
+        if (unit) {
+            if (add && selectedUnitIds.has(unit.id)) selectedUnitIds.delete(unit.id);
+            else selectedUnitIds.add(unit.id);
+            lastSelectedId = unit.id;
+        }
+        updateMarkers();
+        updateStatusBar();
+    }
+
+    function clearSelection() { selectedUnitIds.clear(); lastSelectedId = null; updateMarkers(); updateStatusBar(); updateInfoBar("✨ Selection cleared"); }
+
+    function createUnitIcon(unit) {
+        const canvas = document.createElement('canvas');
+        canvas.width = 44; canvas.height = 52;
+        const ctx = canvas.getContext('2d');
+        const size = UNIT_TYPES[unit.type].size;
+        ctx.clearRect(0, 0, 44, 52);
+        ctx.save();
+        ctx.translate(22, 22);
+        if (unit.rotation !== 0) ctx.rotate(unit.rotation * Math.PI / 180);
+        ctx.save();
+        if (unit.inverted) ctx.scale(-1, 1);
+        UNIT_TYPES[unit.type].draw(ctx, 0, 0, unit.color1, unit.color2);
+        ctx.restore();
+        ctx.restore();
+        ctx.font = '14px "Segoe UI Emoji"';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.fillText(unit.flag, 22, 10);
+        ctx.shadowBlur = 0;
+        ctx.font = 'bold 8px "Segoe UI", monospace';
+        ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+        ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.8)';
+        ctx.fillStyle = '#FFFFFF';
+        ctx.fillText(unit.code, 22, 50);
+        ctx.shadowBlur = 0;
+        const hp = unit.health / UNIT_TYPES[unit.type].health;
+        ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(8, 44, 28, 3);
+        ctx.fillStyle = hp > 0.5 ? '#44ff44' : (hp > 0.25 ? '#ffaa44' : '#ff4444');
+        ctx.fillRect(8, 44, 28 * hp, 3);
+        if (unit.rotation !== 0) { ctx.font = '8px monospace'; ctx.fillStyle = '#ffaa44'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.fillText('↻', 36, 16); ctx.shadowBlur = 0; }
+        if (unit.inverted) { ctx.font = '8px monospace'; ctx.fillStyle = '#44aaff'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.fillText('⇄', 8, 16); ctx.shadowBlur = 0; }
+        if (unit.groupId !== null && groups.has(unit.groupId)) { ctx.font = '8px monospace'; ctx.fillStyle = '#44ff44'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.shadowBlur = 6; ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.fillText('⛓️', 22, 40); ctx.shadowBlur = 0; }
+        return canvas.toDataURL();
+    }
+
+    function createMarker(unit) {
+        if (!map) return;
+        const isSelected = selectedUnitIds.has(unit.id);
+        const isInGroup = unit.groupId !== null && groups.has(unit.groupId);
+        const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="marker-container"><img src="${createUnitIcon(unit)}" class="marker-image ${isSelected ? 'selected' : ''} ${isInGroup ? 'grouped' : ''}" /><div class="marker-label">${unit.code}</div></div>`,
+            iconSize: [44, 52], iconAnchor: [22, 52], popupAnchor: [0, -52]
+        });
+        const marker = L.marker([unit.lat, unit.lng], { icon, draggable: true, autoPan: true, autoPanSpeed: 10, autoPanPadding: [50, 50] }).addTo(map);
+        let dragStart = null;
+        marker.on('dragstart', function(e) {
+            dragStart = e.target.getLatLng();
+            if (!selectedUnitIds.has(unit.id)) selectUnit(unit, false);
+            dragGroupOffsets.clear();
+            const pos = e.target.getLatLng();
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) {
+                    const p = u.marker.getLatLng();
+                    dragGroupOffsets.set(id, { latOffset: p.lat - pos.lat, lngOffset: p.lng - pos.lng });
+                }
+            });
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) { const el = u.marker.getElement(); if (el) el.classList.add('dragging'); }
+            });
+        });
+        marker.on('drag', function(e) {
+            const pos = e.target.getLatLng();
+            unit.lat = pos.lat; unit.lng = pos.lng;
+            selectedUnitIds.forEach(id => {
+                if (id !== unit.id) {
+                    const u = units.find(u => u.id === id);
+                    if (u && u.marker) {
+                        const off = dragGroupOffsets.get(id);
+                        if (off) { u.lat = pos.lat + off.latOffset; u.lng = pos.lng + off.lngOffset; u.marker.setLatLng([u.lat, u.lng]); }
+                    }
+                }
+            });
+        });
+        marker.on('dragend', function(e) {
+            selectedUnitIds.forEach(id => {
+                const u = units.find(u => u.id === id);
+                if (u && u.marker) { const el = u.marker.getElement(); if (el) el.classList.remove('dragging'); }
+            });
+            if (dragStart) {
+                const end = e.target.getLatLng();
+                if (map.distance(dragStart, end) > 5) { history.saveState(); updateInfoBar(`📍 Moved ${selectedUnitIds.size} unit(s)`); showToast(`📍 Moved ${selectedUnitIds.size} unit(s)`); }
+            }
+            dragGroupOffsets.clear(); dragStart = null;
+        });
+        marker.on('click', (e) => { L.DomEvent.stopPropagation(e); if (!e.originalEvent.ctrlKey && !e.originalEvent.metaKey) selectUnit(unit, false); else selectUnit(unit, true); });
+        marker.on('contextmenu', (e) => { L.DomEvent.stopPropagation(e); if (!selectedUnitIds.has(unit.id)) selectUnit(unit, false); const cm = document.getElementById('contextMenu'); cm.style.display = 'block'; cm.style.left = e.originalEvent.clientX + 'px'; cm.style.top = e.originalEvent.clientY + 'px'; });
+        unit.marker = marker;
+        unitMarkers.set(unit.id, marker);
+        return marker;
+    }
+
+    function updateMarkerIcon(unit) {
+        if (!unit.marker) return;
+        const isSelected = selectedUnitIds.has(unit.id);
+        const isInGroup = unit.groupId !== null && groups.has(unit.groupId);
+        const icon = L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="marker-container"><img src="${createUnitIcon(unit)}" class="marker-image ${isSelected ? 'selected' : ''} ${isInGroup ? 'grouped' : ''}" /><div class="marker-label">${unit.code}</div></div>`,
+            iconSize: [44, 52], iconAnchor: [22, 52], popupAnchor: [0, -52]
+        });
+        unit.marker.setIcon(icon);
+    }
+
+    function updateMarkers() { units.forEach(u => { if (u.marker) updateMarkerIcon(u); else createMarker(u); }); }
+    function renderAllMarkers() { unitMarkers.forEach(m => { if (map) map.removeLayer(m); }); unitMarkers.clear(); units.forEach(u => createMarker(u)); }
+
+    function fitMapToUnits() {
+        if (!map || units.length === 0) { map.setView([20, 0], 2); return; }
+        map.fitBounds(L.latLngBounds(units.map(u => [u.lat, u.lng])), { padding: [60, 60], maxZoom: 5 });
+    }
+
+    function addUnit(type, lat, lng) {
+        for (let u of units) {
+            if (map.distance([u.lat, u.lng], [lat, lng]) < 30) { updateInfoBar("⚠️ Too close!"); return null; }
+        }
+        const unit = new Unit(nextId++, type, lat, lng);
+        units.push(unit);
+        history.saveState();
+        createMarker(unit);
+        selectUnit(unit, false);
+        updateStatusBar();
+        updateInfoBar(`✅ DEPLOYED: ${unit.flag} ${unit.code}`);
+        showToast(`✅ Deployed ${unit.flag} ${unit.code}`);
+        return unit;
+    }
+
+    function deleteSelected() {
+        if (selectedUnitIds.size === 0) { updateInfoBar("⚠️ No unit selected!"); return; }
+        const toDelete = Array.from(selectedUnitIds);
+        toDelete.forEach(id => {
+            const idx = units.findIndex(u => u.id === id);
+            if (idx !== -1) {
+                const u = units[idx];
+                if (u.groupId) { const g = groups.get(u.groupId); if (g) { g.delete(u.id); if (g.size === 0) groups.delete(u.groupId); } }
+                if (u.marker && map) { map.removeLayer(u.marker); unitMarkers.delete(u.id); }
+                units.splice(idx, 1);
+            }
+        });
+        selectedUnitIds.clear();
+        history.saveState();
+        updateStatusBar();
+        updateInfoBar(`🗑️ Deleted ${toDelete.length} unit(s)`);
+        showToast(`🗑️ Deleted ${toDelete.length} unit(s)`);
+    }
+
+    function rotateSelected() {
+        if (selectedUnitIds.size === 0) { updateInfoBar("⚠️ No unit selected!"); return; }
+        selectedUnitIds.forEach(id => { const u = units.find(unit => unit.id === id); if (u) u.rotate(); });
+        history.saveState(); updateMarkers();
+        updateInfoBar(`🔄 Rotated ${selectedUnitIds.size} unit(s)`);
+        showToast(`🔄 Rotated ${selectedUnitIds.size} unit(s)`);
+    }
+
+    function invertSelected() {
+        if (selectedUnitIds.size === 0) { updateInfoBar("⚠️ No unit selected!"); return; }
+        selectedUnitIds.forEach(id => { const u = units.find(unit => unit.id === id); if (u) u.invert(); });
+        history.saveState(); updateMarkers();
+        updateInfoBar(`🪞 Inverted ${selectedUnitIds.size} unit(s)`);
+        showToast(`🪞 Inverted ${selectedUnitIds.size} unit(s)`);
+    }
+
+    function duplicateSelected() {
+        if (selectedUnitIds.size === 0) { updateInfoBar("⚠️ No unit selected!"); return; }
+        const newIds = [];
+        selectedUnitIds.forEach(id => {
+            const orig = units.find(u => u.id === id);
+            if (orig) {
+                const off = 0.001 + Math.random() * 0.001;
+                const nu = new Unit(nextId++, orig.type, orig.lat + off, orig.lng + off);
+                nu.setFlag(orig.flag, orig.code, orig.color1, orig.color2);
+                nu.rotation = orig.rotation; nu.inverted = orig.inverted;
+                units.push(nu); createMarker(nu); newIds.push(nu.id);
+            }
+        });
+        selectUnits(newIds, false);
+        history.saveState(); updateStatusBar();
+        updateInfoBar(`📋 Duplicated ${newIds.length} units`);
+        showToast(`📋 Duplicated ${newIds.length} units`);
+    }
+
+    function groupSelected() {
+        if (selectedUnitIds.size < 2) { updateInfoBar("⚠️ Select at least 2 units"); return; }
+        const gid = nextGroupId++;
+        groups.set(gid, new Set(selectedUnitIds));
+        selectedUnitIds.forEach(id => { const u = units.find(unit => unit.id === id); if (u) u.groupId = gid; });
+        updateMarkers();
+        updateInfoBar(`🔗 Grouped ${selectedUnitIds.size} units`);
+        showToast(`🔗 Grouped ${selectedUnitIds.size} units`);
+    }
+
+    function ungroupSelected() {
+        selectedUnitIds.forEach(id => {
+            const u = units.find(unit => unit.id === id);
+            if (u && u.groupId) {
+                const g = groups.get(u.groupId);
+                if (g) g.delete(id);
+                if (g && g.size === 0) groups.delete(u.groupId);
+                u.groupId = null;
+            }
+        });
+        updateMarkers();
+        updateInfoBar(`🔓 Ungrouped`);
+        showToast(`🔓 Ungrouped`);
+    }
+
+    function clearAll() {
+        if (units.length === 0) return;
+        unitMarkers.forEach(m => { if (map) map.removeLayer(m); });
+        unitMarkers.clear();
+        units = []; nextId = 1; selectedUnitIds.clear(); groups.clear();
+        history.saveState(); updateStatusBar();
+        updateInfoBar("🗑️ All cleared");
+        showToast("🗑️ All cleared");
+    }
+
+    function copySelected() {
+        clipboard = units.filter(u => selectedUnitIds.has(u.id)).map(u => ({...u}));
+        updateInfoBar(`📋 Copied ${clipboard.length} units`);
+        showToast(`📋 Copied ${clipboard.length} units`);
+    }
+
+    function pasteUnits() {
+        if (clipboard.length === 0) { showToast("⚠️ Nothing to paste"); return; }
+        const newIds = [];
+        clipboard.forEach(u => {
+            const off = 0.001 + Math.random() * 0.001;
+            const nu = new Unit(nextId++, u.type, u.lat + off, u.lng + off);
+            Object.assign(nu, u); nu.id = nextId - 1;
+            units.push(nu); createMarker(nu); newIds.push(nu.id);
+        });
+        selectUnits(newIds, false);
+        history.saveState(); updateStatusBar();
+        updateInfoBar(`📋 Pasted ${clipboard.length} units`);
+        showToast(`📋 Pasted ${clipboard.length} units`);
+    }
+
+    function selectAll() {
+        if (units.length === 0) { showToast("⚠️ No units"); return; }
+        selectUnits(units.map(u => u.id));
+        showToast(`✅ Selected all ${units.length} units`);
+    }
+
+    function selectSameType() {
+        if (selectedUnitIds.size === 0) { showToast("⚠️ Select a unit first"); return; }
+        const first = units.find(u => selectedUnitIds.has(u.id));
+        if (!first) return;
+        const same = units.filter(u => u.type === first.type);
+        selectUnits(same.map(u => u.id));
+        updateInfoBar(`🎯 Selected all ${first.type}s (${same.length})`);
+        showToast(`🎯 Selected ${same.length} ${first.type}s`);
+    }
+
+    function calculateBattle() {
+        const stats = { total: units.length, byNation: {}, byType: {}, totalHealth: 0, avgHealth: 0, nations: new Set() };
+        units.forEach(u => {
+            stats.byNation[u.code] = (stats.byNation[u.code] || 0) + 1;
+            stats.byType[u.type] = (stats.byType[u.type] || 0) + 1;
+            stats.totalHealth += u.health;
+            stats.nations.add(u.code);
+        });
+        stats.avgHealth = units.length > 0 ? Math.round(stats.totalHealth / units.length) : 0;
+        stats.nationCount = stats.nations.size;
+        return stats;
+    }
+
+    function showStats() {
+        const s = calculateBattle();
+        let msg = `📊 STATS\nTotal: ${s.total} units\nNations: ${s.nationCount}\nAvg Health: ${s.avgHealth}\n\n`;
+        msg += "By Type:\n";
+        Object.entries(s.byType).forEach(([type, count]) => { msg += `  ${UNIT_TYPES[type].name}: ${count}\n`; });
+        msg += "\nBy Nation:\n";
+        Object.entries(s.byNation).forEach(([code, count]) => { msg += `  ${code}: ${count}\n`; });
+        alert(msg);
+        showToast("📊 Stats displayed");
+    }
+
+    function arrangeFormation() {
+        const sel = units.filter(u => selectedUnitIds.has(u.id));
+        if (sel.length < 2) { showToast("⚠️ Select at least 2 units"); return; }
+        const cols = Math.ceil(Math.sqrt(sel.length));
+        const spacing = 0.0008;
+        let idx = 0;
+        const cLat = sel.reduce((s, u) => s + u.lat, 0) / sel.length;
+        const cLng = sel.reduce((s, u) => s + u.lng, 0) / sel.length;
+        for (let r = 0; r < Math.ceil(sel.length / cols); r++) {
+            for (let c = 0; c < cols; c++) {
+                if (idx >= sel.length) break;
+                const u = sel[idx];
+                u.lat = cLat + (r - (Math.ceil(sel.length / cols)-1)/2) * spacing;
+                u.lng = cLng + (c - (cols-1)/2) * spacing;
+                if (u.marker) u.marker.setLatLng([u.lat, u.lng]);
+                idx++;
+            }
+        }
+        history.saveState(); updateStatusBar();
+        updateInfoBar(`📐 Formed square with ${sel.length} units`);
+        showToast(`📐 Formed square with ${sel.length} units`);
+    }
+
+    function exportScenario() {
+        if (units.length === 0) { showToast("⚠️ No units to export"); return; }
+        const data = { units: units.map(u => ({...u})), nextId, metadata: { created: new Date().toISOString(), version: '7.6', count: units.length } };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {type: 'application/json'});
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `scenario_${Date.now()}.json`; a.click();
+        URL.revokeObjectURL(url);
+        showToast(`📤 Exported ${units.length} units`);
+    }
+
+    function importScenario(file) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            try {
+                const data = JSON.parse(e.target.result);
+                unitMarkers.forEach(m => { if (map) map.removeLayer(m); });
+                unitMarkers.clear();
+                units = data.units.map(u => { const unit = new Unit(u.id, u.type, u.lat, u.lng, u.groupId); Object.assign(unit, u); return unit; });
+                nextId = data.nextId || units.length + 1;
+                selectedUnitIds.clear(); groups.clear();
+                units.forEach(u => {
+                    if (u.groupId) { if (!groups.has(u.groupId)) groups.set(u.groupId, new Set()); groups.get(u.groupId).add(u.id); }
+                    createMarker(u);
+                });
+                history.saveState(); updateStatusBar();
+                updateInfoBar(`📥 Imported ${units.length} units`);
+                showToast(`📥 Imported ${units.length} units`);
+                fitMapToUnits();
+            } catch(err) { showToast('❌ Invalid file format'); console.error(err); }
+        };
+        reader.readAsText(file);
+    }
+
+    function saveScenario() {
+        if (units.length === 0) { showToast("⚠️ No units to save"); return; }
+        const scenario = { units: units.map(u => ({ id: u.id, type: u.type, lat: u.lat, lng: u.lng, health: u.health, rotation: u.rotation, inverted: u.inverted, flag: u.flag, code: u.code, color1: u.color1, color2: u.color2, groupId: u.groupId })), nextId, defaultFlag, defaultCode, defaultColor1, defaultColor2 };
+        localStorage.setItem('tacticalMapScenario_v7', JSON.stringify(scenario));
+        updateInfoBar("💾 Saved!"); showToast("💾 Saved successfully!");
+    }
+
+    function loadScenario() {
+        const saved = localStorage.getItem('tacticalMapScenario_v7');
+        if (!saved) { showToast("❌ No save found!"); return; }
+        try {
+            const scenario = JSON.parse(saved);
+            unitMarkers.forEach(m => { if (map) map.removeLayer(m); });
+            unitMarkers.clear();
+            units = scenario.units.map(u => { const unit = new Unit(u.id, u.type, u.lat, u.lng, u.groupId); Object.assign(unit, u); return unit; });
+            nextId = scenario.nextId;
+            defaultFlag = scenario.defaultFlag; defaultCode = scenario.defaultCode; defaultColor1 = scenario.defaultColor1; defaultColor2 = scenario.defaultColor2;
+            groups.clear();
+            units.forEach(u => {
+                if (u.groupId) { if (!groups.has(u.groupId)) groups.set(u.groupId, new Set()); groups.get(u.groupId).add(u.id); }
+                createMarker(u);
+            });
+            clearSelection();
+            history.saveState(); updateStatusBar();
+            updateInfoBar("📂 Loaded!"); showToast("📂 Loaded successfully!");
+            fitMapToUnits();
+        } catch(e) { showToast("❌ Load failed"); }
+    }
+
+    function downloadMap() {
+        const container = document.getElementById('leafletMap');
+        showToast("📸 Capturing...");
+        updateInfoBar("📸 Capturing...");
+        const controls = container.querySelectorAll('.leaflet-control, .leaflet-control-attribution');
+        const orig = [];
+        controls.forEach(el => { orig.push(el.style.display); el.style.display = 'none'; });
+        html2canvas(container, { scale: 1.5, backgroundColor: '#0a1a0f', allowTaint: true, useCORS: true, logging: false })
+            .then(canvas => {
+                controls.forEach((el, i) => { el.style.display = orig[i] || ''; });
+                const link = document.createElement('a');
+                link.download = `tactical_map_${new Date().toISOString().slice(0,10)}.png`;
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+                showToast("📸 Downloaded!");
+                updateInfoBar("📸 Download complete!");
+            })
+            .catch(err => {
+                controls.forEach((el, i) => { el.style.display = orig[i] || ''; });
+                console.error(err);
+                showToast("❌ Download failed");
+                updateInfoBar("❌ Download failed");
+            });
+    }
+
+    // ===== UI BUILDERS =====
+    function buildNationDropdown() {
+        const dd = document.getElementById('flagDropdown');
+        dd.innerHTML = "";
+        uniqueNations.forEach(n => {
+            const opt = document.createElement("option");
+            opt.value = `${n.flag}|${n.code}|${n.c1}|${n.c2}`;
+            opt.textContent = `${n.flag} ${n.code}`;
+            if (n.code === "USA") opt.selected = true;
+            dd.appendChild(opt);
+        });
+        const val = dd.value;
+        if (val) { const p = val.split('|'); defaultFlag = p[0]; defaultCode = p[1]; defaultColor1 = p[2]; defaultColor2 = p[3]; }
+        dd.addEventListener('change', () => {
+            const p = dd.value.split('|');
+            defaultFlag = p[0]; defaultCode = p[1]; defaultColor1 = p[2]; defaultColor2 = p[3];
+            updateInfoBar(`🌍 Default ${defaultFlag} ${defaultCode}`);
+        });
+    }
+
+    function buildPalette() {
+        const container = document.getElementById("unitPalette");
+        container.innerHTML = "";
+        Object.keys(UNIT_TYPES).forEach(key => {
+            const def = UNIT_TYPES[key];
+            const card = document.createElement("div");
+            card.className = "unit-card-compact";
+            if (selectedUnitType === key) card.classList.add("selected");
+            const canvas = document.createElement("canvas");
+            canvas.width = 30; canvas.height = 30;
+            canvas.style.width = "30px"; canvas.style.height = "30px";
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, 30, 30);
+            ctx.save(); ctx.translate(15, 15);
+            def.draw(ctx, 0, 0, defaultColor1, defaultColor2);
+            ctx.restore();
+            card.appendChild(canvas);
+            const span = document.createElement("span");
+            span.style.fontWeight = "bold"; span.style.marginLeft = "4px";
+            span.style.fontSize = "10px"; span.innerText = def.name;
+            card.appendChild(span);
+            card.addEventListener("click", (e) => {
+                e.stopPropagation();
+                selectedUnitType = key;
+                document.querySelectorAll(".unit-card-compact").forEach(c => c.classList.remove("selected"));
+                card.classList.add("selected");
+                updateInfoBar(`⚡ ${def.name} selected`);
+            });
+            container.appendChild(card);
+        });
+    }
+
+    // ===== KEYBOARD =====
+    document.addEventListener('keydown', (e) => {
+        const key = e.key;
+        if (e.ctrlKey || e.metaKey) {
+            switch(key.toLowerCase()) {
+                case 'z': e.preventDefault(); if (history.undo()) { showToast("↩️ Undo"); updateInfoBar("↩️ Undo"); } break;
+                case 'y': e.preventDefault(); if (history.redo()) { showToast("↪️ Redo"); updateInfoBar("↪️ Redo"); } break;
+                case 'c': e.preventDefault(); copySelected(); break;
+                case 'v': e.preventDefault(); pasteUnits(); break;
+                case 's': e.preventDefault(); saveScenario(); break;
+                case 'l': e.preventDefault(); loadScenario(); break;
+                case 'a': e.preventDefault(); selectAll(); break;
+            }
+            return;
+        }
+        if (key === 'r' || key === 'R') { e.preventDefault(); rotateSelected(); }
+        else if (key === 'i' || key === 'I') { e.preventDefault(); invertSelected(); }
+        else if (key === 'Delete' || key === 'Del') { e.preventDefault(); deleteSelected(); }
+        else if (key === 'Escape') { e.preventDefault(); clearSelection(); }
+        else if (key === 'g' || key === 'G') { e.preventDefault(); groupSelected(); }
+        else if (key === 'u' || key === 'U') { e.preventDefault(); ungroupSelected(); }
+        else if (key === 'f' || key === 'F') { e.preventDefault(); selectSameType(); }
+        else if (key === '?') { e.preventDefault(); document.getElementById("helpModal").style.display = "flex"; }
+        else if (key === 'l' || key === 'L') { e.preventDefault(); cycleLayer(); }
+        const num = parseInt(key);
+        if (num >= 1 && num <= 6) {
+            const types = Object.keys(UNIT_TYPES);
+            if (num-1 < types.length) {
+                selectedUnitType = types[num-1];
+                document.querySelectorAll(".unit-card-compact").forEach((c, i) => { c.classList.toggle("selected", i === num-1); });
+                updateInfoBar(`🎖️ ${UNIT_TYPES[selectedUnitType].name}`);
+            }
+        }
+    });
+
+    // ===== CONTEXT MENU =====
+    document.querySelectorAll('.context-menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const action = item.dataset.action;
+            if (action === 'health') {
+                const val = prompt("Set health (0-100):", "100");
+                if (val !== null) {
+                    const h = parseInt(val);
+                    selectedUnitIds.forEach(id => { const u = units.find(unit => unit.id === id); if (u) u.setHealth(h); });
+                    history.saveState(); updateMarkers();
+                    updateInfoBar(`❤️ Health set to ${h}`);
+                    showToast(`❤️ Health set to ${h}`);
+                }
+            } else if (action === 'rotate') rotateSelected();
+            else if (action === 'invert') invertSelected();
+            else if (action === 'delete') deleteSelected();
+            else if (action === 'duplicate') duplicateSelected();
+            else if (action === 'formation') arrangeFormation();
+            document.getElementById('contextMenu').style.display = 'none';
+        });
+    });
+    document.addEventListener('click', () => { document.getElementById('contextMenu').style.display = 'none'; });
+
+    // ===== LAYER BUTTON EVENTS =====
+    document.querySelectorAll('.layer-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            setLayer(this.dataset.layer);
+        });
+    });
+
+    // ===== BUTTON BINDINGS =====
+    document.getElementById("resetBtn").addEventListener('click', clearAll);
+    document.getElementById("downloadBtn").addEventListener('click', downloadMap);
+    document.getElementById("saveBtn").addEventListener('click', saveScenario);
+    document.getElementById("loadBtn").addEventListener('click', loadScenario);
+    document.getElementById("statsBtn").addEventListener('click', showStats);
+    document.getElementById("undoBtn").addEventListener('click', () => {
+        if (history.undo()) { showToast("↩️ Undo"); updateInfoBar("↩️ Undo"); }
+        else { showToast("⚠️ Nothing to undo"); }
+    });
+    document.getElementById("redoBtn").addEventListener('click', () => {
+        if (history.redo()) { showToast("↪️ Redo"); updateInfoBar("↪️ Redo"); }
+        else { showToast("⚠️ Nothing to redo"); }
+    });
+
+    // ===== INIT =====
+    buildNationDropdown();
+    buildPalette();
+    initMap();
+
+    const demoUnits = [
+        { type: 'tank', lat: 40.7128, lng: -74.0060, nation: 'USA' },
+        { type: 'heli', lat: 51.5074, lng: -0.1278, nation: 'UK' },
+        { type: 'soldier', lat: 48.8566, lng: 2.3522, nation: 'FRA' },
+        { type: 'ship', lat: 34.0522, lng: -118.2437, nation: 'USA' },
+        { type: 'plane', lat: 35.6762, lng: 139.6503, nation: 'JPN' },
+        { type: 'artillery', lat: 39.9042, lng: 116.4074, nation: 'CHN' },
+        { type: 'tank', lat: -33.8688, lng: 151.2093, nation: 'AUS' },
+        { type: 'heli', lat: 55.7558, lng: 37.6173, nation: 'RUS' },
+        { type: 'soldier', lat: -23.5505, lng: -46.6333, nation: 'BRA' },
+        { type: 'ship', lat: 19.0760, lng: 72.8777, nation: 'IND' },
+        { type: 'plane', lat: 30.0444, lng: 31.2357, nation: 'EGY' },
+        { type: 'artillery', lat: 28.6139, lng: 77.2090, nation: 'IND' },
+        { type: 'tank', lat: 41.9028, lng: 12.4964, nation: 'ITA' },
+        { type: 'heli', lat: 52.5200, lng: 13.4050, nation: 'GER' },
+        { type: 'soldier', lat: 40.4168, lng: -3.7038, nation: 'ESP' }
+    ];
+
+    demoUnits.forEach(d => {
+        const nation = uniqueNations.find(n => n.code === d.nation) || uniqueNations[0];
+        const unit = new Unit(nextId++, d.type, d.lat, d.lng);
+        unit.setFlag(nation.flag, nation.code, nation.c1, nation.c2);
+        units.push(unit);
+    });
+
+    setTimeout(() => {
+        renderAllMarkers();
+        history.saveState();
+        updateStatusBar();
+        updateInfoBar("🌍 WORLD MAP · Click to deploy!");
+        showToast("🚀 Tactical Map v7.6 — Layer Buttons!");
+        fitMapToUnits();
+    }, 400);
+
+    window.__TACTICAL = {
+        units: () => units,
+        selected: () => Array.from(selectedUnitIds).map(id => units.find(u => u.id === id)),
+        addRandom: (count = 10) => {
+            for (let i = 0; i < count; i++) {
+                const types = Object.keys(UNIT_TYPES);
+                const type = types[Math.floor(Math.random() * types.length)];
+                const lat = (Math.random() - 0.5) * 120;
+                const lng = (Math.random() - 0.5) * 240;
+                const unit = new Unit(nextId++, type, lat, lng);
+                const nation = uniqueNations[Math.floor(Math.random() * uniqueNations.length)];
+                unit.setFlag(nation.flag, nation.code, nation.c1, nation.c2);
+                units.push(unit);
+                createMarker(unit);
+            }
+            history.saveState(); updateStatusBar();
+            showToast(`🎲 Added ${count} random units`);
+            fitMapToUnits();
+        },
+        clear: clearAll,
+        stats: calculateBattle,
+        history: history,
+        map: () => map
+    };
+
+    console.log('🎮 TACTICAL MAP v7.6 — LAYER BUTTONS WORKING!');
+    console.log('📖 Press ? for help');
+    console.log('🗺️ Click the layer buttons or press L to switch maps');
+    console.log('📸 Click the 📸 button to download the map as PNG');
+</script>
+</body>
+</html>
