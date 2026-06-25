@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TorrentG · offline manager</title>
+    <title>TorrentG · Smart Search</title>
     <style>
         * {
             margin: 0;
@@ -144,6 +144,34 @@
             pointer-events: none;
         }
 
+        .search-stats {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+            align-items: center;
+            color: #8b949e;
+            font-size: 0.75rem;
+        }
+
+        .search-stats .match-info {
+            background: #1c2333;
+            padding: 0.2rem 0.8rem;
+            border-radius: 12px;
+            border: 1px solid #30363d;
+            color: #58a6ff;
+        }
+
+        .search-stats .smart-hint {
+            color: #6e7681;
+            font-size: 0.65rem;
+            font-family: monospace;
+            padding: 0.2rem 0.6rem;
+            background: #0d1117;
+            border-radius: 8px;
+            border: 1px solid #21262d;
+        }
+
         .stats {
             display: flex;
             align-items: center;
@@ -166,7 +194,7 @@
             flex-direction: column;
             gap: 0.6rem;
             margin-top: 0.5rem;
-            max-height: 580px;
+            max-height: 480px;
             overflow-y: auto;
             padding-right: 0.25rem;
             scroll-behavior: smooth;
@@ -210,6 +238,13 @@
             border-color: #58a6ff;
             background: #1c2333;
             box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.3), 0 4px 12px rgba(0,0,0,0.5);
+        }
+
+        .torrent-item .match-highlight {
+            background: #238636;
+            color: #f0f6fc;
+            padding: 0 0.2rem;
+            border-radius: 2px;
         }
 
         .torrent-name {
@@ -303,9 +338,15 @@
             margin-top: 0.5rem;
         }
 
+        .empty-message .suggestions {
+            color: #8b949e;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
         .footer-tip {
             display: flex;
-            justify-content: flex-end;
+            justify-content: space-between;
             margin-top: 1.2rem;
             color: #484f58;
             font-size: 0.7rem;
@@ -323,6 +364,10 @@
             border: 1px solid #30363d;
             color: #b1bac4;
             font-size: 0.7rem;
+        }
+
+        .footer-tip .smart-tip {
+            color: #6e7681;
         }
 
         @media (max-width: 750px) {
@@ -343,7 +388,7 @@
                 <img src="https://i.imgur.com/XK4Fft2.png" alt="TorrentG Logo" onerror="this.style.display='none'; this.parentElement.textContent='⚡'; this.parentElement.style.background='#238636'; this.parentElement.style.fontSize='1.5rem'; this.parentElement.style.color='#f0f6fc';">
             </div>
             <span class="logo-text">TorrentG</span>
-            <span class="badge-offline">OFFLINE · v1</span>
+            <span class="badge-offline">OFFLINE · v3</span>
             <span class="badge-count" id="uniqueCount">0 unique</span>
         </div>
         <div class="stats">
@@ -353,7 +398,12 @@
 
     <div class="search-wrap">
         <span class="search-icon">🔍</span>
-        <input type="text" id="searchInput" placeholder="Search by name, magnet, or size..." spellcheck="false">
+        <input type="text" id="searchInput" placeholder="Smart search: type anything... (e.g., 'evil', 'final', 'call')" spellcheck="false">
+    </div>
+
+    <div class="search-stats">
+        <span class="match-info" id="matchInfo">💡 Smart matching</span>
+        <span class="smart-hint" id="smartHint">Type to search</span>
     </div>
 
     <div class="torrent-grid" id="torrentContainer">
@@ -361,15 +411,20 @@
     </div>
 
     <div class="footer-tip">
-        <span><kbd>↑↓</kbd> navigate · <kbd>Enter</kbd> copy · <kbd>Esc</kbd> clear · <kbd>/</kbd> search</span>
-        <span>⚡ copy magnet · duplicates removed</span>
+        <span>
+            <kbd>↑↓</kbd> navigate · <kbd>Enter</kbd> copy · <kbd>Esc</kbd> clear · <kbd>/</kbd> search
+        </span>
+        <span class="smart-tip">
+            💡 Smart search finds matches anywhere in the name
+        </span>
     </div>
 </div>
 
 <script>
     (function() {
-        // ----- ORIGINAL DATA (exactly as provided) -----
+        // ----- COMPLETE DATA (All entries) -----
         const rawData = [
+            // Original Battlefield & Call of Duty entries
             ["Battlefield.Bad.Company.2-RELOADED", "magnet:?xt=urn:btih:409F952295720018746044573F98993ADE59344B&dn=Battlefield.Bad.Company.2-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "5.42G"],
             ["Call of Duty Modern Warfare III 2023", "magnet:?xt=urn:btih:1CB831A697216A355F49CB2440BC0BFD9B9834C2&dn=Call%20of%20Duty%20Modern%20Warfare%20III%202023%20www.gamesfull.app&tr=udp%3a%2f%2fshubt.net%3a2710&tr=http%3a%2f%2fretracker.local%2fannounce&tr=http%3a%2f%2ftracker.filetracker.pl%3a8089%2fannounce&tr=http%3a%2f%2ftracker2.wasabii.com.tw%3a6969%2fannounce&tr=http%3a%2f%2ftracker.grepler.com%3a6969%2fannounce&tr=http%3a%2f%2ftracker.tiny-vps.com%3a6969%2fannounce&tr=udp%3a%2f%2f46.148.18.250%3a2710&tr=http%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2f%5b2001%3a67c%3a28f8%3a92%3a%3a1111%3a1%5d%3a2710&tr=udp%3a%2f%2fipv6.leechers-paradise.org%3a6969&tr=http%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2fexplodie.org%3a6969%2fannounce&tr=http%3a%2f%2fmgtracker.org%3a2710%2fannounce&tr=http%3a%2f%2ftracker.tfile.me%2fannounce&tr=http%3a%2f%2ftracker.torrenty.org%3a6969%2fannounce&tr=http%3a%2f%2ftracker.trackerfix.com%2fannounce&tr=http%3a%2f%2fwww.mvgroup.org%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.me%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.to%3a2710%2fannounce&tr=udp%3a%2f%2fcoppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.glotorrents.com%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.leechers-paradise.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.publicbt.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker4.piratux.com%3a6969%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=http%3a%2f%2f182.176.139.129%3a6969%2fannounce&tr=http%3a%2f%2f91.218.230.81%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.ilibr.org%3a80%2fannounce&tr=http%3a%2f%2fp4p.arenabg.ch%3a1337%2fannounce&tr=udp%3a%2f%2fpow7.com%3a6969%2fannounce&tr=http%3a%2f%2fretracker.krs-ix.ru%3a80%2fannoun", "48.2G"],
             ["Call.of.Duty.Advanced.Warfare", "magnet:?xt=urn:btih:C0F4FCA7C90F20CD113BDFDA659BE144A70BA0D0&dn=Call.of.Duty.Advanced.Warfare-CODEX&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "45.2G"],
@@ -379,10 +434,44 @@
             ["Call.of.Duty.Modern.Warfare.3-RELOADED", "magnet:?xt=urn:btih:24D07D7050CA3FB00AF55752CEC597D7B1731058&dn=Call.of.Duty.Modern.Warfare.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a6969%2fannounce&tr=udp%3a%2f%2ftrack", "13.18G"],
             ["Battlefield.3-RELOADED", "magnet:?xt=urn:btih:3AA0FDCB47C721622BF551FFE78138743516DEC2&dn=Battlefield.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "13.5G"],
             ["Battlefield.4-RELOADED", "magnet:?xt=urn:btih:700E116DB892596CF3028A016A9028422520F8E4&dn=Battlefield.4-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "23G"],
-            ["Battlefield.Bad.Company.2-RELOADED", "magnet:?xt=urn:btih:409F952295720018746044573F98993ADE59344B&dn=Battlefield.Bad.Company.2-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "5.42G"]
+            
+            // ----- FINAL FANTASY VII ENTRIES -----
+            ["Final Fantasy VII (PC) Ultima Edition", "magnet:?xt=urn:btih:9D6DF35174D2B0C72A8A9ECBDC3BA5C51C577679&dn=Final+Fantasy+VII+%28PC%29+Ultima+Edition", "1.01 GiB"],
+            ["Final Fantasy VII (2012 PC Remake) ENG", "magnet:?xt=urn:btih:FB50C50C03AE61F5B9AF5A1EEB444F88A6E93849&dn=Final+Fantasy+VII+%282012+PC+Remake%29+ENG", "1.41 GiB"],
+            ["Final Fantasy [Saga Completa] [PC] [Spanish]", "magnet:?xt=urn:btih:D436556E2D6E79FE135E3FF57BD1F8AE2EA4F836&dn=Final+Fantasy+%5BSaga+Completa%5D+%5BPC%5D+%5BSpanish%5D", "4.28 GiB"],
+            ["Final Fantasy VII PC Original (Unmodified)", "magnet:?xt=urn:btih:75D3585EEE592B10B939E707FCD3891B8BF69E59&dn=Final+Fantasy+VII+PC+Original+%28Unmodified%29", "2 GiB"],
+            ["Final Fantasy VII (7) PC VERSION", "magnet:?xt=urn:btih:165FA22693D8B2357851D7EA0390C91C029E4C12&dn=Final+Fantasy+VII+%287%29+PC+VERSION", "2.04 GiB"],
+            ["Final Fantasy VII (ALL Game Disks!) (PC)", "magnet:?xt=urn:btih:9CF8790E31CF380F0429592D688D8D16F14F88B2&dn=Final+Fantasy+VII+%28ALL+Game+Disks%21%29+%28PC%29", "1.99 GiB"],
+            ["Final Fantasy VII (4discs) PC-KewiinG", "magnet:?xt=urn:btih:1E34F7F0E3B6B2730F7F9C3B7F43A5D1A4F6C8D9&dn=Final+Fantasy+VII+%284discs%29+PC-KewiinG", "~2.25 GiB"],
+            
+            // ----- RESIDENT EVIL ENTRIES -----
+            ["Resident Evil 1 1997 pc", "magnet:?xt=urn:btih:0907E9D746678C9DD86DD2BCB99114FF637955D4&dn=Resident+Evil+1+1997+pc", "611.29 MiB"],
+            ["PC_Resident.Evil.5.Full-Rip.-TPTB", "magnet:?xt=urn:btih:106B6F5C2C9F6194DB704007D0168B27DBDFA6BC&dn=PC_Resident.Evil.5.Full-Rip.-TPTB", "3.85 GiB"],
+            ["[PC ENG ~ Sub Multi] Resident Evil 5", "magnet:?xt=urn:btih:F77FDB40D6F138900D85DF47A402C0D9E9B6F9F5&dn=%5BPC+ENG+%7E+Sub+Multi%5D+Resident+Evil+5", "6.96 GiB"],
+            ["Wii 4 PC » RESIDENT EVIL 1 REMAKE perfect emulator isos by glob", "magnet:?xt=urn:btih:A6CAA385DA132768A14B727494D6EF95649CF4CC&dn=Wii+4+PC+%C2%BB+RESIDENT+EVIL+1+REMAKE+perfect+emulator+isos+by+glob", "1.31 GiB"],
+            ["Resident Evil - Operation Raccoon City [PC ~ ENG ITA FRA DEU JAP", "magnet:?xt=urn:btih:EAA9C4156AE975EA57EE541DDB12824D3AFA038F&dn=Resident+Evil+-+Operation+Raccoon+City+%5BPC+%7E+ENG+ITA+FRA+DEU+JAP", "6.55 GiB"],
+            ["Resident Evil Revelations PC", "magnet:?xt=urn:btih:F1C7022D4781399C53AEF1497649E83143C45AAE&dn=Resident+Evil+Revelations+PC", "8.17 GiB"],
+            ["PC_Proper-RESIDENT.EVIL.4..(eng.)-(.1o1%.)", "magnet:?xt=urn:btih:77AF735C3714A5AB285B335774474AD9E612241D&dn=PC_Proper-RESIDENT.EVIL.4..%28eng.%29-%28.1o1%25.%29", "661.98 MiB"],
+            ["Resident Evil Original Trilogy PC Seamless HD Modded", "magnet:?xt=urn:btih:C53E228F00937FBDE2C6770E50D4522E0C8FA95E&dn=Resident+Evil+Original+Trilogy+PC+Seamless+HD+Modded", "6.61 GiB"],
+            ["Resident Evil 4 Multi Language PC DVD + Patch 1.10", "magnet:?xt=urn:btih:7AAAEC164ADAAC8A5243CB4B2791B9843DB06326&dn=Resident+Evil+4+Multi+Language+PC+DVD+%2B+Patch+1.10", "2.5 GiB"],
+            ["Resident Evil Part One Remake PC", "magnet:?xt=urn:btih:AB610D7A2E5F049B4ABE552A850EECF1562218FB&dn=Resident+Evil+Part+One+Remake+PC", "1.97 GiB"],
+            ["Resident Evil 0 (PC)", "magnet:?xt=urn:btih:D2CDB45326236E074E0E568C5115B4164C3B5F8B&dn=Resident+Evil+0+%28PC%29", "10.63 GiB"],
+            ["Resident Evil 5 PC", "magnet:?xt=urn:btih:B5066BDBAEDB74F3531AA0A87AE7653BED95A319&dn=Resident+Evil+5+PC", "6.74 GiB"],
+            ["Resident Evil 1 PC PowerVR release", "magnet:?xt=urn:btih:E35837203013A137D93DE5C29B24B937A71B6ECA&dn=Resident+Evil+1+PC+PowerVR+release", "402.42 MiB"],
+            
+            // ----- COUNTER-STRIKE ENTRIES -----
+            ["Counter-Strike 1.6 v.35 [PC] [MULTI2]", "magnet:?xt=urn:btih:345C99552D763B5A056CAB48243AB6B507A32189&dn=Counter-Strike+1.6+v.35+%5BPC%5D+%5BMULTI2%5D", "248.46 MiB"],
+            ["Counter-Strike 1.6 Next Generation (March 15, 2010) PC [MULTI3]", "magnet:?xt=urn:btih:EF5BF002E1279F261AB1C65A355808399D0A53B9&dn=Counter-Strike+1.6+Next+Generation+%28March+15%2C+2010%29+PC+%5BMULTI3%5D", "318.92 MiB"],
+            ["Counter-Strike For The Pocket PC", "magnet:?xt=urn:btih:26400120F98686FDD386C5F39263D451D34B93D6&dn=Counter-Strike+For+The+Pocket+PC", "15.61 MiB"],
+            ["Counter-Strike: Source (RUS) PC update", "magnet:?xt=urn:btih:DB7D48D6CC5B6D2829E27BDD9634B99C6BE53408&dn=Counter-Strike%3A+Source+%28RUS%29+PC+update", "1.43 GiB"],
+            
+            // ----- ADDITIONAL CALL OF DUTY ENTRIES -----
+            ["call of duty mw3.pc.full", "magnet:?xt=urn:btih:B6AC3977C722BD1B858BD99A8DAF84FA64266CAB&dn=call+of+duty+mw3.pc.full", "13.9 GiB"],
+            ["Call of duty 5 world at war PC", "magnet:?xt=urn:btih:DF32073494203425DDCF0C7472BE453301A2CD8E&dn=Call+of+duty+5+world+at+war+PC", "5.58 GiB"],
+            ["Call Of Duty Black Ops 2 II Vengeance Pack DLC 3 PC", "magnet:?xt=urn:btih:8BA4855474D9A2C87F602DAF77835DB93BB4771C&dn=Call+Of+Duty+Black+Ops+2+II+Vengeance+Pack+DLC+3+PC", "1.72 GiB"]
         ];
 
-        // ----- DEDUPLICATION: by name (case-insensitive) keep first occurrence with longest magnet -----
+        // ----- DEDUPLICATION: by name (case-insensitive) -----
         const nameMap = new Map();
 
         for (const [name, magnet, size] of rawData) {
@@ -415,41 +504,94 @@
             size: item.size
         }));
 
-        // ----- SANITIZATION: escape text to prevent XSS -----
-        function escapeHtml(str) {
-            if (!str) return '';
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+        // ----- SMART SEARCH FUNCTION (Google-like) -----
+        function smartSearch(query, list) {
+            if (!query || query.trim() === '') {
+                return list;
+            }
+
+            const q = query.toLowerCase().trim();
+            
+            // Split query into words for multi-term matching
+            const words = q.split(/\s+/);
+            
+            // Score each item based on matches
+            const scored = list.map(item => {
+                const nameLower = item.name.toLowerCase();
+                let score = 0;
+                
+                // Check each word
+                for (const word of words) {
+                    if (nameLower.includes(word)) {
+                        // Boost score based on word position and length
+                        const index = nameLower.indexOf(word);
+                        const wordLength = word.length;
+                        // Exact matches at start get higher score
+                        const positionBonus = index === 0 ? 10 : 0;
+                        // Longer words get more weight
+                        const lengthBonus = wordLength * 0.5;
+                        // Word boundary bonus (match as whole word)
+                        const boundaryBonus = nameLower.includes(' ' + word) || nameLower.startsWith(word + ' ') ? 3 : 0;
+                        score += 1 + positionBonus + lengthBonus + boundaryBonus;
+                    }
+                }
+                
+                // Bonus for matching the entire query as a substring
+                if (nameLower.includes(q)) {
+                    score += 5;
+                }
+                
+                return { item, score };
+            });
+            
+            // Filter out items with no matches
+            const matched = scored.filter(s => s.score > 0);
+            
+            // Sort by score (highest first), then alphabetically
+            matched.sort((a, b) => {
+                if (b.score !== a.score) return b.score - a.score;
+                return a.item.name.localeCompare(b.item.name);
+            });
+            
+            return matched.map(s => s.item);
         }
 
-        // ----- render function -----
+        // ----- DOM References -----
         const container = document.getElementById('torrentContainer');
         const searchInput = document.getElementById('searchInput');
         const totalSpan = document.getElementById('totalCount');
         const uniqueCountSpan = document.getElementById('uniqueCount');
+        const matchInfo = document.getElementById('matchInfo');
+        const smartHint = document.getElementById('smartHint');
 
-        let currentFilter = '';
-        let selectedIndex = -1;  // -1 means nothing selected
+        let selectedIndex = -1;
+        let currentFiltered = [];
 
-        function render(filter = '') {
-            currentFilter = filter;
-            const q = filter.toLowerCase().trim();
-            let filtered = uniqueTorrents;
+        // ----- Render Function -----
+        function render() {
+            const query = searchInput.value;
+            
+            let filtered = smartSearch(query, uniqueTorrents);
 
-            if (q !== '') {
-                filtered = uniqueTorrents.filter(item => {
-                    return item.name.toLowerCase().includes(q) ||
-                           item.magnet.toLowerCase().includes(q) ||
-                           item.size.toLowerCase().includes(q);
-                });
-            }
-
+            currentFiltered = filtered;
             totalSpan.textContent = filtered.length;
             uniqueCountSpan.textContent = `${uniqueTorrents.length} unique`;
 
+            // Update search info
+            if (query.trim()) {
+                matchInfo.textContent = `🔍 Found ${filtered.length} matching torrents`;
+                smartHint.textContent = `Smart matching: "${query}"`;
+            } else {
+                matchInfo.textContent = '💡 Smart matching';
+                smartHint.textContent = 'Type to search';
+            }
+
             if (filtered.length === 0) {
-                container.innerHTML = `<div class="empty-message">⚡ no torrents found · try a different search</div>`;
+                let suggestions = '';
+                if (query.trim()) {
+                    suggestions = `<div class="suggestions">💡 Try: different keywords or check spelling</div>`;
+                }
+                container.innerHTML = `<div class="empty-message">⚡ no torrents found · try a different search${suggestions}</div>`;
                 selectedIndex = -1;
                 return;
             }
@@ -457,23 +599,42 @@
             let html = '';
             for (let i = 0; i < filtered.length; i++) {
                 const t = filtered[i];
-                const nameEsc = escapeHtml(t.name);
-                const magnetEsc = escapeHtml(t.magnet);
-                const sizeEsc = escapeHtml(t.size);
-                const rawMagnet = t.magnet;
-                // data-index for keyboard navigation
+                const magnetAttr = escapeHtml(t.magnet);
+                
+                // Highlight matches in name
+                let displayName = t.name;
+                if (query.trim()) {
+                    const q = query.toLowerCase().trim();
+                    const nameLower = t.name.toLowerCase();
+                    let highlighted = '';
+                    let lastIndex = 0;
+                    for (const word of q.split(/\s+/)) {
+                        const index = nameLower.indexOf(word, lastIndex);
+                        if (index !== -1) {
+                            highlighted += t.name.substring(lastIndex, index);
+                            highlighted += `<span class="match-highlight">${t.name.substring(index, index + word.length)}</span>`;
+                            lastIndex = index + word.length;
+                        }
+                    }
+                    if (lastIndex < t.name.length) {
+                        highlighted += t.name.substring(lastIndex);
+                    }
+                    if (highlighted) {
+                        displayName = highlighted;
+                    }
+                }
+                
                 html += `
-                    <div class="torrent-item" data-index="${i}" data-magnet="${escapeHtml(rawMagnet)}">
-                        <span class="torrent-name" title="${nameEsc}">${nameEsc}</span>
-                        <span class="torrent-magnet" title="${magnetEsc}">${magnetEsc}</span>
-                        <span class="torrent-size">${sizeEsc}</span>
-                        <button class="copy-btn" data-magnet="${escapeHtml(rawMagnet)}">📋 Copy</button>
+                    <div class="torrent-item" data-index="${i}" data-magnet="${magnetAttr}">
+                        <span class="torrent-name" title="${escapeHtml(t.name)}">${displayName}</span>
+                        <span class="torrent-magnet" title="${escapeHtml(t.magnet)}">${escapeHtml(t.magnet)}</span>
+                        <span class="torrent-size">${escapeHtml(t.size)}</span>
+                        <button class="copy-btn" data-magnet="${magnetAttr}">📋 Copy</button>
                     </div>
                 `;
             }
             container.innerHTML = html;
 
-            // attach copy events
             document.querySelectorAll('.copy-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
                     e.stopPropagation();
@@ -483,10 +644,19 @@
                 });
             });
 
-            // Re-apply selection state if any
-            if (selectedIndex >= filtered.length) {
-                selectedIndex = filtered.length - 1;
+            // Reset selection if we have items
+            if (filtered.length > 0) {
+                if (selectedIndex >= filtered.length) {
+                    selectedIndex = filtered.length - 1;
+                }
+                // If selectedIndex is -1, select first item
+                if (selectedIndex === -1) {
+                    selectedIndex = 0;
+                }
+            } else {
+                selectedIndex = -1;
             }
+            
             highlightSelected(filtered.length);
         }
 
@@ -495,20 +665,27 @@
             document.querySelectorAll('.torrent-item.keyboard-selected').forEach(el => {
                 el.classList.remove('keyboard-selected');
             });
+            
             if (selectedIndex < 0 || selectedIndex >= totalItems) {
                 selectedIndex = -1;
                 return;
             }
+            
             const items = document.querySelectorAll('.torrent-item');
             if (items.length > 0 && selectedIndex < items.length) {
                 const target = items[selectedIndex];
                 target.classList.add('keyboard-selected');
-                // Scroll into view if needed
                 target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             }
         }
 
-        // ----- Copy helper -----
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
         function copyMagnet(magnet, btnElement) {
             navigator.clipboard.writeText(magnet).then(() => {
                 const original = btnElement.innerHTML;
@@ -519,7 +696,6 @@
                     btnElement.classList.remove('copied');
                 }, 2200);
             }).catch(() => {
-                // fallback
                 const textarea = document.createElement('textarea');
                 textarea.value = magnet;
                 document.body.appendChild(textarea);
@@ -536,29 +712,24 @@
             });
         }
 
-        // ----- Navigation logic -----
         function navigate(direction) {
             const visibleItems = document.querySelectorAll('.torrent-item');
             const total = visibleItems.length;
+            
             if (total === 0) {
                 selectedIndex = -1;
                 return;
             }
 
-            if (selectedIndex === -1) {
-                // If nothing selected, start at first or last depending on direction
-                selectedIndex = direction === 'down' ? 0 : total - 1;
-            } else {
-                if (direction === 'down') {
-                    selectedIndex = (selectedIndex + 1) % total;
-                } else if (direction === 'up') {
-                    selectedIndex = (selectedIndex - 1 + total) % total;
-                }
+            if (direction === 'down') {
+                selectedIndex = (selectedIndex + 1) % total;
+            } else if (direction === 'up') {
+                selectedIndex = (selectedIndex - 1 + total) % total;
             }
+            
             highlightSelected(total);
         }
 
-        // ----- Enter to copy the selected magnet -----
         function copySelected() {
             if (selectedIndex === -1) return;
             const items = document.querySelectorAll('.torrent-item');
@@ -566,45 +737,51 @@
             const item = items[selectedIndex];
             const magnet = item.getAttribute('data-magnet');
             if (!magnet) return;
-            // find the copy button inside this item
             const btn = item.querySelector('.copy-btn');
             if (btn) {
                 copyMagnet(magnet, btn);
             }
         }
 
-        // ----- event listeners (keyboard) -----
+        // ----- Event Listeners -----
+        searchInput.addEventListener('input', () => {
+            selectedIndex = -1;
+            render();
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                copySelected();
+            } else if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                navigate('down');
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigate('up');
+            } else if (e.key === 'Escape') {
+                e.preventDefault();
+                searchInput.value = '';
+                selectedIndex = -1;
+                render();
+                searchInput.blur();
+            }
+        });
+
+        // Global keyboard shortcuts
         document.addEventListener('keydown', (e) => {
             const active = document.activeElement;
             const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
 
-            // If search is focused and user presses Escape, clear it
-            if (isInputFocused && active.id === 'searchInput' && e.key === 'Escape') {
-                e.preventDefault();
-                searchInput.value = '';
-                render('');
-                searchInput.blur();
-                selectedIndex = -1;
+            // Don't intercept if typing in input (except for Escape)
+            if (isInputFocused && active.id === 'searchInput') {
                 return;
             }
 
-            // If search is focused, don't interfere with arrow navigation (except when it's not typing)
             if (isInputFocused) {
-                // But if arrow keys, we might want to navigate anyway? 
-                // Usually user expects arrows to navigate through list even when search is focused.
-                // We allow arrows to navigate from search, but if they press Enter in search we do copy?
-                // We'll allow arrows always, but Enter in search does search, not copy.
-                // We'll let search handle Enter itself.
-                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                    e.preventDefault();
-                    navigate(e.key === 'ArrowDown' ? 'down' : 'up');
-                    return;
-                }
-                // Enter in search triggers search (default behavior already)
                 return;
             }
 
-            // Global shortcuts (when search is not focused)
             switch (e.key) {
                 case 'ArrowDown':
                     e.preventDefault();
@@ -619,7 +796,6 @@
                     copySelected();
                     break;
                 case '/':
-                    // focus search
                     if (!e.ctrlKey && !e.metaKey && !e.altKey) {
                         e.preventDefault();
                         searchInput.focus();
@@ -627,7 +803,6 @@
                     }
                     break;
                 case 'Escape':
-                    // clear selection and blur
                     e.preventDefault();
                     selectedIndex = -1;
                     highlightSelected(document.querySelectorAll('.torrent-item').length);
@@ -638,43 +813,17 @@
             }
         });
 
-        // Also listen for input events on search to update list and reset selection
-        searchInput.addEventListener('input', () => {
-            render(searchInput.value);
-            // reset selection because list changed
-            selectedIndex = -1;
-        });
-
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                // If there's a selected item, copy it
-                if (selectedIndex !== -1) {
-                    copySelected();
-                } else {
-                    // Otherwise, select the first item and copy it?
-                    // Better: just copy the first item if any
-                    const items = document.querySelectorAll('.torrent-item');
-                    if (items.length > 0) {
-                        const firstMagnet = items[0].getAttribute('data-magnet');
-                        const btn = items[0].querySelector('.copy-btn');
-                        if (firstMagnet && btn) {
-                            copyMagnet(firstMagnet, btn);
-                        }
-                    }
-                }
-            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-                e.preventDefault();
-                navigate(e.key === 'ArrowDown' ? 'down' : 'up');
-            }
-        });
-
-        // initial render
+        // Initial render
         render();
-        selectedIndex = -1;
+        // Select first item by default
+        if (uniqueTorrents.length > 0) {
+            selectedIndex = 0;
+            highlightSelected(uniqueTorrents.length);
+        }
 
-        console.log(`TorrentG ready · ${uniqueTorrents.length} unique torrents (deduplicated by name)`);
-        console.log('Duplicate removed: Battlefield.Bad.Company.2-RELOADED appears only once');
+        console.log(`🔍 TorrentG v3 ready · ${uniqueTorrents.length} unique torrents`);
+        console.log('💡 Smart search: type anything, results sorted by relevance');
+        console.log('⌨️ Arrow keys: navigate up/down, Enter: copy selected');
     })();
 </script>
 
