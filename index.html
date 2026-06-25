@@ -233,7 +233,7 @@
             transition: all 0.3s ease;
         }
 
-        /* ----- CARDS (clickeables) ----- */
+        /* ----- CARDS ----- */
         .card {
             background: rgba(20, 40, 70, 0.5);
             backdrop-filter: blur(4px);
@@ -247,7 +247,7 @@
             border: 1px solid rgba(255, 215, 0, 0.08);
             position: relative;
             overflow: hidden;
-            cursor: pointer;
+            cursor: default;
             opacity: 1;
             transform: scale(1);
         }
@@ -406,12 +406,18 @@
             backdrop-filter: blur(2px);
             cursor: pointer;
             user-select: none;
-            pointer-events: none; /* ← IMPORTANTE: el botón ya no es clickeable */
         }
 
         .card .route-link i {
             font-size: 0.85rem;
             transition: transform 0.2s ease;
+        }
+
+        .card .route-link:hover {
+            background: linear-gradient(145deg, #ffe066, #f5c400);
+            transform: scale(1.03);
+            box-shadow: 0 6px 20px rgba(255, 215, 0, 0.5);
+            color: #000;
         }
 
         .card .route-link:hover i {
@@ -516,19 +522,6 @@
         html {
             scroll-behavior: smooth;
         }
-
-        /* Tooltip sutil */
-        .card .click-hint {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.2);
-            margin-top: 0.3rem;
-            letter-spacing: 0.5px;
-            transition: color 0.3s ease;
-        }
-
-        .card:hover .click-hint {
-            color: rgba(255, 215, 0, 0.3);
-        }
     </style>
 </head>
 <body>
@@ -570,7 +563,7 @@
         </div>
     </div>
     <div class="search-stats" id="searchStats">
-        <span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>
+        <span class="keyboard-hint">↑↓ navigate · Enter open · Ctrl+Click new tab</span>
     </div>
 
     <div class="routes" id="routes">
@@ -606,11 +599,10 @@
         const searchClear = document.getElementById('searchClear');
         const searchStats = document.getElementById('searchStats');
 
-        // Variables
+        // Variables para almacenar los datos
         let allCards = [];
         let allFileNames = [];
         let focusedIndex = -1;
-        let gridCols = 0;
 
         // ----- SANITIZACIÓN -----
         function escapeHtml(unsafe) {
@@ -765,20 +757,6 @@
             };
         }
 
-        // ----- FUNCIÓN PARA ABRIR HERRAMIENTA -----
-        function openTool(file, tool, newTab = false) {
-            if (!file) return;
-            if (newTab) {
-                window.open(file, '_blank');
-            } else {
-                const safeHash = sanitizeFileName(tool);
-                if (safeHash) {
-                    window.location.hash = safeHash;
-                }
-                window.location.href = file;
-            }
-        }
-
         // ----- FETCH FILES FROM GITHUB -----
         async function fetchHtmlFiles() {
             const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
@@ -871,10 +849,13 @@
                 fileBadge.className = 'badge';
                 fileBadge.textContent = '📁 ' + safeFileName;
 
-                // LINK (solo visual, no clickeable)
+                // LINK
                 const link = document.createElement('div');
                 link.className = 'route-link';
-                link.setAttribute('aria-hidden', 'true');
+                link.setAttribute('role', 'button');
+                link.setAttribute('aria-label', `Open ${capitaliseSafe(safeBaseName)}`);
+                link.dataset.file = safeFileName;
+                link.dataset.tool = safeBaseName;
 
                 const linkText = document.createTextNode(`Open ${capitaliseSafe(safeBaseName)}`);
                 link.appendChild(linkText);
@@ -882,30 +863,34 @@
                 iconLink.className = 'fas fa-arrow-right';
                 link.appendChild(iconLink);
 
-                // Click hint
-                const clickHint = document.createElement('div');
-                clickHint.className = 'click-hint';
-                clickHint.textContent = '✦ click anywhere to open';
-
                 // ASSEMBLE
                 card.appendChild(iconWrapper);
                 card.appendChild(title);
                 card.appendChild(desc);
                 card.appendChild(fileBadge);
                 card.appendChild(link);
-                card.appendChild(clickHint);
                 container.appendChild(card);
 
                 allCards.push(card);
                 renderedCount++;
 
-                // ---- CLICK EN LA TARJETA COMPLETA ----
-                card.addEventListener('click', function(e) {
-                    // Si es Ctrl+Click o Cmd+Click → nueva pestaña
-                    const newTab = e.ctrlKey || e.metaKey;
+                // ---- CLICK: ABRIR EN NUEVA PESTAÑA CON CTRL/CMD ----
+                link.addEventListener('click', function(e) {
+                    e.preventDefault();
                     const file = this.dataset.file;
                     const tool = this.dataset.tool;
-                    openTool(file, tool, newTab);
+                    
+                    // Si Ctrl o Cmd están presionados → abrir en nueva pestaña
+                    if (e.ctrlKey || e.metaKey) {
+                        window.open(file, '_blank');
+                    } else {
+                        // Normal: abrir en la misma pestaña
+                        const safeHash = sanitizeFileName(tool);
+                        if (safeHash) {
+                            window.location.hash = safeHash;
+                        }
+                        window.location.href = file;
+                    }
                 });
 
                 // ---- HOVER: remover focus de otros ----
@@ -916,9 +901,6 @@
                 });
             });
 
-            // Calcular columnas
-            updateGridColumns();
-
             if (countNumber) {
                 countNumber.textContent = renderedCount;
             }
@@ -927,32 +909,35 @@
             console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML automáticamente:`, fileNames);
         }
 
-        // ----- FUNCIÓN PARA CALCULAR COLUMNAS -----
-        function updateGridColumns() {
-            const containerWidth = container.offsetWidth;
-            const cardWidth = 220 + 32;
-            gridCols = Math.max(1, Math.floor(containerWidth / cardWidth));
-            if (gridCols < 1) gridCols = 1;
-        }
-
-        // ----- FUNCIONES DE FOCUS -----
+        // ----- FUNCIONES DE FOCUS (navegación por teclado) -----
         function clearFocus() {
             allCards.forEach(c => c.classList.remove('focused'));
             focusedIndex = -1;
         }
 
-        function getVisibleCards() {
-            return allCards.filter(c => !c.classList.contains('hidden'));
+        function setFocus(index) {
+            clearFocus();
+            if (index >= 0 && index < allCards.length) {
+                const card = allCards[index];
+                // Verificar que la tarjeta no esté oculta
+                if (!card.classList.contains('hidden')) {
+                    card.classList.add('focused');
+                    focusedIndex = index;
+                    // Scroll a la tarjeta
+                    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                } else {
+                    // Si está oculta, buscar la siguiente visible
+                    const visibleCards = getVisibleCards();
+                    if (visibleCards.length > 0) {
+                        const newIndex = visibleCards[0].dataset.index;
+                        setFocus(parseInt(newIndex));
+                    }
+                }
+            }
         }
 
-        function getVisibleIndices() {
-            const indices = [];
-            allCards.forEach((card, idx) => {
-                if (!card.classList.contains('hidden')) {
-                    indices.push(idx);
-                }
-            });
-            return indices;
+        function getVisibleCards() {
+            return allCards.filter(c => !c.classList.contains('hidden'));
         }
 
         function getCurrentFocusedCard() {
@@ -965,253 +950,12 @@
             return null;
         }
 
-        function setFocus(index) {
-            clearFocus();
-            const visibleIndices = getVisibleIndices();
-            if (visibleIndices.length === 0) return;
-            
-            let targetIndex = index;
-            if (!visibleIndices.includes(targetIndex)) {
-                let closest = visibleIndices[0];
-                let minDist = Math.abs(targetIndex - closest);
-                for (let i = 1; i < visibleIndices.length; i++) {
-                    const dist = Math.abs(targetIndex - visibleIndices[i]);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closest = visibleIndices[i];
-                    }
-                }
-                targetIndex = closest;
-            }
-            
-            const card = allCards[targetIndex];
-            if (card && !card.classList.contains('hidden')) {
-                card.classList.add('focused');
-                focusedIndex = targetIndex;
-                card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            }
-        }
-
-        function navigateArrows(direction) {
-            const visibleIndices = getVisibleIndices();
-            if (visibleIndices.length === 0) return;
-            
-            let currentIndex = focusedIndex;
-            
-            if (currentIndex === -1 || !visibleIndices.includes(currentIndex)) {
-                setFocus(visibleIndices[0]);
-                return;
-            }
-
-            const currentPos = visibleIndices.indexOf(currentIndex);
-            let newPos = currentPos;
-
-            switch(direction) {
-                case 'up':
-                    newPos = Math.max(0, currentPos - gridCols);
-                    break;
-                case 'down':
-                    newPos = Math.min(visibleIndices.length - 1, currentPos + gridCols);
-                    break;
-                case 'left':
-                    newPos = Math.max(0, currentPos - 1);
-                    break;
-                case 'right':
-                    newPos = Math.min(visibleIndices.length - 1, currentPos + 1);
-                    break;
-                default:
-                    return;
-            }
-
-            if (newPos !== currentPos) {
-                setFocus(visibleIndices[newPos]);
-            }
-        }
-
-        function openCurrentTool(newTab = true) {
+        function openCurrentTool(newTab = false) {
             const card = getCurrentFocusedCard();
             if (card) {
-                const file = card.dataset.file;
-                const tool = card.dataset.tool;
-                openTool(file, tool, newTab);
-            }
-        }
-
-        // ----- SEARCH -----
-        function filterTools(searchTerm) {
-            const term = searchTerm.toLowerCase().trim();
-            
-            let visibleCount = 0;
-            
-            allCards.forEach((card) => {
-                const toolName = card.dataset.tool || '';
-                const fileName = card.dataset.file || '';
-                
-                const matches = term === '' || 
-                    toolName.includes(term) || 
-                    fileName.toLowerCase().includes(term);
-                
-                if (matches) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            const existingNoResults = container.querySelector('.no-results');
-            if (visibleCount === 0 && term !== '') {
-                if (!existingNoResults) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'no-results';
-                    noResults.id = 'noResults';
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-search-minus';
-                    noResults.appendChild(icon);
-                    const text = document.createElement('span');
-                    text.textContent = `No tools found for "${term}"`;
-                    noResults.appendChild(text);
-                    container.appendChild(noResults);
-                } else {
-                    existingNoResults.style.display = 'flex';
-                    const span = existingNoResults.querySelector('span');
-                    if (span) span.textContent = `No tools found for "${term}"`;
-                }
-            } else {
-                if (existingNoResults) {
-                    existingNoResults.style.display = 'none';
-                }
-            }
-
-            if (focusedIndex !== -1) {
-                const focusedCard = allCards[focusedIndex];
-                if (!focusedCard || focusedCard.classList.contains('hidden')) {
-                    clearFocus();
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                }
-            } else {
-                const visibleIndices = getVisibleIndices();
-                if (visibleIndices.length > 0) {
-                    setFocus(visibleIndices[0]);
-                }
-            }
-
-            updateSearchStats(allCards.length, visibleCount);
-        }
-
-        function updateSearchStats(total, visible) {
-            if (searchStats) {
-                if (total === 0) {
-                    searchStats.innerHTML = `<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                } else if (visible === total) {
-                    searchStats.innerHTML = `Showing <strong>${total}</strong> tool${total > 1 ? 's' : ''} &nbsp;<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                } else {
-                    searchStats.innerHTML = `Showing <strong>${visible}</strong> of <strong>${total}</strong> tool${total > 1 ? 's' : ''} &nbsp;<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                }
-            }
-        }
-
-        // ----- EVENT LISTENERS -----
-        searchInput.addEventListener('input', function() {
-            const term = this.value;
-            filterTools(term);
-            
-            if (term.length > 0) {
-                searchClear.classList.add('visible');
-            } else {
-                searchClear.classList.remove('visible');
-            }
-        });
-
-        searchClear.addEventListener('click', function() {
-            searchInput.value = '';
-            searchInput.focus();
-            filterTools('');
-            this.classList.remove('visible');
-        });
-
-        // ----- KEYBOARD SHORTCUTS -----
-        document.addEventListener('keydown', function(e) {
-            // Ctrl+K / Cmd+K: focus search
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                searchInput.focus();
-                searchInput.select();
-                return;
-            }
-
-            // Escape
-            if (e.key === 'Escape') {
-                if (document.activeElement === searchInput) {
-                    searchInput.value = '';
-                    filterTools('');
-                    searchClear.classList.remove('visible');
-                    searchInput.blur();
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                    return;
-                }
-                if (focusedIndex !== -1) {
-                    clearFocus();
-                }
-                return;
-            }
-
-            // Flechas
-            if (document.activeElement !== searchInput) {
-                const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-                if (arrowKeys.includes(e.key)) {
-                    e.preventDefault();
-                    const direction = e.key.replace('Arrow', '').toLowerCase();
-                    navigateArrows(direction);
-                    return;
-                }
-            }
-
-            // ENTER: abrir en nueva pestaña
-            if (e.key === 'Enter' && document.activeElement !== searchInput) {
-                const card = getCurrentFocusedCard();
-                if (card) {
-                    e.preventDefault();
-                    openCurrentTool(true);
-                }
-            }
-        });
-
-        // ----- RESIZE -----
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                updateGridColumns();
-            }, 250);
-        });
-
-        // ----- MAIN -----
-        async function init() {
-            try {
-                const htmlFiles = await fetchHtmlFiles();
-                renderRoutes(htmlFiles);
-                setTimeout(() => {
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                }, 100);
-            } catch (error) {
-                console.error('❌ Error en init:', error);
-                renderRoutes([]);
-            }
-        }
-
-        init();
-        
-    })();
-</script>
-</body>
-</html>
+                const link = card.querySelector('.route-link');
+                if (link) {
+                    const file = link.dataset.file;
+                    const tool = link.dataset.tool;
+                    if (file) {
+                        if (newTab) {
