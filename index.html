@@ -112,7 +112,7 @@
             color: rgba(255, 255, 255, 0.5);
             border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
             padding-bottom: 1.8rem;
-            margin-bottom: 1.5rem;
+            margin-bottom: 2.2rem;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -120,108 +120,9 @@
             flex-wrap: wrap;
         }
 
-        /* ----- SEARCH BAR ----- */
-        .search-container {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 2.2rem;
-            gap: 0.5rem;
-            flex-wrap: wrap;
-        }
-
-        .search-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 450px;
-        }
-
-        .search-wrapper i {
-            position: absolute;
-            left: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 215, 0, 0.4);
-            font-size: 1rem;
-            transition: color 0.3s ease;
-        }
-
-        .search-wrapper:focus-within i {
-            color: #ffd700;
-        }
-
-        #searchInput {
-            width: 100%;
-            padding: 0.8rem 1.2rem 0.8rem 3rem;
-            border-radius: 60px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            background: rgba(20, 40, 70, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            color: #fff;
-            font-size: 0.95rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
-            outline: none;
-        }
-
-        #searchInput::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-
-        #searchInput:focus {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1), inset 0 0 20px rgba(255, 215, 0, 0.05);
-            background: rgba(20, 40, 70, 0.6);
-        }
-
-        #searchInput:focus::placeholder {
-            color: rgba(255, 255, 255, 0.1);
-        }
-
-        .search-clear {
-            position: absolute;
-            right: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            background: none;
-            border: none;
-            color: rgba(255, 255, 255, 0.3);
-            cursor: pointer;
-            font-size: 1rem;
-            padding: 0.2rem;
-            transition: all 0.3s ease;
-            display: none;
-        }
-
-        .search-clear:hover {
-            color: #ffd700;
-            transform: translateY(-50%) scale(1.1);
-        }
-
-        .search-clear.visible {
-            display: block;
-        }
-
-        .search-stats {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.3);
-            text-align: center;
-            margin-top: 0.5rem;
-            letter-spacing: 0.5px;
-            min-height: 1.5rem;
-        }
-
-        .search-stats strong {
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        .search-stats .keyboard-hint {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 0.7rem;
-            margin-left: 0.8rem;
+        .subhead i {
+            color: #f0c27f;
+            font-size: 1.1rem;
         }
 
         .routes {
@@ -230,7 +131,6 @@
             justify-content: center;
             gap: 2rem;
             min-height: 120px;
-            transition: all 0.3s ease;
         }
 
         /* ----- CARDS ----- */
@@ -243,40 +143,11 @@
             width: 220px;
             text-align: center;
             box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 215, 0, 0.1);
-            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+            transition: all 0.25s cubic-bezier(0.23, 1, 0.32, 1);
             border: 1px solid rgba(255, 215, 0, 0.08);
             position: relative;
             overflow: hidden;
-            cursor: default;
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .card.hidden {
-            opacity: 0;
-            transform: scale(0.8);
-            pointer-events: none;
-            position: absolute;
-            width: 0;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
-            border: none;
-        }
-
-        /* --- ESTADO FOCUS (para navegación por teclado) --- */
-        .card.focused {
-            border-color: #ffd700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 25px 40px -10px #000000cc;
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(30, 55, 95, 0.8);
-        }
-
-        .card.focused .route-link {
-            background: linear-gradient(145deg, #ffe066, #f5c400);
-            transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+            cursor: pointer;
         }
 
         .card::before {
@@ -405,7 +276,6 @@
             border: 1px solid rgba(255, 255, 255, 0.2);
             backdrop-filter: blur(2px);
             cursor: pointer;
-            user-select: none;
         }
 
         .card .route-link i {
@@ -448,23 +318,6 @@
             50% { opacity: 0.9; transform: scale(1.1); }
         }
 
-        .no-results {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 2rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .no-results i {
-            font-size: 2.5rem;
-            color: rgba(255, 215, 0, 0.2);
-        }
-
         .toast-404 {
             position: fixed;
             bottom: 2rem;
@@ -502,9 +355,6 @@
             .card h2 { font-size: 1.2rem; }
             .card .route-link { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
             .card .desc { font-size: 0.7rem; min-height: 2rem; }
-            .search-wrapper { max-width: 100%; }
-            #searchInput { font-size: 0.85rem; padding: 0.7rem 1rem 0.7rem 2.8rem; }
-            .search-stats .keyboard-hint { display: none; }
         }
 
         .safe-badge {
@@ -516,11 +366,6 @@
             font-size: 0.7rem;
             letter-spacing: 1px;
             border: 1px solid rgba(255, 255, 255, 0.03);
-        }
-
-        /* Scroll suave para la navegación por teclado */
-        html {
-            scroll-behavior: smooth;
         }
     </style>
 </head>
@@ -546,26 +391,6 @@
         <span class="safe-badge"><i class="fas fa-shield-alt"></i> sanitized</span>
     </div>
 
-    <!-- 🔍 SEARCH BAR -->
-    <div class="search-container">
-        <div class="search-wrapper">
-            <i class="fas fa-search"></i>
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="🔍 Search for a tool... (Ctrl+K)" 
-                autocomplete="off"
-                aria-label="Search for tools"
-            />
-            <button class="search-clear" id="searchClear" aria-label="Clear search">
-                <i class="fas fa-times-circle"></i>
-            </button>
-        </div>
-    </div>
-    <div class="search-stats" id="searchStats">
-        <span class="keyboard-hint">↑↓ navigate · Enter open · Ctrl+Click new tab</span>
-    </div>
-
     <div class="routes" id="routes">
         <div class="loading-placeholder">
             <i class="fas fa-spinner fa-pulse"></i>
@@ -581,8 +406,6 @@
 
 <script>
     (function() {
-        'use strict';
-
         // ================================================================
         // 🔥 CONFIGURACIÓN DE GITHUB
         // ================================================================
@@ -595,367 +418,201 @@
         const countNumber = document.getElementById('countNumber');
         const toast = document.getElementById('toast404');
         const toastMsg = document.getElementById('toastMessage');
-        const searchInput = document.getElementById('searchInput');
-        const searchClear = document.getElementById('searchClear');
-        const searchStats = document.getElementById('searchStats');
 
-        // Variables para almacenar los datos
-        let allCards = [];
-        let allFileNames = [];
-        let focusedIndex = -1;
-
-        // ----- SANITIZACIÓN -----
+        // ----- helpers -----
         function escapeHtml(unsafe) {
-            if (!unsafe || typeof unsafe !== 'string') return '';
+            if (!unsafe) return '';
             return unsafe
                 .replace(/&/g, "&amp;")
                 .replace(/</g, "&lt;")
                 .replace(/>/g, "&gt;")
                 .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;")
-                .replace(/`/g, "&#x60;")
-                .replace(/\//g, "&#x2F;");
+                .replace(/'/g, "&#039;");
         }
 
-        function sanitizeFileName(name) {
-            if (!name || typeof name !== 'string') return '';
-            return name.replace(/[^a-zA-Z0-9.\-_]/g, '');
-        }
-
-        function capitaliseSafe(str) {
+        function capitalise(str) {
             if (!str || typeof str !== 'string') return '';
-            const clean = str.replace(/[^a-zA-Z0-9.\-_ ]/g, '');
-            if (!clean) return '';
-            return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
+            return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
         }
 
-        function createSafeText(text) {
-            const element = document.createElement('span');
-            element.textContent = text;
-            return element;
-        }
-
-        // ----- 404 TOAST -----
         function show404(fileName) {
-            const safeName = sanitizeFileName(fileName) || 'file';
-            toastMsg.innerHTML = '';
-            toastMsg.appendChild(createSafeText('❌ NOT FOUND 404 · '));
-            const strong = document.createElement('strong');
-            strong.textContent = safeName;
-            toastMsg.appendChild(strong);
-            toastMsg.appendChild(createSafeText(' · redirecting to main route'));
+            const safeName = escapeHtml(fileName) || 'file';
+            toastMsg.innerHTML = `❌ NOT FOUND 404 · <strong>${safeName}</strong> · redirecting to main route`;
             toast.style.display = 'flex';
             setTimeout(() => { toast.style.display = 'none'; }, 3200);
         }
 
-        // ----- FUNCIÓN INTELIGENTE PARA ICONOS -----
-        function getIconInfo(name) {
-            const cleanName = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-            
-            if (cleanName.includes('map') || cleanName.includes('route') || 
-                cleanName.includes('gps') || cleanName.includes('navigation')) {
-                return {
-                    icon: 'fa-map-location-dot',
-                    label: '🗺️',
-                    desc: 'Interactive mapping & real-time routing',
-                    descIcon: 'fa-location-dot'
-                };
-            }
-            
-            if (cleanName.includes('med') || cleanName.includes('card') || 
-                cleanName.includes('health') || cleanName.includes('doctor') || 
-                cleanName.includes('hospital') || cleanName.includes('clinic')) {
-                return {
-                    icon: 'fa-heart-pulse',
-                    label: '💊',
-                    desc: 'Health records · patient management system',
-                    descIcon: 'fa-notes-medical'
-                };
-            }
-            
-            if (cleanName.includes('appoint') || cleanName.includes('calendar') || 
-                cleanName.includes('schedule') || cleanName.includes('booking') || 
-                cleanName.includes('meeting')) {
-                return {
-                    icon: 'fa-calendar-check',
-                    label: '📅',
-                    desc: 'Scheduling · appointments management',
-                    descIcon: 'fa-clock'
-                };
-            }
-            
-            if (cleanName.includes('car') || cleanName.includes('auto') || 
-                cleanName.includes('vehicle') || cleanName.includes('drive') || 
-                cleanName.includes('fleet')) {
-                return {
-                    icon: 'fa-car',
-                    label: '🚗',
-                    desc: 'Vehicle management · fleet control',
-                    descIcon: 'fa-road'
-                };
-            }
-            
-            if (cleanName.includes('chat') || cleanName.includes('message') || 
-                cleanName.includes('talk') || cleanName.includes('discord') || 
-                cleanName.includes('telegram')) {
-                return {
-                    icon: 'fa-comments',
-                    label: '💬',
-                    desc: 'Chat · real-time communication',
-                    descIcon: 'fa-message'
-                };
-            }
-            
-            if (cleanName.includes('video') || cleanName.includes('stream') || 
-                cleanName.includes('youtube') || cleanName.includes('watch') || 
-                cleanName.includes('movie')) {
-                return {
-                    icon: 'fa-video',
-                    label: '🎬',
-                    desc: 'Video · streaming platform',
-                    descIcon: 'fa-play'
-                };
-            }
-            
-            if (cleanName.includes('shop') || cleanName.includes('store') || 
-                cleanName.includes('buy') || cleanName.includes('cart') || 
-                cleanName.includes('market')) {
-                return {
-                    icon: 'fa-shop',
-                    label: '🛒',
-                    desc: 'E-commerce · online store',
-                    descIcon: 'fa-bag-shopping'
-                };
-            }
-            
-            if (cleanName.includes('blog') || cleanName.includes('post') || 
-                cleanName.includes('article') || cleanName.includes('news')) {
-                return {
-                    icon: 'fa-blog',
-                    label: '✍️',
-                    desc: 'Blog · content publishing',
-                    descIcon: 'fa-pen-fancy'
-                };
-            }
-            
-            if (cleanName.includes('game') || cleanName.includes('play') || 
-                cleanName.includes('fun') || cleanName.includes('arcade')) {
-                return {
-                    icon: 'fa-gamepad',
-                    label: '🎮',
-                    desc: 'Games · interactive entertainment',
-                    descIcon: 'fa-dice'
-                };
-            }
-
-            // 🔥 DEFAULT: 🌐 WWW
-            return {
-                icon: 'fa-globe',
-                label: '🌐',
-                desc: 'Web page',
-                descIcon: 'fa-link'
-            };
-        }
-
-        // ----- FETCH FILES FROM GITHUB -----
+        // ----- FETCH FILES FROM GITHUB (100% AUTOMÁTICO) -----
         async function fetchHtmlFiles() {
             const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
             
             try {
                 const response = await fetch(url);
+                
                 if (!response.ok) {
                     throw new Error(`GitHub API error: ${response.status}`);
                 }
+                
                 const files = await response.json();
                 
+                // 🔥 FILTRO: SOLO archivos .html, excluyendo index.html
+                // ¡SIN LISTA MANUAL! Todo es automático
                 const htmlFiles = files
                     .filter(file => file.type === 'file' && file.name.endsWith('.html'))
-                    .map(file => sanitizeFileName(file.name))
-                    .filter(name => name && name.toLowerCase() !== 'index.html');
+                    .map(file => file.name)
+                    .filter(name => name.toLowerCase() !== 'index.html');
                 
                 return htmlFiles;
+                
             } catch (error) {
                 console.error('❌ Error fetching from GitHub:', error);
+                
+                // Fallback: mensaje de error
                 return [];
             }
         }
 
-        // ----- RENDER ROUTES -----
+        // ----- RENDER ROUTES (desde archivos encontrados) -----
         function renderRoutes(fileNames) {
-            container.innerHTML = '';
-            allCards = [];
-            allFileNames = fileNames;
-            focusedIndex = -1;
+            container.innerHTML = ''; // clear loading
 
             if (!fileNames || fileNames.length === 0) {
                 const empty = document.createElement('div');
                 empty.className = 'loading-placeholder';
-                const icon = document.createElement('i');
-                icon.className = 'fas fa-folder-open';
-                empty.appendChild(icon);
-                const text = document.createElement('span');
-                text.textContent = 'no HTML files found in repository';
-                empty.appendChild(text);
+                empty.innerHTML = `
+                    <i class="fas fa-folder-open"></i>
+                    <span>no HTML files found in repository</span>
+                `;
                 container.appendChild(empty);
                 countNumber.textContent = '0';
-                updateSearchStats(0, 0);
                 return;
             }
 
             let renderedCount = 0;
 
             fileNames.forEach((fileName) => {
-                const safeFileName = sanitizeFileName(fileName);
-                if (!safeFileName) return;
-                
-                const baseName = safeFileName.replace(/\.html$/i, '');
-                const safeBaseName = sanitizeFileName(baseName);
-                if (!safeBaseName) return;
+                // Remove .html extension for display
+                const baseName = fileName.replace(/\.html$/i, '');
+                const safeName = escapeHtml(baseName);
+                if (!safeName) return;
 
                 const card = document.createElement('div');
                 card.className = 'card';
-                card.dataset.tool = safeBaseName.toLowerCase();
-                card.dataset.file = safeFileName;
-                card.dataset.index = renderedCount;
 
-                const iconInfo = getIconInfo(safeBaseName);
+                // ---- ICON LOGIC (automático según el nombre) ----
+                let iconClass = 'fa-file-code';
+                let iconLabel = '📄';
+                let descText = 'Route · dynamic content';
+                let descIcon = 'fa-link';
 
-                // ICON
+                const lower = safeName.toLowerCase();
+                if (lower.includes('map') || lower.includes('route')) {
+                    iconClass = 'fa-map-location-dot';
+                    iconLabel = '🗺️';
+                    descText = 'Interactive mapping & real-time routing';
+                    descIcon = 'fa-location-dot';
+                } else if (lower.includes('med') || lower.includes('card') || lower.includes('health')) {
+                    iconClass = 'fa-heart-pulse';
+                    iconLabel = '💊';
+                    descText = 'Health records · patient management system';
+                    descIcon = 'fa-notes-medical';
+                } else if (lower.includes('appoint')) {
+                    iconClass = 'fa-calendar-check';
+                    iconLabel = '📅';
+                    descText = 'Scheduling · appointments management';
+                    descIcon = 'fa-clock';
+                } else if (lower.includes('car') || lower.includes('auto')) {
+                    iconClass = 'fa-car';
+                    iconLabel = '🚗';
+                    descText = 'Vehicle management · fleet control';
+                    descIcon = 'fa-road';
+                } else {
+                    iconClass = 'fa-file-lines';
+                    iconLabel = '📄';
+                    descText = `Route · ${safeName}`;
+                    descIcon = 'fa-arrow-right';
+                }
+
+                // ---- ICON ----
                 const iconWrapper = document.createElement('div');
                 iconWrapper.className = 'card-icon';
-                const icon = document.createElement('i');
-                icon.className = `fas ${iconInfo.icon}`;
-                iconWrapper.appendChild(icon);
-                const badge = document.createElement('span');
-                badge.className = 'icon-badge';
-                badge.textContent = iconInfo.label;
-                iconWrapper.appendChild(badge);
+                iconWrapper.innerHTML = `
+                    <i class="fas ${iconClass}"></i>
+                    <span class="icon-badge">${escapeHtml(iconLabel)}</span>
+                `;
 
-                // TITLE
+                // ---- TITLE (nombre del archivo) ----
                 const title = document.createElement('h2');
-                title.textContent = capitaliseSafe(safeBaseName);
+                title.textContent = capitalise(safeName);
 
-                // DESCRIPTION
+                // ---- DESCRIPTION ----
                 const desc = document.createElement('div');
                 desc.className = 'desc';
-                const descIcon = document.createElement('i');
-                descIcon.className = `fas ${iconInfo.descIcon}`;
-                desc.appendChild(descIcon);
-                const descText = document.createTextNode(' ' + iconInfo.desc);
-                desc.appendChild(descText);
+                desc.innerHTML = `<i class="fas ${descIcon}"></i> ${escapeHtml(descText)}`;
 
-                // BADGE
-                const fileBadge = document.createElement('div');
-                fileBadge.className = 'badge';
-                fileBadge.textContent = '📁 ' + safeFileName;
+                // ---- BADGE (muestra el nombre del archivo) ----
+                const badge = document.createElement('div');
+                badge.className = 'badge';
+                badge.textContent = '📁 ' + fileName;
 
-                // LINK
+                // ---- LINK/BOTÓN ----
                 const link = document.createElement('div');
                 link.className = 'route-link';
                 link.setAttribute('role', 'button');
-                link.setAttribute('aria-label', `Open ${capitaliseSafe(safeBaseName)}`);
-                link.dataset.file = safeFileName;
-                link.dataset.tool = safeBaseName;
+                link.setAttribute('aria-label', `Open ${capitalise(safeName)}`);
 
-                const linkText = document.createTextNode(`Open ${capitaliseSafe(safeBaseName)}`);
-                link.appendChild(linkText);
+                const linkText = document.createTextNode(`Open ${capitalise(safeName)}`);
                 const iconLink = document.createElement('i');
                 iconLink.className = 'fas fa-arrow-right';
+
+                link.appendChild(linkText);
                 link.appendChild(iconLink);
 
-                // ASSEMBLE
+                // ---- ASSEMBLE CARD ----
                 card.appendChild(iconWrapper);
                 card.appendChild(title);
                 card.appendChild(desc);
-                card.appendChild(fileBadge);
+                card.appendChild(badge);
                 card.appendChild(link);
                 container.appendChild(card);
 
-                allCards.push(card);
                 renderedCount++;
 
-                // ---- CLICK: ABRIR EN NUEVA PESTAÑA CON CTRL/CMD ----
+                // ---- CLICK: navegar al archivo ----
                 link.addEventListener('click', function(e) {
                     e.preventDefault();
-                    const file = this.dataset.file;
-                    const tool = this.dataset.tool;
                     
-                    // Si Ctrl o Cmd están presionados → abrir en nueva pestaña
-                    if (e.ctrlKey || e.metaKey) {
-                        window.open(file, '_blank');
-                    } else {
-                        // Normal: abrir en la misma pestaña
-                        const safeHash = sanitizeFileName(tool);
-                        if (safeHash) {
-                            window.location.hash = safeHash;
-                        }
-                        window.location.href = file;
-                    }
-                });
-
-                // ---- HOVER: remover focus de otros ----
-                card.addEventListener('mouseenter', function() {
-                    if (focusedIndex !== -1) {
-                        clearFocus();
-                    }
+                    // Actualizar hash para navegación
+                    window.location.hash = baseName;
+                    
+                    // Navegar al archivo
+                    window.location.href = fileName;
                 });
             });
 
+            // Update counter
             if (countNumber) {
                 countNumber.textContent = renderedCount;
             }
             
-            updateSearchStats(renderedCount, renderedCount);
             console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML automáticamente:`, fileNames);
         }
 
-        // ----- FUNCIONES DE FOCUS (navegación por teclado) -----
-        function clearFocus() {
-            allCards.forEach(c => c.classList.remove('focused'));
-            focusedIndex = -1;
-        }
-
-        function setFocus(index) {
-            clearFocus();
-            if (index >= 0 && index < allCards.length) {
-                const card = allCards[index];
-                // Verificar que la tarjeta no esté oculta
-                if (!card.classList.contains('hidden')) {
-                    card.classList.add('focused');
-                    focusedIndex = index;
-                    // Scroll a la tarjeta
-                    card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                } else {
-                    // Si está oculta, buscar la siguiente visible
-                    const visibleCards = getVisibleCards();
-                    if (visibleCards.length > 0) {
-                        const newIndex = visibleCards[0].dataset.index;
-                        setFocus(parseInt(newIndex));
-                    }
-                }
+        // ----- MAIN: fetch y renderizar -----
+        async function init() {
+            try {
+                const htmlFiles = await fetchHtmlFiles();
+                renderRoutes(htmlFiles);
+            } catch (error) {
+                console.error('❌ Error en init:', error);
+                renderRoutes([]);
             }
         }
 
-        function getVisibleCards() {
-            return allCards.filter(c => !c.classList.contains('hidden'));
-        }
-
-        function getCurrentFocusedCard() {
-            if (focusedIndex >= 0 && focusedIndex < allCards.length) {
-                const card = allCards[focusedIndex];
-                if (!card.classList.contains('hidden')) {
-                    return card;
-                }
-            }
-            return null;
-        }
-
-        function openCurrentTool(newTab = false) {
-            const card = getCurrentFocusedCard();
-            if (card) {
-                const link = card.querySelector('.route-link');
-                if (link) {
-                    const file = link.dataset.file;
-                    const tool = link.dataset.tool;
-                    if (file) {
-                        if (newTab) {
+        // ----- EJECUTAR -----
+        init();
+        
+    })();
+</script>
+</body>
+</html>
