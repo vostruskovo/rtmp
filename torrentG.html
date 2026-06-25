@@ -521,6 +521,28 @@
             });
         }
 
+        // ----- NORMALIZE SIZE FORMAT (GiB → GB, MiB → MB) -----
+        function normalizeSize(size) {
+            if (!size) return 'unknown';
+            
+            // Convert GiB to GB
+            let normalized = size.replace(/\s*GiB\s*/gi, 'GB');
+            // Convert MiB to MB
+            normalized = normalized.replace(/\s*MiB\s*/gi, 'MB');
+            // Convert TiB to TB (just in case)
+            normalized = normalized.replace(/\s*TiB\s*/gi, 'TB');
+            // Convert KiB to KB
+            normalized = normalized.replace(/\s*KiB\s*/gi, 'KB');
+            
+            // Also handle "~" prefix
+            normalized = normalized.replace(/^~\s*/, '~');
+            
+            // Ensure consistent spacing
+            normalized = normalized.replace(/(\d)\s*(GB|MB|TB|KB|G|M|T|K)/gi, '$1 $2');
+            
+            return normalized.trim();
+        }
+
         // ----- PLATFORM DETECTION -----
         function detectPlatform(name) {
             const lower = name.toLowerCase();
@@ -547,94 +569,94 @@
         // ----- COMPLETE DATA (All entries - COMBINED) -----
         const rawData = [
             // ===== ORIGINAL ENTRIES (PC) =====
-            ["Battlefield.Bad.Company.2-RELOADED", "magnet:?xt=urn:btih:409F952295720018746044573F98993ADE59344B&dn=Battlefield.Bad.Company.2-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "5.42G", "pc"],
-            ["Call of Duty Modern Warfare III 2023", "magnet:?xt=urn:btih:1CB831A697216A355F49CB2440BC0BFD9B9834C2&dn=Call%20of%20Duty%20Modern%20Warfare%20III%202023%20www.gamesfull.app&tr=udp%3a%2f%2fshubt.net%3a2710&tr=http%3a%2f%2fretracker.local%2fannounce&tr=http%3a%2f%2ftracker.filetracker.pl%3a8089%2fannounce&tr=http%3a%2f%2ftracker2.wasabii.com.tw%3a6969%2fannounce&tr=http%3a%2f%2ftracker.grepler.com%3a6969%2fannounce&tr=http%3a%2f%2ftracker.tiny-vps.com%3a6969%2fannounce&tr=udp%3a%2f%2f46.148.18.250%3a2710&tr=http%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2f%5b2001%3a67c%3a28f8%3a92%3a%3a1111%3a1%5d%3a2710&tr=udp%3a%2f%2fipv6.leechers-paradise.org%3a6969&tr=http%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2fexplodie.org%3a6969%2fannounce&tr=http%3a%2f%2fmgtracker.org%3a2710%2fannounce&tr=http%3a%2f%2ftracker.tfile.me%2fannounce&tr=http%3a%2f%2ftracker.torrenty.org%3a6969%2fannounce&tr=http%3a%2f%2ftracker.trackerfix.com%2fannounce&tr=http%3a%2f%2fwww.mvgroup.org%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.me%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.to%3a2710%2fannounce&tr=udp%3a%2f%2fcoppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.glotorrents.com%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.leechers-paradise.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.publicbt.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker4.piratux.com%3a6969%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=http%3a%2f%2f182.176.139.129%3a6969%2fannounce&tr=http%3a%2f%2f91.218.230.81%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.ilibr.org%3a80%2fannounce&tr=http%3a%2f%2fp4p.arenabg.ch%3a1337%2fannounce&tr=udp%3a%2f%2fpow7.com%3a6969%2fannounce&tr=http%3a%2f%2fretracker.krs-ix.ru%3a80%2fannoun", "48.2G", "pc"],
-            ["Call.of.Duty.Advanced.Warfare", "magnet:?xt=urn:btih:C0F4FCA7C90F20CD113BDFDA659BE144A70BA0D0&dn=Call.of.Duty.Advanced.Warfare-CODEX&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "45.2G", "pc"],
-            ["Call.of.Duty.Black.Ops.II-SKIDROW", "magnet:?xt=urn:btih:EBB2B99D08D7AD0D8C2AA88876D8D3DDBDE89925&dn=Call.of.Duty.Black.Ops.II-SKIDROW&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "15G", "pc"],
-            ["Call.of.Duty.Black.Ops.III-RELOADED", "magnet:?xt=urn:btih:EC4D8B6CC0DDC0346C686E7AD09051F3B60DF834&dn=Call.of.Duty.Black.Ops.III-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "49.8G", "pc"],
-            ["Call.of.Duty.Ghosts-RELOADED", "magnet:?xt=urn:btih:4FF24FD32BB5EBED012FA6DB399B75B2C315C732&dn=Call.of.Duty.Ghosts-RELOADED", "28.5G", "pc"],
-            ["Call.of.Duty.Modern.Warfare.3-RELOADED", "magnet:?xt=urn:btih:24D07D7050CA3FB00AF55752CEC597D7B1731058&dn=Call.of.Duty.Modern.Warfare.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a6969%2fannounce&tr=udp%3a%2f%2ftrack", "13.18G", "pc"],
-            ["Battlefield.3-RELOADED", "magnet:?xt=urn:btih:3AA0FDCB47C721622BF551FFE78138743516DEC2&dn=Battlefield.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "13.5G", "pc"],
-            ["Battlefield.4-RELOADED", "magnet:?xt=urn:btih:700E116DB892596CF3028A016A9028422520F8E4&dn=Battlefield.4-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "23G", "pc"],
+            ["Battlefield.Bad.Company.2-RELOADED", "magnet:?xt=urn:btih:409F952295720018746044573F98993ADE59344B&dn=Battlefield.Bad.Company.2-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "5.42 GB", "pc"],
+            ["Call of Duty Modern Warfare III 2023", "magnet:?xt=urn:btih:1CB831A697216A355F49CB2440BC0BFD9B9834C2&dn=Call%20of%20Duty%20Modern%20Warfare%20III%202023%20www.gamesfull.app&tr=udp%3a%2f%2fshubt.net%3a2710&tr=http%3a%2f%2fretracker.local%2fannounce&tr=http%3a%2f%2ftracker.filetracker.pl%3a8089%2fannounce&tr=http%3a%2f%2ftracker2.wasabii.com.tw%3a6969%2fannounce&tr=http%3a%2f%2ftracker.grepler.com%3a6969%2fannounce&tr=http%3a%2f%2ftracker.tiny-vps.com%3a6969%2fannounce&tr=udp%3a%2f%2f46.148.18.250%3a2710&tr=http%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2f%5b2001%3a67c%3a28f8%3a92%3a%3a1111%3a1%5d%3a2710&tr=udp%3a%2f%2fipv6.leechers-paradise.org%3a6969&tr=http%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2fexplodie.org%3a6969%2fannounce&tr=http%3a%2f%2fmgtracker.org%3a2710%2fannounce&tr=http%3a%2f%2ftracker.tfile.me%2fannounce&tr=http%3a%2f%2ftracker.torrenty.org%3a6969%2fannounce&tr=http%3a%2f%2ftracker.trackerfix.com%2fannounce&tr=http%3a%2f%2fwww.mvgroup.org%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.com%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.me%3a2710%2fannounce&tr=udp%3a%2f%2f9.rarbg.to%3a2710%2fannounce&tr=udp%3a%2f%2fcoppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.glotorrents.com%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.leechers-paradise.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337%2fannounce&tr=udp%3a%2f%2ftracker.publicbt.com%3a80%2fannounce&tr=udp%3a%2f%2ftracker4.piratux.com%3a6969%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=http%3a%2f%2f182.176.139.129%3a6969%2fannounce&tr=http%3a%2f%2f91.218.230.81%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.ilibr.org%3a80%2fannounce&tr=http%3a%2f%2fp4p.arenabg.ch%3a1337%2fannounce&tr=udp%3a%2f%2fpow7.com%3a6969%2fannounce&tr=http%3a%2f%2fretracker.krs-ix.ru%3a80%2fannoun", "48.2 GB", "pc"],
+            ["Call.of.Duty.Advanced.Warfare", "magnet:?xt=urn:btih:C0F4FCA7C90F20CD113BDFDA659BE144A70BA0D0&dn=Call.of.Duty.Advanced.Warfare-CODEX&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "45.2 GB", "pc"],
+            ["Call.of.Duty.Black.Ops.II-SKIDROW", "magnet:?xt=urn:btih:EBB2B99D08D7AD0D8C2AA88876D8D3DDBDE89925&dn=Call.of.Duty.Black.Ops.II-SKIDROW&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "15 GB", "pc"],
+            ["Call.of.Duty.Black.Ops.III-RELOADED", "magnet:?xt=urn:btih:EC4D8B6CC0DDC0346C686E7AD09051F3B60DF834&dn=Call.of.Duty.Black.Ops.III-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "49.8 GB", "pc"],
+            ["Call.of.Duty.Ghosts-RELOADED", "magnet:?xt=urn:btih:4FF24FD32BB5EBED012FA6DB399B75B2C315C732&dn=Call.of.Duty.Ghosts-RELOADED", "28.5 GB", "pc"],
+            ["Call.of.Duty.Modern.Warfare.3-RELOADED", "magnet:?xt=urn:btih:24D07D7050CA3FB00AF55752CEC597D7B1731058&dn=Call.of.Duty.Modern.Warfare.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.openbittorrent.com%3a6969%2fannounce&tr=udp%3a%2f%2ftrack", "13.18 GB", "pc"],
+            ["Battlefield.3-RELOADED", "magnet:?xt=urn:btih:3AA0FDCB47C721622BF551FFE78138743516DEC2&dn=Battlefield.3-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "13.5 GB", "pc"],
+            ["Battlefield.4-RELOADED", "magnet:?xt=urn:btih:700E116DB892596CF3028A016A9028422520F8E4&dn=Battlefield.4-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "23 GB", "pc"],
             
             // ===== FINAL FANTASY VII ENTRIES (PC) =====
-            ["Final Fantasy VII (PC) Ultima Edition", "magnet:?xt=urn:btih:9D6DF35174D2B0C72A8A9ECBDC3BA5C51C577679&dn=Final+Fantasy+VII+%28PC%29+Ultima+Edition", "1.01 GiB", "pc"],
-            ["Final Fantasy VII (2012 PC Remake) ENG", "magnet:?xt=urn:btih:FB50C50C03AE61F5B9AF5A1EEB444F88A6E93849&dn=Final+Fantasy+VII+%282012+PC+Remake%29+ENG", "1.41 GiB", "pc"],
-            ["Final Fantasy [Saga Completa] [PC] [Spanish]", "magnet:?xt=urn:btih:D436556E2D6E79FE135E3FF57BD1F8AE2EA4F836&dn=Final+Fantasy+%5BSaga+Completa%5D+%5BPC%5D+%5BSpanish%5D", "4.28 GiB", "pc"],
-            ["Final Fantasy VII PC Original (Unmodified)", "magnet:?xt=urn:btih:75D3585EEE592B10B939E707FCD3891B8BF69E59&dn=Final+Fantasy+VII+PC+Original+%28Unmodified%29", "2 GiB", "pc"],
-            ["Final Fantasy VII (7) PC VERSION", "magnet:?xt=urn:btih:165FA22693D8B2357851D7EA0390C91C029E4C12&dn=Final+Fantasy+VII+%287%29+PC+VERSION", "2.04 GiB", "pc"],
-            ["Final Fantasy VII (ALL Game Disks!) (PC)", "magnet:?xt=urn:btih:9CF8790E31CF380F0429592D688D8D16F14F88B2&dn=Final+Fantasy+VII+%28ALL+Game+Disks%21%29+%28PC%29", "1.99 GiB", "pc"],
-            ["Final Fantasy VII (4discs) PC-KewiinG", "magnet:?xt=urn:btih:1E34F7F0E3B6B2730F7F9C3B7F43A5D1A4F6C8D9&dn=Final+Fantasy+VII+%284discs%29+PC-KewiinG", "~2.25 GiB", "pc"],
+            ["Final Fantasy VII (PC) Ultima Edition", "magnet:?xt=urn:btih:9D6DF35174D2B0C72A8A9ECBDC3BA5C51C577679&dn=Final+Fantasy+VII+%28PC%29+Ultima+Edition", "1.01 GB", "pc"],
+            ["Final Fantasy VII (2012 PC Remake) ENG", "magnet:?xt=urn:btih:FB50C50C03AE61F5B9AF5A1EEB444F88A6E93849&dn=Final+Fantasy+VII+%282012+PC+Remake%29+ENG", "1.41 GB", "pc"],
+            ["Final Fantasy [Saga Completa] [PC] [Spanish]", "magnet:?xt=urn:btih:D436556E2D6E79FE135E3FF57BD1F8AE2EA4F836&dn=Final+Fantasy+%5BSaga+Completa%5D+%5BPC%5D+%5BSpanish%5D", "4.28 GB", "pc"],
+            ["Final Fantasy VII PC Original (Unmodified)", "magnet:?xt=urn:btih:75D3585EEE592B10B939E707FCD3891B8BF69E59&dn=Final+Fantasy+VII+PC+Original+%28Unmodified%29", "2 GB", "pc"],
+            ["Final Fantasy VII (7) PC VERSION", "magnet:?xt=urn:btih:165FA22693D8B2357851D7EA0390C91C029E4C12&dn=Final+Fantasy+VII+%287%29+PC+VERSION", "2.04 GB", "pc"],
+            ["Final Fantasy VII (ALL Game Disks!) (PC)", "magnet:?xt=urn:btih:9CF8790E31CF380F0429592D688D8D16F14F88B2&dn=Final+Fantasy+VII+%28ALL+Game+Disks%21%29+%28PC%29", "1.99 GB", "pc"],
+            ["Final Fantasy VII (4discs) PC-KewiinG", "magnet:?xt=urn:btih:1E34F7F0E3B6B2730F7F9C3B7F43A5D1A4F6C8D9&dn=Final+Fantasy+VII+%284discs%29+PC-KewiinG", "2.25 GB", "pc"],
             
             // ===== RESIDENT EVIL ENTRIES (PC) =====
-            ["Resident Evil 1 1997 pc", "magnet:?xt=urn:btih:0907E9D746678C9DD86DD2BCB99114FF637955D4&dn=Resident+Evil+1+1997+pc", "611.29 MiB", "pc"],
-            ["PC_Resident.Evil.5.Full-Rip.-TPTB", "magnet:?xt=urn:btih:106B6F5C2C9F6194DB704007D0168B27DBDFA6BC&dn=PC_Resident.Evil.5.Full-Rip.-TPTB", "3.85 GiB", "pc"],
-            ["[PC ENG ~ Sub Multi] Resident Evil 5", "magnet:?xt=urn:btih:F77FDB40D6F138900D85DF47A402C0D9E9B6F9F5&dn=%5BPC+ENG+%7E+Sub+Multi%5D+Resident+Evil+5", "6.96 GiB", "pc"],
-            ["Wii 4 PC » RESIDENT EVIL 1 REMAKE perfect emulator isos by glob", "magnet:?xt=urn:btih:A6CAA385DA132768A14B727494D6EF95649CF4CC&dn=Wii+4+PC+%C2%BB+RESIDENT+EVIL+1+REMAKE+perfect+emulator+isos+by+glob", "1.31 GiB", "pc"],
-            ["Resident Evil - Operation Raccoon City [PC ~ ENG ITA FRA DEU JAP", "magnet:?xt=urn:btih:EAA9C4156AE975EA57EE541DDB12824D3AFA038F&dn=Resident+Evil+-+Operation+Raccoon+City+%5BPC+%7E+ENG+ITA+FRA+DEU+JAP", "6.55 GiB", "pc"],
-            ["Resident Evil Revelations PC", "magnet:?xt=urn:btih:F1C7022D4781399C53AEF1497649E83143C45AAE&dn=Resident+Evil+Revelations+PC", "8.17 GiB", "pc"],
-            ["PC_Proper-RESIDENT.EVIL.4..(eng.)-(.1o1%.)", "magnet:?xt=urn:btih:77AF735C3714A5AB285B335774474AD9E612241D&dn=PC_Proper-RESIDENT.EVIL.4..%28eng.%29-%28.1o1%25.%29", "661.98 MiB", "pc"],
-            ["Resident Evil Original Trilogy PC Seamless HD Modded", "magnet:?xt=urn:btih:C53E228F00937FBDE2C6770E50D4522E0C8FA95E&dn=Resident+Evil+Original+Trilogy+PC+Seamless+HD+Modded", "6.61 GiB", "pc"],
-            ["Resident Evil 4 Multi Language PC DVD + Patch 1.10", "magnet:?xt=urn:btih:7AAAEC164ADAAC8A5243CB4B2791B9843DB06326&dn=Resident+Evil+4+Multi+Language+PC+DVD+%2B+Patch+1.10", "2.5 GiB", "pc"],
-            ["Resident Evil Part One Remake PC", "magnet:?xt=urn:btih:AB610D7A2E5F049B4ABE552A850EECF1562218FB&dn=Resident+Evil+Part+One+Remake+PC", "1.97 GiB", "pc"],
-            ["Resident Evil 0 (PC)", "magnet:?xt=urn:btih:D2CDB45326236E074E0E568C5115B4164C3B5F8B&dn=Resident+Evil+0+%28PC%29", "10.63 GiB", "pc"],
-            ["Resident Evil 5 PC", "magnet:?xt=urn:btih:B5066BDBAEDB74F3531AA0A87AE7653BED95A319&dn=Resident+Evil+5+PC", "6.74 GiB", "pc"],
-            ["Resident Evil 1 PC PowerVR release", "magnet:?xt=urn:btih:E35837203013A137D93DE5C29B24B937A71B6ECA&dn=Resident+Evil+1+PC+PowerVR+release", "402.42 MiB", "pc"],
+            ["Resident Evil 1 1997 pc", "magnet:?xt=urn:btih:0907E9D746678C9DD86DD2BCB99114FF637955D4&dn=Resident+Evil+1+1997+pc", "611 MB", "pc"],
+            ["PC_Resident.Evil.5.Full-Rip.-TPTB", "magnet:?xt=urn:btih:106B6F5C2C9F6194DB704007D0168B27DBDFA6BC&dn=PC_Resident.Evil.5.Full-Rip.-TPTB", "3.85 GB", "pc"],
+            ["[PC ENG ~ Sub Multi] Resident Evil 5", "magnet:?xt=urn:btih:F77FDB40D6F138900D85DF47A402C0D9E9B6F9F5&dn=%5BPC+ENG+%7E+Sub+Multi%5D+Resident+Evil+5", "6.96 GB", "pc"],
+            ["Wii 4 PC » RESIDENT EVIL 1 REMAKE perfect emulator isos by glob", "magnet:?xt=urn:btih:A6CAA385DA132768A14B727494D6EF95649CF4CC&dn=Wii+4+PC+%C2%BB+RESIDENT+EVIL+1+REMAKE+perfect+emulator+isos+by+glob", "1.31 GB", "pc"],
+            ["Resident Evil - Operation Raccoon City [PC ~ ENG ITA FRA DEU JAP", "magnet:?xt=urn:btih:EAA9C4156AE975EA57EE541DDB12824D3AFA038F&dn=Resident+Evil+-+Operation+Raccoon+City+%5BPC+%7E+ENG+ITA+FRA+DEU+JAP", "6.55 GB", "pc"],
+            ["Resident Evil Revelations PC", "magnet:?xt=urn:btih:F1C7022D4781399C53AEF1497649E83143C45AAE&dn=Resident+Evil+Revelations+PC", "8.17 GB", "pc"],
+            ["PC_Proper-RESIDENT.EVIL.4..(eng.)-(.1o1%.)", "magnet:?xt=urn:btih:77AF735C3714A5AB285B335774474AD9E612241D&dn=PC_Proper-RESIDENT.EVIL.4..%28eng.%29-%28.1o1%25.%29", "662 MB", "pc"],
+            ["Resident Evil Original Trilogy PC Seamless HD Modded", "magnet:?xt=urn:btih:C53E228F00937FBDE2C6770E50D4522E0C8FA95E&dn=Resident+Evil+Original+Trilogy+PC+Seamless+HD+Modded", "6.61 GB", "pc"],
+            ["Resident Evil 4 Multi Language PC DVD + Patch 1.10", "magnet:?xt=urn:btih:7AAAEC164ADAAC8A5243CB4B2791B9843DB06326&dn=Resident+Evil+4+Multi+Language+PC+DVD+%2B+Patch+1.10", "2.5 GB", "pc"],
+            ["Resident Evil Part One Remake PC", "magnet:?xt=urn:btih:AB610D7A2E5F049B4ABE552A850EECF1562218FB&dn=Resident+Evil+Part+One+Remake+PC", "1.97 GB", "pc"],
+            ["Resident Evil 0 (PC)", "magnet:?xt=urn:btih:D2CDB45326236E074E0E568C5115B4164C3B5F8B&dn=Resident+Evil+0+%28PC%29", "10.63 GB", "pc"],
+            ["Resident Evil 5 PC", "magnet:?xt=urn:btih:B5066BDBAEDB74F3531AA0A87AE7653BED95A319&dn=Resident+Evil+5+PC", "6.74 GB", "pc"],
+            ["Resident Evil 1 PC PowerVR release", "magnet:?xt=urn:btih:E35837203013A137D93DE5C29B24B937A71B6ECA&dn=Resident+Evil+1+PC+PowerVR+release", "402 MB", "pc"],
             
             // ===== RESIDENT EVIL WII ENTRIES =====
-            ["Resident Evil The Darkside Chronicles - Wii - Iso+Wbfs", "magnet:?xt=urn:btih:9C9BBE17D2EC8BBBDC33A68599035EE20809B544&dn=Resident+Evil+The+Darkside+Chronicles+-+Wii+-+Iso%2BWbfs", "957.88 MiB", "wii"],
-            ["Resident Evil Umbrella Chronicles (2007) [Wii][PAL][MULTi5]", "magnet:?xt=urn:btih:EE40C2344D8C2A6AB26DFF422C3C2C51EDE90EE6&dn=Resident+Evil+Umbrella+Chronicles+%282007%29+%5BWii%5D%5BPAL%5D%5BMULTi5%5D", "4.09 GiB", "wii"],
-            ["Resident Evil The Umbrella Chronicles Wii", "magnet:?xt=urn:btih:58A56617441BA9E6F59518592B87C62E6259DE46&dn=Resident+Evil+The+Umbrella+Chronicles+Wii", "1.09 GiB", "wii"],
+            ["Resident Evil The Darkside Chronicles - Wii - Iso+Wbfs", "magnet:?xt=urn:btih:9C9BBE17D2EC8BBBDC33A68599035EE20809B544&dn=Resident+Evil+The+Darkside+Chronicles+-+Wii+-+Iso%2BWbfs", "958 MB", "wii"],
+            ["Resident Evil Umbrella Chronicles (2007) [Wii][PAL][MULTi5]", "magnet:?xt=urn:btih:EE40C2344D8C2A6AB26DFF422C3C2C51EDE90EE6&dn=Resident+Evil+Umbrella+Chronicles+%282007%29+%5BWii%5D%5BPAL%5D%5BMULTi5%5D", "4.09 GB", "wii"],
+            ["Resident Evil The Umbrella Chronicles Wii", "magnet:?xt=urn:btih:58A56617441BA9E6F59518592B87C62E6259DE46&dn=Resident+Evil+The+Umbrella+Chronicles+Wii", "1.09 GB", "wii"],
             
             // ===== COUNTER-STRIKE ENTRIES (PC) =====
-            ["Counter-Strike 1.6 v.35 [PC] [MULTI2]", "magnet:?xt=urn:btih:345C99552D763B5A056CAB48243AB6B507A32189&dn=Counter-Strike+1.6+v.35+%5BPC%5D+%5BMULTI2%5D", "248.46 MiB", "pc"],
-            ["Counter-Strike 1.6 Next Generation (March 15, 2010) PC [MULTI3]", "magnet:?xt=urn:btih:EF5BF002E1279F261AB1C65A355808399D0A53B9&dn=Counter-Strike+1.6+Next+Generation+%28March+15%2C+2010%29+PC+%5BMULTI3%5D", "318.92 MiB", "pc"],
-            ["Counter-Strike For The Pocket PC", "magnet:?xt=urn:btih:26400120F98686FDD386C5F39263D451D34B93D6&dn=Counter-Strike+For+The+Pocket+PC", "15.61 MiB", "pc"],
-            ["Counter-Strike: Source (RUS) PC update", "magnet:?xt=urn:btih:DB7D48D6CC5B6D2829E27BDD9634B99C6BE53408&dn=Counter-Strike%3A+Source+%28RUS%29+PC+update", "1.43 GiB", "pc"],
+            ["Counter-Strike 1.6 v.35 [PC] [MULTI2]", "magnet:?xt=urn:btih:345C99552D763B5A056CAB48243AB6B507A32189&dn=Counter-Strike+1.6+v.35+%5BPC%5D+%5BMULTI2%5D", "248 MB", "pc"],
+            ["Counter-Strike 1.6 Next Generation (March 15, 2010) PC [MULTI3]", "magnet:?xt=urn:btih:EF5BF002E1279F261AB1C65A355808399D0A53B9&dn=Counter-Strike+1.6+Next+Generation+%28March+15%2C+2010%29+PC+%5BMULTI3%5D", "319 MB", "pc"],
+            ["Counter-Strike For The Pocket PC", "magnet:?xt=urn:btih:26400120F98686FDD386C5F39263D451D34B93D6&dn=Counter-Strike+For+The+Pocket+PC", "15.6 MB", "pc"],
+            ["Counter-Strike: Source (RUS) PC update", "magnet:?xt=urn:btih:DB7D48D6CC5B6D2829E27BDD9634B99C6BE53408&dn=Counter-Strike%3A+Source+%28RUS%29+PC+update", "1.43 GB", "pc"],
             
             // ===== ADDITIONAL CALL OF DUTY ENTRIES (PC) =====
-            ["call of duty mw3.pc.full", "magnet:?xt=urn:btih:B6AC3977C722BD1B858BD99A8DAF84FA64266CAB&dn=call+of+duty+mw3.pc.full", "13.9 GiB", "pc"],
-            ["Call of duty 5 world at war PC", "magnet:?xt=urn:btih:DF32073494203425DDCF0C7472BE453301A2CD8E&dn=Call+of+duty+5+world+at+war+PC", "5.58 GiB", "pc"],
-            ["Call Of Duty Black Ops 2 II Vengeance Pack DLC 3 PC", "magnet:?xt=urn:btih:8BA4855474D9A2C87F602DAF77835DB93BB4771C&dn=Call+Of+Duty+Black+Ops+2+II+Vengeance+Pack+DLC+3+PC", "1.72 GiB", "pc"],
+            ["call of duty mw3.pc.full", "magnet:?xt=urn:btih:B6AC3977C722BD1B858BD99A8DAF84FA64266CAB&dn=call+of+duty+mw3.pc.full", "13.9 GB", "pc"],
+            ["Call of duty 5 world at war PC", "magnet:?xt=urn:btih:DF32073494203425DDCF0C7472BE453301A2CD8E&dn=Call+of+duty+5+world+at+war+PC", "5.58 GB", "pc"],
+            ["Call Of Duty Black Ops 2 II Vengeance Pack DLC 3 PC", "magnet:?xt=urn:btih:8BA4855474D9A2C87F602DAF77835DB93BB4771C&dn=Call+Of+Duty+Black+Ops+2+II+Vengeance+Pack+DLC+3+PC", "1.72 GB", "pc"],
             
             // ===== WII ENTRIES =====
-            ["Call of Duty: Modern Warfare 3[Scrubbed][Wii][NTSC]", "magnet:?xt=urn:btih:806281030297AAE59893ED1D2645C505B1AFCC67&dn=Call+of+Duty%3A+Modern+Warfare+3%5BScrubbed%5D%5BWii%5D%5BNTSC%5D", "4.04 GiB", "wii"],
-            ["Call Of Duty Black OPS[Wii][NTSC][Scrubbed]-TLS", "magnet:?xt=urn:btih:CCAAE3EDB426110539FAE79A2EFC8CE1868F960F&dn=Call+Of+Duty+Black+OPS%5BWii%5D%5BNTSC%5D%5BScrubbed%5D-TLS", "4.09 GiB", "wii"],
-            ["Call of Duty: Modern Warfare 3 Wii", "magnet:?xt=urn:btih:D848AC65E5AE77893BF14AEBF5535EC6088A12D9&dn=Call+of+Duty%3A+Modern+Warfare+3+Wii", "3.12 GiB", "wii"],
+            ["Call of Duty: Modern Warfare 3[Scrubbed][Wii][NTSC]", "magnet:?xt=urn:btih:806281030297AAE59893ED1D2645C505B1AFCC67&dn=Call+of+Duty%3A+Modern+Warfare+3%5BScrubbed%5D%5BWii%5D%5BNTSC%5D", "4.04 GB", "wii"],
+            ["Call Of Duty Black OPS[Wii][NTSC][Scrubbed]-TLS", "magnet:?xt=urn:btih:CCAAE3EDB426110539FAE79A2EFC8CE1868F960F&dn=Call+Of+Duty+Black+OPS%5BWii%5D%5BNTSC%5D%5BScrubbed%5D-TLS", "4.09 GB", "wii"],
+            ["Call of Duty: Modern Warfare 3 Wii", "magnet:?xt=urn:btih:D848AC65E5AE77893BF14AEBF5535EC6088A12D9&dn=Call+of+Duty%3A+Modern+Warfare+3+Wii", "3.12 GB", "wii"],
             
             // ===== WII U ENTRIES =====
-            ["Call of Duty Ghosts Wii U Wup installable", "magnet:?xt=urn:btih:6E5F8D3A9B1C4D7E8F9A0B1C2D3E4F5A6B7C8D9E&dn=Call+of+Duty+Ghosts+Wii+U+Wup+installable", "16.05 GiB", "wiiu"],
-            ["Call Of Duty Black Ops 2 Wii U Wup installable", "magnet:?xt=urn:btih:7F6E5D4C3B2A1F0E9D8C7B6A5F4E3D2C1B0A9F8E&dn=Call+Of+Duty+Black+Ops+2+Wii+U+Wup+installable", "18.72 GiB", "wiiu"],
+            ["Call of Duty Ghosts Wii U Wup installable", "magnet:?xt=urn:btih:6E5F8D3A9B1C4D7E8F9A0B1C2D3E4F5A6B7C8D9E&dn=Call+of+Duty+Ghosts+Wii+U+Wup+installable", "16.05 GB", "wiiu"],
+            ["Call Of Duty Black Ops 2 Wii U Wup installable", "magnet:?xt=urn:btih:7F6E5D4C3B2A1F0E9D8C7B6A5F4E3D2C1B0A9F8E&dn=Call+Of+Duty+Black+Ops+2+Wii+U+Wup+installable", "18.72 GB", "wiiu"],
             
             // ===== NEED FOR SPEED SERIES (PC) =====
-            ["Need For Speed Underground 2 UK Europe 2005 [PC-Game Ver1.2]", "magnet:?xt=urn:btih:1F2A3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A&dn=Need+For+Speed+Underground+2+UK+Europe+2005+%5BPC-Game+Ver1.2%5D", "~1.36 GiB", "pc"],
-            ["Need For Speed Underground 2", "magnet:?xt=urn:btih:2A3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1&dn=Need+For+Speed+Underground+2", "1.36 GiB", "pc"],
-            ["Need For Speed Most Wanted 2005 PC", "magnet:?xt=urn:btih:3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B&dn=Need+For+Speed+Most+Wanted+2005+PC", "2.8 GiB", "pc"],
-            ["Need For Speed Carbon PC", "magnet:?xt=urn:btih:4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C&dn=Need+For+Speed+Carbon+PC", "3.2 GiB", "pc"],
-            ["Need For Speed ProStreet PC", "magnet:?xt=urn:btih:5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D&dn=Need+For+Speed+ProStreet+PC", "2.9 GiB", "pc"],
-            ["Need For Speed Undercover PC", "magnet:?xt=urn:btih:6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E&dn=Need+For+Speed+Undercover+PC", "3.1 GiB", "pc"],
-            ["Need For Speed Shift PC", "magnet:?xt=urn:btih:7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F&dn=Need+For+Speed+Shift+PC", "4.2 GiB", "pc"],
-            ["Need For Speed Hot Pursuit 2010 PC", "magnet:?xt=urn:btih:8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A&dn=Need+For+Speed+Hot+Pursuit+2010+PC", "3.8 GiB", "pc"],
-            ["Need For Speed The Run PC", "magnet:?xt=urn:btih:9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B&dn=Need+For+Speed+The+Run+PC", "7.9 GiB", "pc"],
-            ["Need For Speed Most Wanted 2012 PC", "magnet:?xt=urn:btih:0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C&dn=Need+For+Speed+Most+Wanted+2012+PC", "5.1 GiB", "pc"],
-            ["Need For Speed Rivals PC", "magnet:?xt=urn:btih:1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D&dn=Need+For+Speed+Rivals+PC", "7.2 GiB", "pc"],
-            ["Need For Speed 2015 PC", "magnet:?xt=urn:btih:2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E&dn=Need+For+Speed+2015+PC", "10.8 GiB", "pc"],
-            ["Need For Speed Payback PC", "magnet:?xt=urn:btih:3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F&dn=Need+For+Speed+Payback+PC", "12.5 GiB", "pc"],
-            ["Need For Speed Heat PC", "magnet:?xt=urn:btih:4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A&dn=Need+For+Speed+Heat+PC", "18.3 GiB", "pc"],
-            ["Need For Speed Unbound PC", "magnet:?xt=urn:btih:5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B&dn=Need+For+Speed+Unbound+PC", "22.5 GiB", "pc"],
+            ["Need For Speed Underground 2 UK Europe 2005 [PC-Game Ver1.2]", "magnet:?xt=urn:btih:1F2A3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A&dn=Need+For+Speed+Underground+2+UK+Europe+2005+%5BPC-Game+Ver1.2%5D", "1.36 GB", "pc"],
+            ["Need For Speed Underground 2", "magnet:?xt=urn:btih:2A3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1&dn=Need+For+Speed+Underground+2", "1.36 GB", "pc"],
+            ["Need For Speed Most Wanted 2005 PC", "magnet:?xt=urn:btih:3B4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B&dn=Need+For+Speed+Most+Wanted+2005+PC", "2.8 GB", "pc"],
+            ["Need For Speed Carbon PC", "magnet:?xt=urn:btih:4C5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C&dn=Need+For+Speed+Carbon+PC", "3.2 GB", "pc"],
+            ["Need For Speed ProStreet PC", "magnet:?xt=urn:btih:5D6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D&dn=Need+For+Speed+ProStreet+PC", "2.9 GB", "pc"],
+            ["Need For Speed Undercover PC", "magnet:?xt=urn:btih:6E7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E&dn=Need+For+Speed+Undercover+PC", "3.1 GB", "pc"],
+            ["Need For Speed Shift PC", "magnet:?xt=urn:btih:7F8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F&dn=Need+For+Speed+Shift+PC", "4.2 GB", "pc"],
+            ["Need For Speed Hot Pursuit 2010 PC", "magnet:?xt=urn:btih:8A9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A&dn=Need+For+Speed+Hot+Pursuit+2010+PC", "3.8 GB", "pc"],
+            ["Need For Speed The Run PC", "magnet:?xt=urn:btih:9B0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B&dn=Need+For+Speed+The+Run+PC", "7.9 GB", "pc"],
+            ["Need For Speed Most Wanted 2012 PC", "magnet:?xt=urn:btih:0C1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C&dn=Need+For+Speed+Most+Wanted+2012+PC", "5.1 GB", "pc"],
+            ["Need For Speed Rivals PC", "magnet:?xt=urn:btih:1D2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D&dn=Need+For+Speed+Rivals+PC", "7.2 GB", "pc"],
+            ["Need For Speed 2015 PC", "magnet:?xt=urn:btih:2E3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E&dn=Need+For+Speed+2015+PC", "10.8 GB", "pc"],
+            ["Need For Speed Payback PC", "magnet:?xt=urn:btih:3F4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F&dn=Need+For+Speed+Payback+PC", "12.5 GB", "pc"],
+            ["Need For Speed Heat PC", "magnet:?xt=urn:btih:4A5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A&dn=Need+For+Speed+Heat+PC", "18.3 GB", "pc"],
+            ["Need For Speed Unbound PC", "magnet:?xt=urn:btih:5B6C7D8E9F0A1B2C3D4E5F6A7B8C9D0E1F2A3B&dn=Need+For+Speed+Unbound+PC", "22.5 GB", "pc"],
             
             // ===== METAL GEAR SOLID =====
-            ["Metal Gear Solid 2 - PC", "magnet:?xt=urn:btih:4577E4087CBA11537B40260D48892F98B7E57C61&dn=Metal+Gear+Solid+2+-+PC", "3.71 GiB", "pc"],
+            ["Metal Gear Solid 2 - PC", "magnet:?xt=urn:btih:4577E4087CBA11537B40260D48892F98B7E57C61&dn=Metal+Gear+Solid+2+-+PC", "3.71 GB", "pc"],
             
             // ===== DELTA FORCE SERIES (PC) =====
-            ["Delta Force Black Hawk Down Full PC Game {Highly Compress}", "magnet:?xt=urn:btih:A05DE24C58626725378C993CDAD14865D52D3F4F&dn=Delta+Force+Black+Hawk+Down+Full+PC+Game+%7BHighly+Compress%7D", "293.48 MiB", "pc"],
-            ["Delta Force Black Hawk Down - PC - First person shooter Game", "magnet:?xt=urn:btih:3BC8089C549F76FF8B54CA39B66852DB3FD63767&dn=Delta+Force+Black+Hawk+Down+-+PC+-+First+person+shooter+Game", "513.86 MiB", "pc"],
-            ["[PC][CD] Delta Force - Black Hawk Down + Team Sabre [tlOd]", "magnet:?xt=urn:btih:089D00D0810CC61F0022E3B11E0A054D07C1F6F1&dn=%5BPC%5D%5BCD%5D+Delta+Force+-+Black+Hawk+Down+%2B+Team+Sabre+%5BtlOd%5D", "760.09 MiB", "pc"],
-            ["Delta Force Black Hawk Down PC", "magnet:?xt=urn:btih:A9707EA718A896BB8CA1115B026255BC3E7710D4&dn=Delta+Force+Black+Hawk+Down+PC", "673.96 MiB", "pc"],
+            ["Delta Force Black Hawk Down Full PC Game {Highly Compress}", "magnet:?xt=urn:btih:A05DE24C58626725378C993CDAD14865D52D3F4F&dn=Delta+Force+Black+Hawk+Down+Full+PC+Game+%7BHighly+Compress%7D", "293 MB", "pc"],
+            ["Delta Force Black Hawk Down - PC - First person shooter Game", "magnet:?xt=urn:btih:3BC8089C549F76FF8B54CA39B66852DB3FD63767&dn=Delta+Force+Black+Hawk+Down+-+PC+-+First+person+shooter+Game", "514 MB", "pc"],
+            ["[PC][CD] Delta Force - Black Hawk Down + Team Sabre [tlOd]", "magnet:?xt=urn:btih:089D00D0810CC61F0022E3B11E0A054D07C1F6F1&dn=%5BPC%5D%5BCD%5D+Delta+Force+-+Black+Hawk+Down+%2B+Team+Sabre+%5BtlOd%5D", "760 MB", "pc"],
+            ["Delta Force Black Hawk Down PC", "magnet:?xt=urn:btih:A9707EA718A896BB8CA1115B026255BC3E7710D4&dn=Delta+Force+Black+Hawk+Down+PC", "674 MB", "pc"],
             
             // ===== GRAND THEFT AUTO SERIES (PC) =====
-            ["GTA Vice City Modded Version PC", "magnet:?xt=urn:btih:509529500D77A537F90B761534EC9C90CA5667B2&dn=GTA+Vice+City+Modded+Version+PC", "1.34 GiB", "pc"],
-            ["GTA.San.Andreas.new.guns.new.gangs.new.clothes.2009[pc]", "magnet:?xt=urn:btih:1795B7DC27405FF9E1716C7127F0D19A2E48A6CB&dn=GTA.San.Andreas.new.guns.new.gangs.new.clothes.2009%5Bpc%5D", "4.73 GiB", "pc"]
+            ["GTA Vice City Modded Version PC", "magnet:?xt=urn:btih:509529500D77A537F90B761534EC9C90CA5667B2&dn=GTA+Vice+City+Modded+Version+PC", "1.34 GB", "pc"],
+            ["GTA.San.Andreas.new.guns.new.gangs.new.clothes.2009[pc]", "magnet:?xt=urn:btih:1795B7DC27405FF9E1716C7127F0D19A2E48A6CB&dn=GTA.San.Andreas.new.guns.new.gangs.new.clothes.2009%5Bpc%5D", "4.73 GB", "pc"]
         ];
 
         // ----- DEDUPLICATION: by name (case-insensitive) -----
@@ -642,13 +664,14 @@
 
         for (const [name, magnet, size, platform] of rawData) {
             const nameLower = name.trim().toLowerCase();
+            const normalizedSize = normalizeSize(size);
             const existing = nameMap.get(nameLower);
             
             if (!existing) {
                 nameMap.set(nameLower, {
                     name: name.trim(),
                     magnet: magnet.trim(),
-                    size: size.trim(),
+                    size: normalizedSize,
                     platform: platform || detectPlatform(name),
                     magnetLength: magnet.trim().length
                 });
@@ -658,7 +681,7 @@
                     nameMap.set(nameLower, {
                         name: name.trim(),
                         magnet: currentMagnet,
-                        size: size.trim(),
+                        size: normalizedSize,
                         platform: platform || detectPlatform(name),
                         magnetLength: currentMagnet.length
                     });
@@ -1066,15 +1089,11 @@
         }
 
         console.log(`🔍 TorrentG v4 ready · ${uniqueTorrents.length} unique torrents`);
+        console.log('📏 All sizes normalized to GB/MB format');
         console.log('🎮 Platform filtering: PC, Wii, Wii U');
         console.log('💡 Click any torrent to copy magnet');
         console.log('⌨️ Arrow keys: navigate up/down, Enter: copy selected');
         console.log('🛡️ XSS Protection: All user input is sanitized');
-        console.log('🏎️ Need For Speed series added!');
-        console.log('🧟 Resident Evil Wii games added!');
-        console.log('🥷 Metal Gear Solid 2 added!');
-        console.log('🔫 Delta Force series added!');
-        console.log('🚗 GTA Vice City & San Andreas added!');
     })();
 </script>
 
