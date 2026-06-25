@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Webpage inside system · fixed injector</title>
+    <title>web-inside · fixed injector</title>
     <style>
         * {
             box-sizing: border-box;
@@ -28,8 +28,7 @@
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
             border-radius: 48px;
-            box-shadow: 0 30px 60px -20px rgba(0, 20, 30, 0.4), 
-                        0 8px 24px rgba(0, 0, 0, 0.06);
+            box-shadow: 0 30px 60px -20px rgba(0, 20, 30, 0.4), 0 8px 24px rgba(0, 0, 0, 0.06);
             padding: 28px 30px 35px;
             border: 1px solid rgba(255, 255, 255, 0.5);
             transition: 0.2s;
@@ -71,7 +70,7 @@
             background: white;
             padding: 6px 6px 6px 20px;
             border-radius: 80px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 2px rgba(0,0,0,0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 2px rgba(0, 0, 0, 0.02);
             border: 1px solid #dae2ea;
             transition: 0.2s;
         }
@@ -130,7 +129,7 @@
         .hint {
             font-size: 0.85rem;
             color: #3f5565;
-            background: rgba(0,0,0,0.02);
+            background: rgba(0, 0, 0, 0.02);
             padding: 6px 16px;
             border-radius: 40px;
             display: inline-block;
@@ -148,7 +147,7 @@
             border-radius: 60px;
             margin: 16px 0 18px 0;
             border: 1px solid #d0dce8;
-            box-shadow: inset 0 1px 3px rgba(0,0,0,0.02);
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .inject-panel label {
@@ -216,7 +215,7 @@
             cursor: pointer;
             transition: 0.12s;
             white-space: nowrap;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
             letter-spacing: 0.2px;
         }
 
@@ -248,7 +247,7 @@
         .inject-help {
             font-size: 0.7rem;
             color: #4a6a7a;
-            background: rgba(0,0,0,0.03);
+            background: rgba(0, 0, 0, 0.03);
             padding: 4px 14px;
             border-radius: 40px;
             border: 1px dashed #a0b8c8;
@@ -258,7 +257,7 @@
             background: #0f1a22;
             border-radius: 28px;
             overflow: hidden;
-            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 40px -16px rgba(0,0,0,0.6);
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06), 0 20px 40px -16px rgba(0, 0, 0, 0.6);
             transition: 0.25s ease;
             margin-top: 4px;
         }
@@ -286,9 +285,15 @@
             transition: 0.1s;
         }
 
-        .dot:nth-child(1) { background: #fc625c; }
-        .dot:nth-child(2) { background: #fdbc40; }
-        .dot:nth-child(3) { background: #34c84a; }
+        .dot:nth-child(1) {
+            background: #fc625c;
+        }
+        .dot:nth-child(2) {
+            background: #fdbc40;
+        }
+        .dot:nth-child(3) {
+            background: #34c84a;
+        }
 
         .viewport-url {
             background: #10212b;
@@ -304,7 +309,7 @@
             overflow: hidden;
             text-overflow: ellipsis;
             border: 1px solid #2a4050;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.3);
             cursor: pointer;
             transition: 0.15s;
             position: relative;
@@ -468,466 +473,517 @@
         }
 
         @media (max-width: 700px) {
-            .system-card { padding: 20px 16px; }
-            .input-area { flex-wrap: wrap; background: transparent; padding: 0; gap: 10px; border: none; box-shadow: none; }
-            .input-area input { background: white; padding: 14px 20px; border-radius: 60px; border: 1px solid #d0dce6; }
-            .input-area button { width: 100%; justify-content: center; }
-            .inject-panel { flex-direction: column; align-items: stretch; border-radius: 30px; padding: 16px; }
-            .inject-input-wrap { padding-left: 16px; }
-            .viewport-url { font-size: 0.7rem; }
-            .viewport-url .edit-hint { display: none; }
-            .inject-help { text-align: center; }
-            .delay-control { justify-content: center; }
+            .system-card {
+                padding: 20px 16px;
+            }
+            .input-area {
+                flex-wrap: wrap;
+                background: transparent;
+                padding: 0;
+                gap: 10px;
+                border: none;
+                box-shadow: none;
+            }
+            .input-area input {
+                background: white;
+                padding: 14px 20px;
+                border-radius: 60px;
+                border: 1px solid #d0dce6;
+            }
+            .input-area button {
+                width: 100%;
+                justify-content: center;
+            }
+            .inject-panel {
+                flex-direction: column;
+                align-items: stretch;
+                border-radius: 30px;
+                padding: 16px;
+            }
+            .inject-input-wrap {
+                padding-left: 16px;
+            }
+            .viewport-url {
+                font-size: 0.7rem;
+            }
+            .viewport-url .edit-hint {
+                display: none;
+            }
+            .inject-help {
+                text-align: center;
+            }
+            .delay-control {
+                justify-content: center;
+            }
         }
     </style>
 </head>
 <body>
 
-<div class="system-card">
-    <div class="system-header">
-        <h1>
-            🧭 web·inside
-            <span>injector</span>
-        </h1>
-        <div class="hint">
-            ⚡ paste link · inject any JS
-        </div>
-    </div>
-
-    <div class="input-area">
-        <input type="url" id="urlInput" placeholder="https://example.com" value="https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0">
-        <button id="loadBtn">↻ Load page</button>
-    </div>
-
-    <div class="inject-panel">
-        <label>
-            💉 inject code
-            <span>JS</span>
-        </label>
-        <div class="inject-input-wrap">
-            <input type="text" id="injectInput" placeholder='alert("hello")' value='(function(){const links=document.querySelectorAll("a[href]");let matches=[];let allLinks=[];links.forEach(link=>{const href=link.href||link.getAttribute("href");if(href){allLinks.push(href);if(href.includes("id=")||href.includes("?id")||href.includes("&id")||href.includes("=")||href.includes("?")){matches.push(href);}}});const old=document.getElementById("linkModal");if(old)old.remove();const modal=document.createElement("div");modal.id="linkModal";modal.style.cssText="position:fixed;top:10%;left:50%;transform:translateX(-50%);background:#1a2a3a;border:1px solid #4a7a9a;padding:20px;z-index:99999;max-width:90%;max-height:80%;overflow:auto;border-radius:12px;color:#d6edff;box-shadow:0 10px 40px rgba(0,0,0,0.8);font-family:Segoe UI,sans-serif;min-width:400px;";const btnBar=document.createElement("div");btnBar.style.cssText="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;";const copyBtn=document.createElement("button");copyBtn.textContent="📋 Copy Parameter Links";copyBtn.style.cssText="background:#2a5a7a;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;";copyBtn.onclick=function(){navigator.clipboard.writeText(matches.join("\n")).then(()=>{msg.textContent="✅ Copied "+matches.length+" links!";});};btnBar.appendChild(copyBtn);const copyAllBtn=document.createElement("button");copyAllBtn.textContent="📋 Copy ALL links";copyAllBtn.style.cssText="background:#2a5a3a;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;";copyAllBtn.onclick=function(){navigator.clipboard.writeText(allLinks.join("\n")).then(()=>{msg.textContent="✅ Copied ALL "+allLinks.length+" links!";});};btnBar.appendChild(copyAllBtn);const closeBtn=document.createElement("button");closeBtn.textContent="✕ Close";closeBtn.style.cssText="background:#5a2a2a;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;";closeBtn.onclick=function(){modal.remove();};btnBar.appendChild(closeBtn);modal.appendChild(btnBar);const msg=document.createElement("div");msg.style.cssText="margin:5px 0;color:#80d080;font-weight:bold;";modal.appendChild(msg);const stats=document.createElement("div");stats.style.cssText="margin:5px 0 10px;color:#b0d0e0;font-size:13px;";stats.textContent="Found "+matches.length+" links with parameters | Total links: "+allLinks.length;modal.appendChild(stats);const title=document.createElement("h3");title.textContent="🔗 Links with parameters (id=, ?, &, =)";title.style.cssText="margin:8px 0;color:#b0d8f0;";modal.appendChild(title);const list=document.createElement("pre");list.textContent=matches.length>0?matches.join("\n"):"No parameter links found. Showing all links:";list.style.cssText="background:#0b1a2a;padding:12px;border-radius:8px;max-height:300px;overflow:auto;color:#b0d0e0;font-size:12px;white-space:pre-wrap;word-break:break-all;";modal.appendChild(list);if(matches.length===0&&allLinks.length>0){const allList=document.createElement("pre");allList.textContent="ALL LINKS:\n"+allLinks.join("\n");allList.style.cssText="background:#0b1a2a;padding:12px;border-radius:8px;max-height:300px;overflow:auto;color:#90b0c0;font-size:11px;white-space:pre-wrap;word-break:break-all;margin-top:10px;border-top:1px solid #2a4a5a;";modal.appendChild(allList);}document.body.appendChild(modal);})();'>
-        </div>
-        <button class="inject-btn" id="injectBtn">▶ run</button>
-        <button class="inject-clear" id="injectClear">× clear</button>
-        <div class="delay-control">
-            <label>⏱ delay:</label>
-            <input type="number" id="delayInput" value="1000" min="0" max="5000" step="100">ms
-        </div>
-        <span class="inject-help">finds ALL links with parameters</span>
-    </div>
-
-    <div class="viewport-container">
-        <div class="viewport-header">
-            <div class="window-dots">
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-            </div>
-            <div class="viewport-url" id="viewUrlDisplay">
-                <span id="urlDisplayText">🌐 thepiratebay.org</span>
-                <span class="edit-hint">✎ click to edit</span>
-            </div>
-            <div style="color:#718b9b; font-size:0.75rem; background:#14222b; padding:2px 12px; border-radius:40px;">live</div>
-        </div>
-
-        <div class="iframe-wrapper" id="iframeWrapper">
-            <iframe id="webFrame" src="https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
-            <div class="fallback-msg" id="fallbackMsg">
-                <div class="icon">🖥️</div>
-                <div>Paste a link above &amp; press <strong>Load page</strong></div>
-                <small>click the URL in the header to edit</small>
+    <div class="system-card">
+        <div class="system-header">
+            <h1>
+                🧭 web·inside
+                <span>injector</span>
+            </h1>
+            <div class="hint">
+                ⚡ paste link · inject any JS
             </div>
         </div>
 
-        <div class="status-bar">
-            <span>🟢 <span id="statusText">ready</span></span>
-            <span class="badge" id="frameInfo">⬡ iframe</span>
-            <span id="timeStamp"></span>
+        <div class="input-area">
+            <input type="url" id="urlInput" placeholder="https://example.com" value="https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0">
+            <button id="loadBtn">↻ Load page</button>
         </div>
-    </div>
-</div>
 
-<script>
-    (function() {
-        "use strict";
+        <div class="inject-panel">
+            <label>
+                💉 inject code
+                <span>JS</span>
+            </label>
+            <div class="inject-input-wrap">
+                <input type="text" id="injectInput" placeholder='alert("hello")' value='(function(){const query="https://thepiratebay.org/description.php?id=";const links=document.querySelectorAll("a[href]");let matches=[];let allLinks=[];links.forEach(link=>{const href=link.href||link.getAttribute("href");if(href){allLinks.push(href);if(href.includes(query)){matches.push(href);}}});const old=document.getElementById("linkModal");if(old)old.remove();const modal=document.createElement("div");modal.id="linkModal";modal.style.cssText="position:fixed;top:10%;left:50%;transform:translateX(-50%);background:#1a2a3a;border:1px solid #4a7a9a;padding:20px;z-index:99999;max-width:90%;max-height:80%;overflow:auto;border-radius:12px;color:#d6edff;box-shadow:0 10px 40px rgba(0,0,0,0.8);font-family:Segoe UI,sans-serif;min-width:400px;";const btnBar=document.createElement("div");btnBar.style.cssText="margin-bottom:12px;display:flex;gap:10px;flex-wrap:wrap;";const copyBtn=document.createElement("button");copyBtn.textContent="📋 Copy id= links";copyBtn.style.cssText="background:#2a5a7a;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;";copyBtn.onclick=function(){navigator.clipboard.writeText(matches.join("\n")).then(()=>{msg.textContent="✅ Copied "+matches.length+" links!";});};btnBar.appendChild(copyBtn);const closeBtn=document.createElement("button");closeBtn.textContent="✕ Close";closeBtn.style.cssText="background:#5a2a2a;border:none;color:white;padding:8px 16px;border-radius:8px;cursor:pointer;";closeBtn.onclick=function(){modal.remove();};btnBar.appendChild(closeBtn);modal.appendChild(btnBar);const msg=document.createElement("div");msg.style.cssText="margin:5px 0;color:#80d080;font-weight:bold;";modal.appendChild(msg);const stats=document.createElement("div");stats.style.cssText="margin:5px 0 10px;color:#b0d0e0;font-size:13px;";stats.textContent="Found "+matches.length+" links containing id= | Total links: "+allLinks.length;modal.appendChild(stats);const title=document.createElement("h3");title.textContent="🔗 Links containing id=";title.style.cssText="margin:8px 0;color:#b0d8f0;";modal.appendChild(title);const list=document.createElement("pre");list.textContent=matches.length>0?matches.join("\n"):"No links found containing id=";list.style.cssText="background:#0b1a2a;padding:12px;border-radius:8px;max-height:300px;overflow:auto;color:#b0d0e0;font-size:12px;white-space:pre-wrap;word-break:break-all;";modal.appendChild(list);document.body.appendChild(modal);})();'>
+            </div>
+            <button class="inject-btn" id="injectBtn">▶ run</button>
+            <button class="inject-clear" id="injectClear">× clear</button>
+            <div class="delay-control">
+                <label>⏱ delay:</label>
+                <input type="number" id="delayInput" value="1000" min="0" max="5000" step="100">ms
+            </div>
+            <span class="inject-help">finds links with id=</span>
+        </div>
 
-        // DOM refs
-        const urlInput = document.getElementById('urlInput');
-        const loadBtn = document.getElementById('loadBtn');
-        const webFrame = document.getElementById('webFrame');
-        const viewUrlContainer = document.getElementById('viewUrlDisplay');
-        const urlDisplayText = document.getElementById('urlDisplayText');
-        const fallbackMsg = document.getElementById('fallbackMsg');
-        const statusText = document.getElementById('statusText');
-        const frameInfo = document.getElementById('frameInfo');
-        const timeStamp = document.getElementById('timeStamp');
+        <div class="viewport-container">
+            <div class="viewport-header">
+                <div class="window-dots">
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                    <span class="dot"></span>
+                </div>
+                <div class="viewport-url" id="viewUrlDisplay">
+                    <span id="urlDisplayText">🌐 thepiratebay.org</span>
+                    <span class="edit-hint">✎ click to edit</span>
+                </div>
+                <div style="color:#718b9b; font-size:0.75rem; background:#14222b; padding:2px 12px; border-radius:40px;">live</div>
+            </div>
 
-        const injectInput = document.getElementById('injectInput');
-        const injectBtn = document.getElementById('injectBtn');
-        const injectClear = document.getElementById('injectClear');
-        const delayInput = document.getElementById('delayInput');
-
-        let currentUrl = 'https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0';
-        let isEditing = false;
-        let injectionTimeout = null;
-
-        function updateTimestamp() {
-            const now = new Date();
-            const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-            timeStamp.textContent = '⏱ ' + timeStr;
-        }
-        updateTimestamp();
-        setInterval(updateTimestamp, 10000);
-
-        function prepareUrl(raw) {
-            let url = raw.trim();
-            if (!url) return null;
-            
-            if (url.toLowerCase().startsWith('javascript:')) {
-                return url;
-            }
-            
-            if (!/^https?:\/\//i.test(url)) {
-                url = 'https://' + url;
-            }
-            try {
-                const parsed = new URL(url);
-                if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
-                    return null;
-                }
-                return parsed.href;
-            } catch (_) {
-                return null;
-            }
-        }
-
-        function formatDisplayUrl(url) {
-            if (url && url.toLowerCase().startsWith('javascript:')) {
-                return '⚡ ' + url.substring(0, 30) + (url.length > 30 ? '…' : '');
-            }
-            try {
-                const urlObj = new URL(url);
-                let host = urlObj.hostname;
-                if (host.length > 30) host = host.substring(0, 28) + '…';
-                return '🌐 ' + host;
-            } catch (_) {
-                return '🌐 ' + url.substring(0, 40);
-            }
-        }
-
-        // ─── CORE: Execute JavaScript in iframe ──────────────────
-        function executeJavaScriptInIframe(code, delay) {
-            const iframe = document.getElementById('webFrame');
-            const delayMs = parseInt(delay) || 1000;
-            
-            statusText.textContent = '⏳ injecting...';
-            frameInfo.textContent = '⏳ waiting ' + delayMs + 'ms';
-            frameInfo.className = 'badge badge-warning';
-            
-            // Clear any existing timeout
-            if (injectionTimeout) {
-                clearTimeout(injectionTimeout);
-                injectionTimeout = null;
-            }
-            
-            injectionTimeout = setTimeout(function() {
-                try {
-                    // Get the iframe's document
-                    const doc = iframe.contentDocument || iframe.contentWindow?.document;
-                    
-                    if (!doc || !doc.documentElement) {
-                        statusText.textContent = '⚠️ iframe not ready';
-                        frameInfo.textContent = '⛔ not ready';
-                        frameInfo.className = 'badge badge-error';
-                        return;
-                    }
-
-                    // Check if document is fully loaded
-                    if (doc.readyState !== 'complete' && doc.readyState !== 'interactive') {
-                        statusText.textContent = '⏳ page still loading...';
-                        frameInfo.textContent = '⏳ loading';
-                        frameInfo.className = 'badge badge-warning';
-                        // Try again after another delay
-                        injectionTimeout = setTimeout(function() {
-                            executeJavaScriptInIframe(code, 500);
-                        }, 500);
-                        return;
-                    }
-
-                    // Create and inject script
-                    const script = doc.createElement('script');
-                    script.textContent = code;
-                    doc.body.appendChild(script);
-                    
-                    statusText.textContent = '✅ executed';
-                    frameInfo.textContent = '🧪 injected';
-                    frameInfo.className = 'badge badge-success';
-                    
-                    // Show notification in iframe
-                    const notif = doc.createElement('div');
-                    notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a2a3a;color:#b0d8f0;padding:10px 20px;border-radius:12px;font-size:14px;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.6);border:1px solid #3a6a8a;font-family:Segoe UI,sans-serif;';
-                    notif.textContent = '⚡ JavaScript executed with ' + delayMs + 'ms delay';
-                    doc.body.appendChild(notif);
-                    setTimeout(() => { try { notif.remove(); } catch(_) {} }, 3000);
-                    
-                } catch (e) {
-                    // Cross-origin error - try alternative
-                    statusText.textContent = '⚠️ cross-origin';
-                    frameInfo.textContent = '⛔ CORS blocked';
-                    frameInfo.className = 'badge badge-error';
-                    
-                    // Try using the iframe's window object
-                    try {
-                        const win = iframe.contentWindow;
-                        if (win) {
-                            win.eval(code);
-                            statusText.textContent = '✅ executed (eval)';
-                            frameInfo.textContent = '🧪 eval';
-                            frameInfo.className = 'badge badge-warning';
-                            return;
-                        }
-                    } catch(e2) {
-                        // If all fails, try parent eval (last resort)
-                        try {
-                            eval(code);
-                            statusText.textContent = '✅ executed (parent)';
-                            frameInfo.textContent = '🧪 parent';
-                            frameInfo.className = 'badge badge-warning';
-                            return;
-                        } catch(e3) {
-                            statusText.textContent = '❌ failed';
-                            frameInfo.textContent = '⚠️ error';
-                            frameInfo.className = 'badge badge-error';
-                            alert('Failed to execute JavaScript:\n' + e3.message);
-                        }
-                    }
-                }
-            }, delayMs);
-        }
-
-        function loadWebpage(rawUrl) {
-            const clean = prepareUrl(rawUrl);
-            if (!clean) {
-                statusText.textContent = '⚠️ invalid link';
-                urlDisplayText.textContent = '❌ invalid URL';
-                webFrame.src = 'about:blank';
-                fallbackMsg.style.display = 'flex';
-                fallbackMsg.innerHTML = `
-                    <div class="icon">🚫</div>
-                    <div>Invalid link or unsupported protocol</div>
-                    <small>use http://, https://, or javascript:</small>
-                `;
-                frameInfo.textContent = '⬡ error';
-                frameInfo.className = 'badge badge-error';
-                currentUrl = '';
-                return;
-            }
-
-            if (clean.toLowerCase().startsWith('javascript:')) {
-                const jsCode = clean.substring('javascript:'.length);
-                executeJavaScriptInIframe(jsCode, delayInput.value);
-                urlDisplayText.textContent = formatDisplayUrl(clean);
-                return;
-            }
-
-            currentUrl = clean;
-            urlInput.value = clean;
-            urlDisplayText.textContent = formatDisplayUrl(clean);
-
-            fallbackMsg.style.display = 'flex';
-            fallbackMsg.innerHTML = `
-                <div class="icon">⏳</div>
-                <div>Loading page …</div>
-                <small>${clean}</small>
-            `;
-
-            webFrame.src = clean;
-            statusText.textContent = 'loading …';
-            frameInfo.textContent = '⏳ connecting';
-            frameInfo.className = 'badge';
-        }
-
-        function onIframeLoad() {
-            const src = webFrame.src;
-            if (!src || src === 'about:blank') {
-                fallbackMsg.style.display = 'flex';
-                fallbackMsg.innerHTML = `
+            <div class="iframe-wrapper" id="iframeWrapper">
+                <iframe id="webFrame" src="https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0" loading="lazy" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen sandbox="allow-same-origin allow-scripts allow-popups allow-forms"></iframe>
+                <div class="fallback-msg" id="fallbackMsg">
                     <div class="icon">🖥️</div>
                     <div>Paste a link above &amp; press <strong>Load page</strong></div>
                     <small>click the URL in the header to edit</small>
+                </div>
+            </div>
+
+            <div class="status-bar">
+                <span>🟢 <span id="statusText">ready</span></span>
+                <span class="badge" id="frameInfo">⬡ iframe</span>
+                <span id="timeStamp"></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            "use strict";
+
+            const urlInput = document.getElementById('urlInput');
+            const loadBtn = document.getElementById('loadBtn');
+            const webFrame = document.getElementById('webFrame');
+            const viewUrlContainer = document.getElementById('viewUrlDisplay');
+            const urlDisplayText = document.getElementById('urlDisplayText');
+            const fallbackMsg = document.getElementById('fallbackMsg');
+            const statusText = document.getElementById('statusText');
+            const frameInfo = document.getElementById('frameInfo');
+            const timeStamp = document.getElementById('timeStamp');
+
+            const injectInput = document.getElementById('injectInput');
+            const injectBtn = document.getElementById('injectBtn');
+            const injectClear = document.getElementById('injectClear');
+            const delayInput = document.getElementById('delayInput');
+
+            let currentUrl = 'https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0';
+            let isEditing = false;
+            let injectionTimeout = null;
+
+            function updateTimestamp() {
+                const now = new Date();
+                const timeStr = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                timeStamp.textContent = '⏱ ' + timeStr;
+            }
+            updateTimestamp();
+            setInterval(updateTimestamp, 10000);
+
+            function prepareUrl(raw) {
+                let url = raw.trim();
+                if (!url) return null;
+                
+                // Check for view-source:
+                let isViewSource = false;
+                if (url.toLowerCase().startsWith('view-source:')) {
+                    isViewSource = true;
+                    url = url.substring('view-source:'.length).trim();
+                    if (!url) return null;
+                }
+
+                if (url.toLowerCase().startsWith('javascript:')) {
+                    return { url: url, isViewSource: false };
+                }
+
+                if (!/^https?:\/\//i.test(url)) {
+                    url = 'https://' + url;
+                }
+                try {
+                    const parsed = new URL(url);
+                    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+                        return null;
+                    }
+                    return { url: parsed.href, isViewSource: isViewSource };
+                } catch (_) {
+                    return null;
+                }
+            }
+
+            function getDisplayText(url, isViewSource) {
+                if (!url) return '🌐 (empty)';
+                if (url.toLowerCase().startsWith('javascript:')) {
+                    return '⚡ ' + url.substring(0, 30) + (url.length > 30 ? '…' : '');
+                }
+                try {
+                    const urlObj = new URL(url);
+                    let host = urlObj.hostname;
+                    if (host.length > 30) host = host.substring(0, 28) + '…';
+                    return (isViewSource ? '📄 view-source:' : '🌐 ') + host;
+                } catch (_) {
+                    return (isViewSource ? '📄 view-source:' : '🌐 ') + url.substring(0, 40);
+                }
+            }
+
+            function executeJavaScriptInIframe(code, delay) {
+                const iframe = document.getElementById('webFrame');
+                const delayMs = parseInt(delay) || 1000;
+
+                statusText.textContent = '⏳ injecting...';
+                frameInfo.textContent = '⏳ waiting ' + delayMs + 'ms';
+                frameInfo.className = 'badge badge-warning';
+
+                if (injectionTimeout) {
+                    clearTimeout(injectionTimeout);
+                    injectionTimeout = null;
+                }
+
+                injectionTimeout = setTimeout(function() {
+                    try {
+                        const doc = iframe.contentDocument || iframe.contentWindow?.document;
+
+                        if (!doc || !doc.documentElement) {
+                            statusText.textContent = '⚠️ iframe not ready';
+                            frameInfo.textContent = '⛔ not ready';
+                            frameInfo.className = 'badge badge-error';
+                            return;
+                        }
+
+                        if (doc.readyState !== 'complete' && doc.readyState !== 'interactive') {
+                            statusText.textContent = '⏳ page still loading...';
+                            frameInfo.textContent = '⏳ loading';
+                            frameInfo.className = 'badge badge-warning';
+                            injectionTimeout = setTimeout(function() {
+                                executeJavaScriptInIframe(code, 500);
+                            }, 500);
+                            return;
+                        }
+
+                        const script = doc.createElement('script');
+                        script.textContent = code;
+                        doc.body.appendChild(script);
+
+                        statusText.textContent = '✅ executed';
+                        frameInfo.textContent = '🧪 injected';
+                        frameInfo.className = 'badge badge-success';
+
+                        const notif = doc.createElement('div');
+                        notif.style.cssText = 'position:fixed;bottom:20px;right:20px;background:#1a2a3a;color:#b0d8f0;padding:10px 20px;border-radius:12px;font-size:14px;z-index:99999;box-shadow:0 4px 20px rgba(0,0,0,0.6);border:1px solid #3a6a8a;font-family:Segoe UI,sans-serif;';
+                        notif.textContent = '⚡ JavaScript executed with ' + delayMs + 'ms delay';
+                        doc.body.appendChild(notif);
+                        setTimeout(() => { try { notif.remove(); } catch(_) {} }, 3000);
+
+                    } catch (e) {
+                        statusText.textContent = '⚠️ cross-origin';
+                        frameInfo.textContent = '⛔ CORS blocked';
+                        frameInfo.className = 'badge badge-error';
+
+                        try {
+                            const win = iframe.contentWindow;
+                            if (win) {
+                                win.eval(code);
+                                statusText.textContent = '✅ executed (eval)';
+                                frameInfo.textContent = '🧪 eval';
+                                frameInfo.className = 'badge badge-warning';
+                                return;
+                            }
+                        } catch(e2) {
+                            try {
+                                eval(code);
+                                statusText.textContent = '✅ executed (parent)';
+                                frameInfo.textContent = '🧪 parent';
+                                frameInfo.className = 'badge badge-warning';
+                                return;
+                            } catch(e3) {
+                                statusText.textContent = '❌ failed';
+                                frameInfo.textContent = '⚠️ error';
+                                frameInfo.className = 'badge badge-error';
+                                alert('Failed to execute JavaScript:\n' + e3.message);
+                            }
+                        }
+                    }
+                }, delayMs);
+            }
+
+            function loadWebpage(rawUrl) {
+                const result = prepareUrl(rawUrl);
+                if (!result) {
+                    statusText.textContent = '⚠️ invalid link';
+                    urlDisplayText.textContent = '❌ invalid URL';
+                    webFrame.src = 'about:blank';
+                    fallbackMsg.style.display = 'flex';
+                    fallbackMsg.innerHTML = `
+                        <div class="icon">🚫</div>
+                        <div>Invalid link or unsupported protocol</div>
+                        <small>use http://, https://, or javascript:</small>
+                    `;
+                    frameInfo.textContent = '⬡ error';
+                    frameInfo.className = 'badge badge-error';
+                    currentUrl = '';
+                    return;
+                }
+
+                const { url: clean, isViewSource } = result;
+
+                if (clean.toLowerCase().startsWith('javascript:')) {
+                    const jsCode = clean.substring('javascript:'.length);
+                    executeJavaScriptInIframe(jsCode, delayInput.value);
+                    currentUrl = clean;
+                    urlDisplayText.textContent = getDisplayText(clean, false);
+                    urlInput.value = clean;
+                    fallbackMsg.style.display = 'flex';
+                    fallbackMsg.innerHTML = `
+                        <div class="icon">⚡</div>
+                        <div>Executing JavaScript...</div>
+                        <small>${clean.substring(0, 60)}${clean.length > 60 ? '…' : ''}</small>
+                    `;
+                    return;
+                }
+
+                currentUrl = clean;
+                urlInput.value = isViewSource ? 'view-source:' + clean : clean;
+                urlDisplayText.textContent = getDisplayText(clean, isViewSource);
+
+                fallbackMsg.style.display = 'flex';
+                fallbackMsg.innerHTML = `
+                    <div class="icon">⏳</div>
+                    <div>Loading page …</div>
+                    <small>${clean}</small>
                 `;
-                statusText.textContent = 'idle';
-                frameInfo.textContent = '⬡ iframe';
+                webFrame.src = clean;
+                statusText.textContent = 'loading …';
+                frameInfo.textContent = '⏳ connecting';
                 frameInfo.className = 'badge';
-                return;
             }
 
-            let canAccess = false;
-            try {
-                const doc = webFrame.contentDocument || webFrame.contentWindow?.document;
-                if (doc && doc.documentElement) {
-                    canAccess = true;
+            function onIframeLoad() {
+                const src = webFrame.src;
+                if (!src || src === 'about:blank') {
+                    fallbackMsg.style.display = 'flex';
+                    fallbackMsg.innerHTML = `
+                        <div class="icon">🖥️</div>
+                        <div>Paste a link above &amp; press <strong>Load page</strong></div>
+                        <small>click the URL in the header to edit</small>
+                    `;
+                    statusText.textContent = 'idle';
+                    frameInfo.textContent = '⬡ iframe';
+                    frameInfo.className = 'badge';
+                    return;
                 }
-            } catch (_) {
-                canAccess = false;
-            }
 
-            fallbackMsg.style.display = 'none';
-            statusText.textContent = '✅ loaded';
-            frameInfo.textContent = canAccess ? '📄 live' : '📄 loaded (CORS)';
-            frameInfo.className = 'badge' + (canAccess ? ' badge-success' : '');
-            
-            if (src !== currentUrl && !src.toLowerCase().startsWith('javascript:')) {
-                currentUrl = src;
-                urlDisplayText.textContent = formatDisplayUrl(src);
-                urlInput.value = src;
-            }
-        }
-
-        function onIframeError() {
-            fallbackMsg.style.display = 'flex';
-            fallbackMsg.innerHTML = `
-                <div class="icon">⚠️</div>
-                <div>Failed to load page</div>
-                <small>check the link or network</small>
-            `;
-            statusText.textContent = '❌ error';
-            frameInfo.textContent = '⬡ blocked';
-            frameInfo.className = 'badge badge-error';
-        }
-
-        webFrame.addEventListener('load', onIframeLoad);
-        webFrame.addEventListener('error', onIframeError);
-
-        function handleLoad() {
-            const raw = urlInput.value.trim();
-            if (!raw) {
-                statusText.textContent = '⚠️ enter a link';
-                return;
-            }
-            loadWebpage(raw);
-        }
-
-        loadBtn.addEventListener('click', handleLoad);
-        urlInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                handleLoad();
-            }
-        });
-
-        // ─── CLICK TO EDIT URL ────────────────────────────────────
-        function enterEditMode() {
-            if (isEditing) return;
-            isEditing = true;
-            viewUrlContainer.classList.add('editing');
-
-            let editValue = currentUrl || '';
-            if (!editValue) {
-                editValue = urlDisplayText.textContent.replace(/^[^\s]+\s+/, '');
-            }
-
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.value = editValue;
-            input.placeholder = 'https://example.com or javascript:alert("ok")';
-            input.autofocus = true;
-
-            urlDisplayText.textContent = '';
-            urlDisplayText.appendChild(input);
-            input.select();
-
-            function finishEdit(apply) {
-                if (!isEditing) return;
-                isEditing = false;
-                viewUrlContainer.classList.remove('editing');
-
-                const newVal = input.value.trim();
-                if (apply && newVal) {
-                    loadWebpage(newVal);
-                } else {
-                    urlDisplayText.textContent = formatDisplayUrl(currentUrl || '');
+                let canAccess = false;
+                try {
+                    const doc = webFrame.contentDocument || webFrame.contentWindow?.document;
+                    if (doc && doc.documentElement) {
+                        canAccess = true;
+                    }
+                } catch (_) {
+                    canAccess = false;
                 }
-                input.remove();
+
+                fallbackMsg.style.display = 'none';
+                statusText.textContent = '✅ loaded';
+                frameInfo.textContent = canAccess ? '📄 live' : '📄 loaded (CORS)';
+                frameInfo.className = 'badge' + (canAccess ? ' badge-success' : '');
+                
+                if (src !== currentUrl && !src.toLowerCase().startsWith('javascript:')) {
+                    currentUrl = src;
+                    urlDisplayText.textContent = getDisplayText(src, false);
+                    urlInput.value = src;
+                }
             }
 
-            input.addEventListener('blur', () => finishEdit(true));
-            input.addEventListener('keydown', (e) => {
+            function onIframeError() {
+                fallbackMsg.style.display = 'flex';
+                fallbackMsg.innerHTML = `
+                    <div class="icon">⚠️</div>
+                    <div>Failed to load page</div>
+                    <small>check the link or network</small>
+                `;
+                statusText.textContent = '❌ error';
+                frameInfo.textContent = '⬡ blocked';
+                frameInfo.className = 'badge badge-error';
+            }
+
+            webFrame.addEventListener('load', onIframeLoad);
+            webFrame.addEventListener('error', onIframeError);
+
+            function handleLoad() {
+                const raw = urlInput.value.trim();
+                if (!raw) {
+                    statusText.textContent = '⚠️ enter a link';
+                    return;
+                }
+                loadWebpage(raw);
+            }
+
+            loadBtn.addEventListener('click', handleLoad);
+            urlInput.addEventListener('keydown', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    input.blur();
-                }
-                if (e.key === 'Escape') {
-                    e.preventDefault();
-                    finishEdit(false);
+                    handleLoad();
                 }
             });
-        }
 
-        viewUrlContainer.addEventListener('click', (e) => {
-            if (e.target.tagName === 'INPUT') return;
-            enterEditMode();
-        });
+            // ─── CLICK TO EDIT URL ────────────────────────────────────
+            function enterEditMode() {
+                if (isEditing) return;
+                isEditing = true;
+                viewUrlContainer.classList.add('editing');
 
-        // ─── INJECT CODE ──────────────────────────────────────────
-        function handleInject() {
-            let code = injectInput.value.trim();
-            if (!code) {
-                statusText.textContent = '⚠️ enter code to inject';
-                return;
+                let editValue = urlInput.value || currentUrl || '';
+                if (!editValue) {
+                    editValue = webFrame.src || '';
+                }
+
+                const input = document.createElement('input');
+                input.type = 'text';
+                input.value = editValue;
+                input.placeholder = 'https://example.com or view-source:https://example.com';
+                input.autofocus = true;
+
+                urlDisplayText.textContent = '';
+                urlDisplayText.appendChild(input);
+                input.select();
+
+                function finishEdit(apply) {
+                    if (!isEditing) return;
+                    isEditing = false;
+                    viewUrlContainer.classList.remove('editing');
+
+                    const newVal = input.value.trim();
+                    input.remove();
+                    
+                    if (apply && newVal) {
+                        loadWebpage(newVal);
+                    } else {
+                        const isVS = urlInput.value && urlInput.value.toLowerCase().startsWith('view-source:');
+                        urlDisplayText.textContent = getDisplayText(currentUrl || '', isVS);
+                    }
+                }
+
+                input.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        finishEdit(true);
+                    }
+                    if (e.key === 'Escape') {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        finishEdit(false);
+                    }
+                });
+
+                input.addEventListener('blur', function(e) {
+                    setTimeout(() => {
+                        if (isEditing) {
+                            finishEdit(true);
+                        }
+                    }, 50);
+                });
             }
 
-            if (code.toLowerCase().startsWith('javascript:')) {
-                const jsCode = code.substring('javascript:'.length);
-                executeJavaScriptInIframe(jsCode, delayInput.value);
-                return;
+            viewUrlContainer.addEventListener('click', function(e) {
+                if (isEditing) return;
+                if (e.target.tagName === 'INPUT') return;
+                enterEditMode();
+            });
+
+            // ─── INJECT CODE ──────────────────────────────────────────
+            function handleInject() {
+                let code = injectInput.value.trim();
+                if (!code) {
+                    statusText.textContent = '⚠️ enter code to inject';
+                    return;
+                }
+
+                if (code.toLowerCase().startsWith('javascript:')) {
+                    const jsCode = code.substring('javascript:'.length);
+                    executeJavaScriptInIframe(jsCode, delayInput.value);
+                    return;
+                }
+
+                const src = webFrame.src;
+                if (!src || src === 'about:blank' || src === '') {
+                    statusText.textContent = '⚠️ load a page first';
+                    return;
+                }
+                if (fallbackMsg.style.display !== 'none') {
+                    statusText.textContent = '⏳ page not ready';
+                    return;
+                }
+                
+                executeJavaScriptInIframe(code, delayInput.value);
             }
 
-            const src = webFrame.src;
-            if (!src || src === 'about:blank' || src === '') {
-                statusText.textContent = '⚠️ load a page first';
-                return;
-            }
-            if (fallbackMsg.style.display !== 'none') {
-                statusText.textContent = '⏳ page not ready';
-                return;
-            }
-            
-            executeJavaScriptInIframe(code, delayInput.value);
-        }
+            injectBtn.addEventListener('click', handleInject);
+            injectInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleInject();
+                }
+            });
 
-        injectBtn.addEventListener('click', handleInject);
-        injectInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleInject();
-            }
-        });
+            injectClear.addEventListener('click', () => {
+                injectInput.value = '';
+                injectInput.focus();
+                statusText.textContent = 'cleared';
+            });
 
-        injectClear.addEventListener('click', () => {
-            injectInput.value = '';
-            injectInput.focus();
-            statusText.textContent = 'cleared';
-        });
+            // ─── startup ──────────────────────────────────────────────
+            window.addEventListener('load', function() {
+                const defaultUrl = 'https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0';
+                if (urlInput.value === defaultUrl || urlInput.value === '') {
+                    loadWebpage(defaultUrl);
+                } else {
+                    const val = urlInput.value.trim();
+                    if (val) loadWebpage(val);
+                }
+            });
 
-        // ─── startup ──────────────────────────────────────────────
-        window.addEventListener('load', function() {
-            const defaultUrl = 'https://thepiratebay.org/search.php?q=gt+a+%2B+pc&cat=0';
-            if (urlInput.value === defaultUrl || urlInput.value === '') {
-                loadWebpage(defaultUrl);
-            } else {
-                const val = urlInput.value.trim();
-                if (val) loadWebpage(val);
-            }
-        });
+            fallbackMsg.addEventListener('click', function() {
+                urlInput.focus();
+            });
 
-        fallbackMsg.addEventListener('click', function() {
-            urlInput.focus();
-        });
-
-        console.log('🖥️ Webpage-inside-system · fixed injector with delay');
-    })();
-</script>
+            console.log('🖥️ Webpage-inside-system · fixed injector with delay');
+        })();
+    </script>
 
 </body>
 </html>
