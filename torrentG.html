@@ -169,6 +169,7 @@
             max-height: 580px;
             overflow-y: auto;
             padding-right: 0.25rem;
+            scroll-behavior: smooth;
         }
 
         .torrent-grid::-webkit-scrollbar {
@@ -196,12 +197,19 @@
             border: 1px solid #21262d;
             transition: all 0.15s ease;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            cursor: default;
         }
 
         .torrent-item:hover {
             border-color: #30363d;
             background: #12171f;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        .torrent-item.keyboard-selected {
+            border-color: #58a6ff;
+            background: #1c2333;
+            box-shadow: 0 0 0 2px rgba(88, 166, 255, 0.3), 0 4px 12px rgba(0,0,0,0.5);
         }
 
         .torrent-name {
@@ -353,7 +361,7 @@
     </div>
 
     <div class="footer-tip">
-        <span><kbd>Enter</kbd> focus · <kbd>Esc</kbd> clear · <kbd>/</kbd> search</span>
+        <span><kbd>↑↓</kbd> navigate · <kbd>Enter</kbd> copy · <kbd>Esc</kbd> clear · <kbd>/</kbd> search</span>
         <span>⚡ copy magnet · duplicates removed</span>
     </div>
 </div>
@@ -374,7 +382,7 @@
             ["Battlefield.Bad.Company.2-RELOADED", "magnet:?xt=urn:btih:409F952295720018746044573F98993ADE59344B&dn=Battlefield.Bad.Company.2-RELOADED&tr=udp%3a%2f%2ftracker.opentrackr.org%3a1337&tr=udp%3a%2f%2fopen.stealth.si%3a80%2fannounce&tr=udp%3a%2f%2ftracker.torrent.eu.org%3a451%2fannounce&tr=udp%3a%2f%2ftracker.bittor.pw%3a1337%2fannounce&tr=udp%3a%2f%2fpublic.popcorn-tracker.org%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.dler.org%3a6969%2fannounce&tr=udp%3a%2f%2fexodus.desync.com%3a6969&tr=udp%3a%2f%2fopen.demonii.com%3a1337%2fannounce&tr=udp%3a%2f%2fglotorrents.pw%3a6969%2fannounce&tr=udp%3a%2f%2ftracker.coppersurfer.tk%3a6969&tr=udp%3a%2f%2ftorrent.gresille.org%3a80%2fannounce&tr=udp%3a%2f%2fp4p.arenabg.com%3a1337&tr=udp%3a%2f%2ftracker.internetwarriors.net%3a1337", "5.42G"]
         ];
 
-        // ----- IMPROVED DEDUPLICATION: by name (case-insensitive) keep first occurrence with longest magnet -----
+        // ----- DEDUPLICATION: by name (case-insensitive) keep first occurrence with longest magnet -----
         const nameMap = new Map();
 
         for (const [name, magnet, size] of rawData) {
@@ -382,7 +390,6 @@
             const existing = nameMap.get(nameLower);
             
             if (!existing) {
-                // First occurrence: store it
                 nameMap.set(nameLower, {
                     name: name.trim(),
                     magnet: magnet.trim(),
@@ -390,10 +397,8 @@
                     magnetLength: magnet.trim().length
                 });
             } else {
-                // Duplicate: keep the one with longer magnet (more complete) or keep existing if longer
                 const currentMagnet = magnet.trim();
                 if (currentMagnet.length > existing.magnetLength) {
-                    // Replace with longer/complete magnet
                     nameMap.set(nameLower, {
                         name: name.trim(),
                         magnet: currentMagnet,
@@ -401,16 +406,22 @@
                         magnetLength: currentMagnet.length
                     });
                 }
-                // Otherwise keep existing (already the best)
             }
         }
 
-        // Convert map to array
         const uniqueTorrents = Array.from(nameMap.values()).map(item => ({
             name: item.name,
             magnet: item.magnet,
             size: item.size
         }));
+
+        // ----- SANITIZATION: escape text to prevent XSS -----
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
 
         // ----- render function -----
         const container = document.getElementById('torrentContainer');
@@ -418,7 +429,11 @@
         const totalSpan = document.getElementById('totalCount');
         const uniqueCountSpan = document.getElementById('uniqueCount');
 
+        let currentFilter = '';
+        let selectedIndex = -1;  // -1 means nothing selected
+
         function render(filter = '') {
+            currentFilter = filter;
             const q = filter.toLowerCase().trim();
             let filtered = uniqueTorrents;
 
@@ -435,20 +450,24 @@
 
             if (filtered.length === 0) {
                 container.innerHTML = `<div class="empty-message">⚡ no torrents found · try a different search</div>`;
+                selectedIndex = -1;
                 return;
             }
 
             let html = '';
-            for (const t of filtered) {
+            for (let i = 0; i < filtered.length; i++) {
+                const t = filtered[i];
                 const nameEsc = escapeHtml(t.name);
                 const magnetEsc = escapeHtml(t.magnet);
                 const sizeEsc = escapeHtml(t.size);
+                const rawMagnet = t.magnet;
+                // data-index for keyboard navigation
                 html += `
-                    <div class="torrent-item">
+                    <div class="torrent-item" data-index="${i}" data-magnet="${escapeHtml(rawMagnet)}">
                         <span class="torrent-name" title="${nameEsc}">${nameEsc}</span>
                         <span class="torrent-magnet" title="${magnetEsc}">${magnetEsc}</span>
                         <span class="torrent-size">${sizeEsc}</span>
-                        <button class="copy-btn" data-magnet="${magnetEsc}">📋 Copy</button>
+                        <button class="copy-btn" data-magnet="${escapeHtml(rawMagnet)}">📋 Copy</button>
                     </div>
                 `;
             }
@@ -460,70 +479,199 @@
                     e.stopPropagation();
                     const magnet = this.getAttribute('data-magnet');
                     if (!magnet) return;
-                    navigator.clipboard.writeText(magnet).then(() => {
-                        const original = this.innerHTML;
-                        this.innerHTML = '✅ Copied';
-                        this.classList.add('copied');
-                        setTimeout(() => {
-                            this.innerHTML = original;
-                            this.classList.remove('copied');
-                        }, 2200);
-                    }).catch(() => {
-                        // fallback
-                        const textarea = document.createElement('textarea');
-                        textarea.value = magnet;
-                        document.body.appendChild(textarea);
-                        textarea.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(textarea);
-                        const original = this.innerHTML;
-                        this.innerHTML = '✅ Copied';
-                        this.classList.add('copied');
-                        setTimeout(() => {
-                            this.innerHTML = original;
-                            this.classList.remove('copied');
-                        }, 2200);
-                    });
+                    copyMagnet(magnet, this);
                 });
+            });
+
+            // Re-apply selection state if any
+            if (selectedIndex >= filtered.length) {
+                selectedIndex = filtered.length - 1;
+            }
+            highlightSelected(filtered.length);
+        }
+
+        function highlightSelected(totalItems) {
+            // Remove previous selection
+            document.querySelectorAll('.torrent-item.keyboard-selected').forEach(el => {
+                el.classList.remove('keyboard-selected');
+            });
+            if (selectedIndex < 0 || selectedIndex >= totalItems) {
+                selectedIndex = -1;
+                return;
+            }
+            const items = document.querySelectorAll('.torrent-item');
+            if (items.length > 0 && selectedIndex < items.length) {
+                const target = items[selectedIndex];
+                target.classList.add('keyboard-selected');
+                // Scroll into view if needed
+                target.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+
+        // ----- Copy helper -----
+        function copyMagnet(magnet, btnElement) {
+            navigator.clipboard.writeText(magnet).then(() => {
+                const original = btnElement.innerHTML;
+                btnElement.innerHTML = '✅ Copied';
+                btnElement.classList.add('copied');
+                setTimeout(() => {
+                    btnElement.innerHTML = original;
+                    btnElement.classList.remove('copied');
+                }, 2200);
+            }).catch(() => {
+                // fallback
+                const textarea = document.createElement('textarea');
+                textarea.value = magnet;
+                document.body.appendChild(textarea);
+                textarea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textarea);
+                const original = btnElement.innerHTML;
+                btnElement.innerHTML = '✅ Copied';
+                btnElement.classList.add('copied');
+                setTimeout(() => {
+                    btnElement.innerHTML = original;
+                    btnElement.classList.remove('copied');
+                }, 2200);
             });
         }
 
-        function escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+        // ----- Navigation logic -----
+        function navigate(direction) {
+            const visibleItems = document.querySelectorAll('.torrent-item');
+            const total = visibleItems.length;
+            if (total === 0) {
+                selectedIndex = -1;
+                return;
+            }
+
+            if (selectedIndex === -1) {
+                // If nothing selected, start at first or last depending on direction
+                selectedIndex = direction === 'down' ? 0 : total - 1;
+            } else {
+                if (direction === 'down') {
+                    selectedIndex = (selectedIndex + 1) % total;
+                } else if (direction === 'up') {
+                    selectedIndex = (selectedIndex - 1 + total) % total;
+                }
+            }
+            highlightSelected(total);
         }
 
-        // ----- event listeners (ENTER / ESCAPE) -----
-        searchInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
-                e.preventDefault();
-                render(searchInput.value);
-            } else if (e.key === 'Escape') {
+        // ----- Enter to copy the selected magnet -----
+        function copySelected() {
+            if (selectedIndex === -1) return;
+            const items = document.querySelectorAll('.torrent-item');
+            if (selectedIndex >= items.length) return;
+            const item = items[selectedIndex];
+            const magnet = item.getAttribute('data-magnet');
+            if (!magnet) return;
+            // find the copy button inside this item
+            const btn = item.querySelector('.copy-btn');
+            if (btn) {
+                copyMagnet(magnet, btn);
+            }
+        }
+
+        // ----- event listeners (keyboard) -----
+        document.addEventListener('keydown', (e) => {
+            const active = document.activeElement;
+            const isInputFocused = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+
+            // If search is focused and user presses Escape, clear it
+            if (isInputFocused && active.id === 'searchInput' && e.key === 'Escape') {
                 e.preventDefault();
                 searchInput.value = '';
                 render('');
                 searchInput.blur();
+                selectedIndex = -1;
+                return;
+            }
+
+            // If search is focused, don't interfere with arrow navigation (except when it's not typing)
+            if (isInputFocused) {
+                // But if arrow keys, we might want to navigate anyway? 
+                // Usually user expects arrows to navigate through list even when search is focused.
+                // We allow arrows to navigate from search, but if they press Enter in search we do copy?
+                // We'll allow arrows always, but Enter in search does search, not copy.
+                // We'll let search handle Enter itself.
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                    e.preventDefault();
+                    navigate(e.key === 'ArrowDown' ? 'down' : 'up');
+                    return;
+                }
+                // Enter in search triggers search (default behavior already)
+                return;
+            }
+
+            // Global shortcuts (when search is not focused)
+            switch (e.key) {
+                case 'ArrowDown':
+                    e.preventDefault();
+                    navigate('down');
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    navigate('up');
+                    break;
+                case 'Enter':
+                    e.preventDefault();
+                    copySelected();
+                    break;
+                case '/':
+                    // focus search
+                    if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+                        e.preventDefault();
+                        searchInput.focus();
+                        searchInput.select();
+                    }
+                    break;
+                case 'Escape':
+                    // clear selection and blur
+                    e.preventDefault();
+                    selectedIndex = -1;
+                    highlightSelected(document.querySelectorAll('.torrent-item').length);
+                    searchInput.blur();
+                    break;
+                default:
+                    break;
             }
         });
 
+        // Also listen for input events on search to update list and reset selection
         searchInput.addEventListener('input', () => {
             render(searchInput.value);
+            // reset selection because list changed
+            selectedIndex = -1;
+        });
+
+        searchInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                // If there's a selected item, copy it
+                if (selectedIndex !== -1) {
+                    copySelected();
+                } else {
+                    // Otherwise, select the first item and copy it?
+                    // Better: just copy the first item if any
+                    const items = document.querySelectorAll('.torrent-item');
+                    if (items.length > 0) {
+                        const firstMagnet = items[0].getAttribute('data-magnet');
+                        const btn = items[0].querySelector('.copy-btn');
+                        if (firstMagnet && btn) {
+                            copyMagnet(firstMagnet, btn);
+                        }
+                    }
+                }
+            } else if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                e.preventDefault();
+                navigate(e.key === 'ArrowDown' ? 'down' : 'up');
+            }
         });
 
         // initial render
         render();
-
-        // global / key to focus search
-        document.addEventListener('keydown', (e) => {
-            if (e.key === '/' && !e.ctrlKey && !e.metaKey && !e.altKey) {
-                const active = document.activeElement;
-                if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA')) return;
-                e.preventDefault();
-                searchInput.focus();
-                searchInput.select();
-            }
-        });
+        selectedIndex = -1;
 
         console.log(`TorrentG ready · ${uniqueTorrents.length} unique torrents (deduplicated by name)`);
         console.log('Duplicate removed: Battlefield.Bad.Company.2-RELOADED appears only once');
