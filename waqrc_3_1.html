@@ -1,0 +1,323 @@
+<!-- SOURCE: /mnt/data/WAqrc3.0.html -->
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>WhatsApp QR — v3.1 (PWA, Theme, Compact)</title>
+  <meta name="description" content="WhatsApp QR generator com nome persistente — PWA, tema automático, modo compacto e export PNG com nome" />
+
+  <!-- PWA manifest will be created at runtime from the inline manifest JSON -->
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#071028" id="meta-theme-color">
+
+  <style>
+    :root{
+      --whatsapp-green:#25D366;--whatsapp-dark:#075E54;--bg:#0f1724;--card:#0b1220;--fg:#e6eef8;
+    }
+    [data-theme="light"]{ --bg:#f7fafc; --card:#fff; --fg:#0b1220; }
+
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;min-height:100vh;background:linear-gradient(180deg,#071028 0%,#021026 100%);color:var(--fg);display:flex;align-items:center;justify-content:center;padding:20px}
+    [data-theme="light"] body{background:linear-gradient(180deg,#ffffff 0%,#f3f6fb 100%)}
+    .wrap{width:100%;max-width:980px;background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));border-radius:12px;padding:18px;box-shadow:0 8px 30px rgba(2,6,23,0.6);border:1px solid rgba(37,211,102,0.06)}
+    header{display:flex;gap:12px;align-items:center;margin-bottom:14px}
+    .grid{display:grid;grid-template-columns:1fr 380px;gap:18px}
+    @media(max-width:900px){.grid{grid-template-columns:1fr}}
+
+    .card{background:var(--card);padding:14px;border-radius:10px;border:1px solid rgba(255,255,255,0.03)}
+    label{display:block;font-size:13px;color:rgba(180,200,255,0.9);margin-bottom:6px}
+    input,textarea,select,button{font:inherit}
+    input[type=text],textarea,select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.05);background:transparent;color:inherit;outline:none;margin-bottom:10px}
+    textarea{min-height:80px}
+    button{background:var(--whatsapp-green);border:none;padding:9px 12px;border-radius:8px;color:white;cursor:pointer;font-weight:600}
+    .copy-btn{background:#182133;border:1px solid rgba(255,255,255,0.03);padding:8px;border-radius:8px;color:#bcd3ff}
+
+    .qr-preview{display:flex;flex-direction:column;align-items:center;gap:12px;padding:10px}
+    .qr-preview img{width:260px;height:260px;border-radius:8px;border:2px solid var(--whatsapp-green);background:#fff}
+
+    .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+    .chat-preview{background:#1a2332;border-radius:8px;padding:12px;margin:12px 0;border:1px solid rgba(255,255,255,0.05)}
+
+    /* Compact mode styles */
+    .compact .qr-preview img{width:180px;height:180px}
+    .compact .grid{grid-template-columns:1fr}
+    .compact .wrap{padding:10px}
+
+    /* Avatar + initials */
+    .chat-avatar{width:40px;height:40px;border-radius:50%;background:var(--whatsapp-green);display:flex;align-items:center;justify-content:center;color:white;font-weight:700}
+
+    /* Small utility */
+    .row{display:flex;gap:8px;align-items:center}
+    .muted{color:#9fb7ff;font-size:13px}
+
+    /* Theme toggle */
+    .theme-toggle{margin-left:auto;display:flex;gap:8px;align-items:center}
+
+    /* Install prompt */
+    .install-box{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <div class="wrap card" role="main" id="app">
+    <header>
+      <div class="chat-avatar" id="appAvatar">W</div>
+      <div>
+        <h1 style="font-size:18px;margin-bottom:4px">WhatsApp QR Generator — v3.1</h1>
+        <div class="muted">PWA • Tema automático • Modo compacto • Export PNG com nome</div>
+      </div>
+
+      <div class="theme-toggle" aria-hidden="false">
+        <label class="muted">Tema</label>
+        <select id="themeSelect" aria-label="Selecionar tema">
+          <option value="auto">Automático</option>
+          <option value="dark">Escuro</option>
+          <option value="light">Claro</option>
+        </select>
+
+        <label class="muted">Compacto</label>
+        <input type="checkbox" id="compactToggle" aria-label="Ativar modo compacto" />
+
+        <div class="install-box" id="installBox" style="display:none">
+          <button id="installBtn" class="copy-btn">Instalar App</button>
+        </div>
+      </div>
+    </header>
+
+    <div class="grid" id="gridRoot">
+      <section class="card" aria-labelledby="inputs">
+        <h2 style="font-size:15px;margin-bottom:8px">Configurações do QR</h2>
+
+        <label for="contactName">Nome do contato *</label>
+        <input id="contactName" type="text" placeholder="Ex: Maria Santos" />
+
+        <label for="country">Código do país</label>
+        <select id="country"><option value="55" selected>Brazil (+55)</option><option value="1">United States (+1)</option></select>
+
+        <label for="phone">Número (sem +, sem espaços)</label>
+        <input id="phone" type="text" inputmode="numeric" placeholder="7591928553" />
+
+        <label for="message">Mensagem inicial (opcional)</label>
+        <textarea id="message" placeholder="Olá, vim pelo QR... (opcional)"></textarea>
+
+        <div style="margin:8px 0;padding:10px;background:rgba(37,211,102,0.04);border-radius:8px">
+          <label><input type="radio" name="persistenceMethod" value="tag" checked /> Etiqueta inteligente</label>
+          <label style="margin-left:12px"><input type="radio" name="persistenceMethod" value="prefix" /> Prefixo com nome</label>
+        </div>
+
+        <div class="actions">
+          <button id="gen">Gerar QR</button>
+          <button id="exportPng" class="copy-btn">Exportar PNG com Nome</button>
+          <button id="reset" class="copy-btn">Limpar</button>
+        </div>
+
+        <div class="chat-preview" style="margin-top:12px">
+          <div style="display:flex;align-items:center;gap:12px">
+            <div class="chat-avatar" id="previewAvatar">M</div>
+            <div>
+              <div id="previewName" style="font-weight:700">+55 75 9192-8553 <span id="previewTag" style="background:var(--whatsapp-green);color:white;padding:3px 6px;border-radius:6px;margin-left:8px;font-size:12px">Maria Santos</span></div>
+              <div id="previewMsg" class="muted">Maria Santos - Olá! Vim através do seu QR Code...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card qr-preview" aria-label="Prévia do QR">
+        <strong>Prévia do QR</strong>
+        <div id="contactDisplay" style="font-weight:700"></div>
+        <img id="qrImg" alt="QR code preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'></svg>" />
+
+        <div style="display:flex;gap:8px;margin-top:8px">
+          <a id="downloadBtn" download="whatsapp-qr.png" style="display:none"></a>
+          <button id="openLink" class="copy-btn" style="display:none">Abrir WhatsApp</button>
+          <button id="copyLink" class="copy-btn" style="display:none">Copiar Link</button>
+        </div>
+
+        <div style="margin-top:8px;text-align:center" class="muted">Clique em <strong>Exportar PNG com Nome</strong> para gerar uma imagem pronta para compartilhar com o nome sobreposto.</div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- QR lib -->
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+  <script>
+    // --- Elements
+    const nameInput = document.getElementById('contactName');
+    const phoneInput = document.getElementById('phone');
+    const ccSelect = document.getElementById('country');
+    const msgInput = document.getElementById('message');
+    const genBtn = document.getElementById('gen');
+    const qrImg = document.getElementById('qrImg');
+    const contactDisplay = document.getElementById('contactDisplay');
+    const openLink = document.getElementById('openLink');
+    const copyLink = document.getElementById('copyLink');
+    const previewName = document.getElementById('previewName');
+    const previewMsg = document.getElementById('previewMsg');
+    const previewTag = document.getElementById('previewTag');
+    const previewAvatar = document.getElementById('previewAvatar');
+    const appAvatar = document.getElementById('appAvatar');
+    const exportPng = document.getElementById('exportPng');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const resetBtn = document.getElementById('reset');
+
+    // Theme & compact controls
+    const themeSelect = document.getElementById('themeSelect');
+    const compactToggle = document.getElementById('compactToggle');
+    const appRoot = document.getElementById('app');
+
+    // Preview sync
+    function initialsFromName(name){
+      return (name || 'W').split(' ').filter(Boolean).slice(0,2).map(s=>s[0].toUpperCase()).join('');
+    }
+
+    function updatePreview(){
+      const name = nameInput.value || 'Maria Santos';
+      const phone = phoneInput.value || '+55 75 9192-8553';
+      const message = msgInput.value || 'Olá! Vim através do seu QR Code...';
+      const method = document.querySelector('input[name="persistenceMethod"]:checked').value;
+      const previewMessage = method === 'tag' ? `${name} - ${message}` : `👤 ${name}: ${message}`;
+
+      previewTag.textContent = name;
+      previewName.textContent = phone + ' ';
+      previewName.appendChild(previewTag);
+      previewMsg.textContent = previewMessage;
+
+      previewAvatar.textContent = initialsFromName(name);
+      appAvatar.textContent = initialsFromName(name).slice(0,1);
+    }
+
+    // Sanitize number
+    function sanitizeNumber(country, phone){ const digits = phone.replace(/\D/g,''); if(digits.startsWith(country)) return digits; return country + digits; }
+    function validatePhoneDigits(s){ return s.length >= 8; }
+
+    async function generateQR(){
+      const country = ccSelect.value.trim();
+      const phone = phoneInput.value.trim();
+      const name = (nameInput.value || '').trim();
+      const message = (msgInput.value || '').trim();
+      const method = document.querySelector('input[name="persistenceMethod"]:checked').value;
+
+      if(!country || !phone || !name){ alert('Preencha país, número e nome.'); return; }
+      const full = sanitizeNumber(country, phone);
+      if(!validatePhoneDigits(full)){ alert('Número inválido.'); return; }
+
+      const finalMessage = method === 'tag' ? (message ? `${name} - ${message}` : `${name} - Olá! Entre em contato através deste QR.`) : (message ? `👤 ${name}: ${message}` : `👤 ${name}: Olá! Entre em contato.`);
+      const waLink = `https://wa.me/${full}?text=${encodeURIComponent(finalMessage)}`;
+
+      try{
+        const dataUrl = await QRCode.toDataURL(waLink, {width:520,margin:1});
+        qrImg.src = dataUrl;
+        contactDisplay.textContent = name;
+        openLink.style.display = 'inline-block';
+        copyLink.style.display = 'inline-block';
+
+        openLink.onclick = ()=>window.open(waLink,'_blank');
+        copyLink.onclick = async ()=>{ try{ await navigator.clipboard.writeText(waLink); alert('Link copiado'); }catch(e){ prompt('Copie manualmente', waLink); } };
+
+      }catch(e){ console.error(e); alert('Erro ao gerar QR'); }
+
+      updatePreview();
+    }
+
+    genBtn.addEventListener('click', generateQR);
+
+    // Export PNG with overlayed name (uses canvas)
+    exportPng.addEventListener('click', async ()=>{
+      if(!qrImg.src) return alert('Gere o QR primeiro.');
+      const canvas = document.createElement('canvas');
+      const size = 1200; canvas.width = size; canvas.height = Math.round(size * 1.2);
+      const ctx = canvas.getContext('2d');
+      // background
+      ctx.fillStyle = getComputedStyle(document.body).backgroundColor || '#071028';
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+      // draw QR bigger
+      const qr = new Image();
+      qr.crossOrigin = 'anonymous';
+      qr.src = qrImg.src;
+      await new Promise(res=>{ qr.onload = res; qr.onerror = res; });
+      const qrSize = Math.round(size * 0.7);
+      ctx.drawImage(qr, Math.round((canvas.width-qrSize)/2), 60, qrSize, qrSize);
+
+      // overlay name box
+      const name = nameInput.value || 'Maria Santos';
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      const boxW = canvas.width - 120; const boxH = 120; const boxX = 60; const boxY = qrSize + 80;
+      ctx.fillRect(boxX, boxY, boxW, boxH);
+
+      // name text
+      ctx.fillStyle = '#fff';
+      ctx.font = 'bold 56px Inter, system-ui';
+      ctx.textAlign = 'left';
+      ctx.fillText(name, boxX + 24, boxY + 70);
+
+      // small caption
+      ctx.font = '20px Inter, system-ui';
+      ctx.fillStyle = '#dfeff0';
+      ctx.fillText('Escaneie para iniciar conversa — nome persistente', boxX + 24, boxY + 100);
+
+      // export
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = url; a.download = `${name.replace(/\s+/g,'_')}_whatsapp_qr.png`; document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    });
+
+    // Reset
+    resetBtn.addEventListener('click', ()=>{
+      nameInput.value = ''; phoneInput.value = ''; msgInput.value = ''; qrImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260"></svg>'; contactDisplay.textContent = ''; updatePreview();
+    });
+
+    // Live preview connections
+    [nameInput,phoneInput,msgInput].forEach(el=>el.addEventListener('input', updatePreview));
+    document.querySelectorAll('input[name="persistenceMethod"]').forEach(r=>r.addEventListener('change', updatePreview));
+    updatePreview();
+
+    // Theme handling: auto (prefers-color-scheme), manual override stored in localStorage
+    const themeMeta = document.getElementById('meta-theme-color');
+    function applyTheme(pref){
+      if(pref === 'auto'){
+        const dark = window.matchMedia('(prefers-color-scheme:dark)').matches;
+        document.documentElement.setAttribute('data-theme', dark ? 'dark' : 'light');
+      } else document.documentElement.setAttribute('data-theme', pref);
+      const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+      themeMeta.content = isDark ? '#071028' : '#ffffff';
+    }
+    const stored = localStorage.getItem('wa_qr_theme') || 'auto'; themeSelect.value = stored; applyTheme(stored);
+    themeSelect.addEventListener('change', ()=>{ localStorage.setItem('wa_qr_theme', themeSelect.value); applyTheme(themeSelect.value); });
+    window.matchMedia && window.matchMedia('(prefers-color-scheme:dark)').addEventListener('change', ()=>{ if(themeSelect.value === 'auto') applyTheme('auto'); });
+
+    // Compact mode
+    const gridRoot = document.getElementById('gridRoot');
+    compactToggle.addEventListener('change', ()=>{
+      if(compactToggle.checked) document.body.classList.add('compact'); else document.body.classList.remove('compact');
+    });
+
+    // Simple PWA install prompt handling
+    let deferredPrompt;
+    window.addEventListener('beforeinstallprompt', (e)=>{
+      e.preventDefault(); deferredPrompt = e; document.getElementById('installBox').style.display = 'flex';
+      document.getElementById('installBtn').onclick = async ()=>{
+        if(!deferredPrompt) return; deferredPrompt.prompt(); const choice = await deferredPrompt.userChoice; deferredPrompt = null; document.getElementById('installBox').style.display = 'none';
+      };
+    });
+
+    // Create a runtime manifest (helps some hosts)
+    const manifest = {
+      name: 'WhatsApp QR — Nome Persistente', short_name: 'WA QR', start_url: '.', display: 'standalone', background_color:'#071028', theme_color:'#071028', icons:[{src:'/icons-192.png',sizes:'192x192',type:'image/png'},{src:'/icons-512.png',sizes:'512x512',type:'image/png'}]
+    };
+    // Attempt to write manifest.json to document (some servers ignore)
+    try{ const blob = new Blob([JSON.stringify(manifest)],{type:'application/json'}); const url = URL.createObjectURL(blob); document.querySelector('link[rel="manifest"]').href = url; }catch(e){console.warn('manifest create failed',e)}
+
+    // Register a tiny service worker to allow offline use (caching index + qrcode lib)
+    if('serviceWorker' in navigator){
+      navigator.serviceWorker.register('/waqrbuilder-sw.js').catch(err=>console.warn('SW register failed',err));
+    }
+
+    // Accessibility: keyboard shortcuts
+    window.addEventListener('keydown', (e)=>{ if(e.ctrlKey && e.key.toLowerCase()==='g'){ e.preventDefault(); generateQR(); } });
+
+  </script>
+
+  <!-- Simple inline service worker fallback (site must serve this path for registration to work) -->
+  <!-- Provide /waqrbuilder-sw.js in your server pointing to cached assets: index + CDN qrcode lib. -->
+</body>
+</html>
