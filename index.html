@@ -3,11 +3,26 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>✦ My Routes · Nexus</title>
-    <!-- Font Awesome 6 (free) -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+    <title>✦ Nexus · Elite Dashboard</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        /* ----- RESET & BASE ----- */
+        :root {
+            --bg-color: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --accent-primary: #fbbf24; /* Amber 400 */
+            --accent-secondary: #f59e0b; /* Amber 500 */
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: rgba(251, 191, 36, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --glow-color: rgba(251, 191, 36, 0.15);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
         * {
             margin: 0;
             padding: 0;
@@ -15,1203 +30,493 @@
         }
 
         body {
-            font-family: 'Poppins', 'Segoe UI', system-ui, -apple-system, sans-serif;
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
             min-height: 100vh;
+            overflow-x: hidden;
             display: flex;
+            flex-direction: column;
             align-items: center;
-            justify-content: center;
-            background: radial-gradient(circle at 20% 30%, #0b1a33, #0a0f1f);
-            padding: 1.5rem;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
         }
 
-        .dashboard {
-            max-width: 950px;
+        /* --- BACKGROUND ANIMATION --- */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(12, 25, 45, 0.55);
-            backdrop-filter: blur(14px) saturate(180%);
-            -webkit-backdrop-filter: blur(14px) saturate(180%);
-            border-radius: 3.5rem;
-            padding: 2.8rem 2.5rem;
-            box-shadow: 0 25px 50px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 215, 0, 0.15);
-            border: 1px solid rgba(255, 215, 0, 0.08);
-            transition: all 0.3s ease;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(100px);
+        }
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: move 25s infinite alternate;
+        }
+        .blob-2 {
+            background: #4f46e5;
+            right: 0;
+            bottom: 0;
+            animation-delay: -5s;
+        }
+        @keyframes move {
+            from { transform: translate(-10%, -10%) rotate(0deg); }
+            to { transform: translate(20%, 20%) rotate(360deg); }
         }
 
-        .header-flex {
-            display: flex;
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 4rem auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo-area {
+            display: inline-flex;
             align-items: center;
-            justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 0.8rem 1.5rem;
-            margin-bottom: 0.2rem;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 15px var(--glow-color));
         }
 
         h1 {
-            font-size: 2.8rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
             font-weight: 700;
-            letter-spacing: -0.5px;
-            background: linear-gradient(135deg, #f6e9a0, #f0c27f);
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom, #fff, #9ca3af);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
         }
 
-        .route-counter {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            background: rgba(255, 215, 0, 0.08);
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            border-radius: 60px;
-            padding: 0.4rem 1.2rem 0.4rem 1rem;
-            backdrop-filter: blur(8px);
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.05);
-            transition: all 0.3s ease;
-        }
-
-        .route-counter:hover {
-            background: rgba(255, 215, 0, 0.14);
-            border-color: rgba(255, 215, 0, 0.3);
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.1);
-        }
-
-        .route-counter i {
-            color: #ffd700;
-            font-size: 1.1rem;
-            filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.2));
-        }
-
-        .route-counter .count-number {
-            font-size: 1.6rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, #ffd700, #f0b800);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            min-width: 2rem;
-            text-align: center;
-        }
-
-        .route-counter .count-label {
-            font-size: 0.75rem;
-            font-weight: 400;
-            color: rgba(255, 255, 255, 0.5);
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .subhead {
-            text-align: center;
-            font-weight: 300;
-            letter-spacing: 2px;
-            font-size: 1rem;
-            color: rgba(255, 255, 255, 0.5);
-            border-bottom: 1px dashed rgba(255, 215, 0, 0.2);
-            padding-bottom: 1.8rem;
-            margin-bottom: 1.5rem;
+        .badge-row {
             display: flex;
             justify-content: center;
-            align-items: center;
-            gap: 0.8rem;
+            gap: 1rem;
+            margin-top: 1.5rem;
             flex-wrap: wrap;
         }
 
-        /* ----- SEARCH BAR ----- */
-        .search-container {
+        .status-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
             display: flex;
-            justify-content: center;
-            margin-bottom: 2.2rem;
+            align-items: center;
             gap: 0.5rem;
-            flex-wrap: wrap;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
         }
 
-        .search-wrapper {
+        .status-badge:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-main);
+        }
+
+        .status-badge i {
+            color: var(--accent-primary);
+        }
+
+        /* --- SEARCH --- */
+        .search-section {
+            max-width: 600px;
+            margin: 0 auto 4rem;
             position: relative;
-            width: 100%;
-            max-width: 450px;
+            animation: fadeInUp 1s ease-out;
         }
 
-        .search-wrapper i {
-            position: absolute;
-            left: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: rgba(255, 215, 0, 0.4);
-            font-size: 1rem;
-            transition: color 0.3s ease;
+        .search-box {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: var(--transition);
         }
 
-        .search-wrapper:focus-within i {
-            color: #ffd700;
+        .search-box:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 30px var(--glow-color);
+            transform: translateY(-2px);
+        }
+
+        .search-box i.fa-search {
+            margin-left: 1.5rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
         }
 
         #searchInput {
             width: 100%;
-            padding: 0.8rem 1.2rem 0.8rem 3rem;
-            border-radius: 60px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            background: rgba(20, 40, 70, 0.4);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
+            background: transparent;
+            border: none;
+            padding: 1rem;
             color: #fff;
-            font-size: 0.95rem;
-            font-family: 'Poppins', sans-serif;
-            transition: all 0.3s ease;
+            font-size: 1.1rem;
             outline: none;
+            font-family: inherit;
         }
 
-        #searchInput::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-            font-weight: 300;
-            letter-spacing: 0.5px;
-        }
-
-        #searchInput:focus {
-            border-color: #ffd700;
-            box-shadow: 0 0 20px rgba(255, 215, 0, 0.1), inset 0 0 20px rgba(255, 215, 0, 0.05);
-            background: rgba(20, 40, 70, 0.6);
-        }
-
-        #searchInput:focus::placeholder {
-            color: rgba(255, 255, 255, 0.1);
+        .search-k {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-right: 1rem;
+            border: 1px solid var(--glass-border);
         }
 
         .search-clear {
-            position: absolute;
-            right: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
             background: none;
             border: none;
-            color: rgba(255, 255, 255, 0.3);
+            color: var(--text-muted);
             cursor: pointer;
-            font-size: 1rem;
-            padding: 0.2rem;
-            transition: all 0.3s ease;
-            display: none;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            opacity: 0;
+            transition: var(--transition);
         }
 
-        .search-clear:hover {
-            color: #ffd700;
-            transform: translateY(-50%) scale(1.1);
-        }
+        .search-clear.visible { opacity: 1; }
+        .search-clear:hover { color: var(--accent-primary); }
 
-        .search-clear.visible {
-            display: block;
-        }
-
-        .search-stats {
-            font-size: 0.8rem;
-            color: rgba(255, 255, 255, 0.3);
-            text-align: center;
-            margin-top: 0.5rem;
-            letter-spacing: 0.5px;
-            min-height: 1.5rem;
-        }
-
-        .search-stats strong {
-            color: #ffd700;
-            font-weight: 600;
-        }
-
-        .search-stats .keyboard-hint {
-            color: rgba(255, 255, 255, 0.2);
-            font-size: 0.7rem;
-            margin-left: 0.8rem;
-        }
-
-        .routes {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
+        /* --- GRID --- */
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
             gap: 2rem;
-            min-height: 120px;
-            transition: all 0.3s ease;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
         }
 
-        /* ----- CARDS (clickeables) ----- */
+        .routes-grid.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* --- CARD --- */
         .card {
-            background: rgba(20, 40, 70, 0.5);
-            backdrop-filter: blur(4px);
-            -webkit-backdrop-filter: blur(4px);
-            border-radius: 2.2rem;
-            padding: 1.8rem 1.2rem;
-            width: 220px;
-            text-align: center;
-            box-shadow: 0 12px 30px -10px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 215, 0, 0.1);
-            transition: all 0.35s cubic-bezier(0.23, 1, 0.32, 1);
-            border: 1px solid rgba(255, 215, 0, 0.08);
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
             position: relative;
             overflow: hidden;
             cursor: pointer;
-            opacity: 1;
-            transform: scale(1);
-        }
-
-        .card.hidden {
-            opacity: 0;
-            transform: scale(0.8);
-            pointer-events: none;
-            position: absolute;
-            width: 0;
-            height: 0;
-            padding: 0;
-            margin: 0;
-            overflow: hidden;
-            border: none;
-        }
-
-        /* --- ESTADO FOCUS (para navegación por teclado) --- */
-        .card.focused {
-            border-color: #ffd700;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3), 0 25px 40px -10px #000000cc;
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(30, 55, 95, 0.8);
-        }
-
-        .card.focused .route-link {
-            background: linear-gradient(145deg, #ffe066, #f5c400);
-            transform: scale(1.05);
-            box-shadow: 0 6px 25px rgba(255, 215, 0, 0.6);
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            backdrop-filter: blur(10px);
         }
 
         .card::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.03), transparent, rgba(255, 215, 0, 0.06), transparent);
-            animation: rotateGlow 12s linear infinite;
-            opacity: 0.3;
-            pointer-events: none;
-        }
-
-        @keyframes rotateGlow {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, rgba(251, 191, 36, 0.1), transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
         }
 
         .card:hover {
-            transform: translateY(-10px) scale(1.02);
-            background: rgba(30, 55, 95, 0.7);
-            border-color: #ffd700;
-            box-shadow: 0 25px 40px -10px #000000cc, 0 0 30px rgba(255, 215, 0, 0.2);
+            transform: translateY(-10px);
+            border-color: rgba(251, 191, 36, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(17, 24, 39, 0.9);
         }
 
-        .card-icon {
-            font-size: 3.2rem;
-            margin-bottom: 0.2rem;
+        .card:hover::before { opacity: 1; }
+
+        .card-icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 16px;
             display: flex;
-            justify-content: center;
             align-items: center;
-            gap: 0.2rem;
-            filter: drop-shadow(0 0 12px rgba(255, 215, 0, 0.25));
-            transition: transform 0.3s ease;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--accent-primary);
+            transition: var(--transition);
         }
 
-        .card:hover .card-icon {
-            transform: scale(1.05) rotate(2deg);
-        }
-
-        .card-icon i {
-            background: linear-gradient(145deg, #ffd700, #f0b800);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
-        }
-
-        .card-icon .icon-badge {
-            font-size: 0.8rem;
-            background: rgba(255, 215, 0, 0.15);
-            border-radius: 40px;
-            padding: 0.1rem 0.6rem;
-            color: #ffd700;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            backdrop-filter: blur(2px);
-            margin-left: 4px;
-            font-weight: 500;
-            letter-spacing: 0.3px;
+        .card:hover .card-icon-box {
+            background: var(--accent-primary);
+            color: var(--bg-color);
+            transform: scale(1.1) rotate(5deg);
         }
 
         .card h2 {
+            font-family: 'Space Grotesk', sans-serif;
             font-size: 1.5rem;
-            font-weight: 600;
-            letter-spacing: 0.5px;
-            margin: 0.2rem 0 0.1rem 0;
+            margin-bottom: 0.75rem;
             color: #fff;
-            text-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-            word-break: break-word;
         }
 
-        .card .desc {
-            font-size: 0.75rem;
-            font-weight: 300;
-            color: rgba(255, 255, 255, 0.6);
-            letter-spacing: 0.3px;
-            margin: 0.1rem 0 0.6rem 0;
-            padding: 0 0.2rem;
-            line-height: 1.4;
-            min-height: 2.4rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.3rem;
-            flex-wrap: wrap;
-        }
-
-        .card .desc i {
-            color: #ffd700;
-            font-size: 0.6rem;
-            opacity: 0.7;
-        }
-
-        .card .badge {
-            display: inline-block;
-            background: rgba(255, 215, 0, 0.12);
-            color: #ffd700;
-            font-size: 0.6rem;
-            font-weight: 600;
-            padding: 0.2rem 0.9rem;
-            border-radius: 30px;
-            letter-spacing: 0.5px;
-            border: 1px solid rgba(255, 215, 0, 0.15);
-            margin: 0.1rem 0 0.8rem 0;
-            backdrop-filter: blur(2px);
-        }
-
-        .card .route-link {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.6rem;
-            margin-top: 0.2rem;
-            padding: 0.6rem 1.8rem;
-            background: linear-gradient(145deg, #ffd700, #f0b800);
-            color: #0b1a2e;
-            text-decoration: none;
-            border-radius: 60px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            letter-spacing: 0.3px;
-            transition: all 0.25s ease;
-            box-shadow: 0 4px 12px rgba(255, 215, 0, 0.3);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(2px);
-            cursor: pointer;
-            user-select: none;
-            pointer-events: none; /* ← IMPORTANTE: el botón ya no es clickeable */
-        }
-
-        .card .route-link i {
-            font-size: 0.85rem;
-            transition: transform 0.2s ease;
-        }
-
-        .card .route-link:hover i {
-            transform: translateX(4px);
-        }
-
-        /* Loading state */
-        .loading-placeholder {
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 1.2rem;
-            display: flex;
-            align-items: center;
-            gap: 1rem;
-            padding: 2rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .loading-placeholder i {
-            font-size: 2rem;
-            color: #ffd700;
-            opacity: 0.4;
-            animation: pulse 1.5s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 0.4; transform: scale(1); }
-            50% { opacity: 0.9; transform: scale(1.1); }
-        }
-
-        .no-results {
-            color: rgba(255, 255, 255, 0.4);
-            font-size: 1.1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.8rem;
-            padding: 2rem;
-            width: 100%;
-            justify-content: center;
-        }
-
-        .no-results i {
-            font-size: 2.5rem;
-            color: rgba(255, 215, 0, 0.2);
-        }
-
-        .toast-404 {
-            position: fixed;
-            bottom: 2rem;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(10, 10, 20, 0.9);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            padding: 1rem 2.2rem;
-            border-radius: 60px;
-            border: 1px solid rgba(255, 80, 80, 0.3);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
-            color: #ffb3b3;
-            font-weight: 500;
-            letter-spacing: 0.3px;
-            display: none;
-            align-items: center;
-            gap: 1rem;
-            z-index: 999;
-            pointer-events: none;
+        .card p {
+            color: var(--text-muted);
             font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
         }
 
-        .toast-404 i {
-            color: #ff6b6b;
-            font-size: 1.4rem;
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
         }
 
-        @media (max-width: 600px) {
-            .dashboard { padding: 1.8rem 1rem; border-radius: 2.5rem; }
-            h1 { font-size: 2.2rem; }
-            .header-flex { flex-direction: column; align-items: stretch; gap: 0.5rem; }
-            .route-counter { align-self: flex-start; }
-            .card { width: 180px; padding: 1.2rem 0.8rem; }
-            .card h2 { font-size: 1.2rem; }
-            .card .route-link { padding: 0.5rem 1.2rem; font-size: 0.8rem; }
-            .card .desc { font-size: 0.7rem; min-height: 2rem; }
-            .search-wrapper { max-width: 100%; }
-            #searchInput { font-size: 0.85rem; padding: 0.7rem 1rem 0.7rem 2.8rem; }
-            .search-stats .keyboard-hint { display: none; }
+        .file-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
         }
 
-        .safe-badge {
-            display: inline-block;
-            background: rgba(0, 255, 200, 0.08);
-            border-radius: 40px;
-            padding: 0.1rem 0.9rem;
-            color: rgba(255, 255, 255, 0.3);
-            font-size: 0.7rem;
-            letter-spacing: 1px;
-            border: 1px solid rgba(255, 255, 255, 0.03);
+        .visit-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: var(--transition);
         }
 
-        /* Scroll suave para la navegación por teclado */
-        html {
-            scroll-behavior: smooth;
+        .card:hover .visit-btn {
+            background: var(--accent-primary);
+            color: var(--bg-color);
+            transform: translateX(5px);
         }
 
-        /* Tooltip sutil */
-        .card .click-hint {
-            font-size: 0.6rem;
-            color: rgba(255, 255, 255, 0.2);
-            margin-top: 0.3rem;
-            letter-spacing: 0.5px;
-            transition: color 0.3s ease;
+        /* --- UTILS --- */
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
         }
 
-        .card:hover .click-hint {
-            color: rgba(255, 215, 0, 0.3);
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--accent-primary);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .container { margin: 2rem auto; }
         }
     </style>
 </head>
 <body>
 
-<div class="dashboard">
-    <div class="header-flex">
-        <h1>
-            <i class="fas fa-compass" style="font-size: 2.2rem; color: #f0c27f; filter: drop-shadow(0 0 10px #ffd70055);"></i>
-            My Routes
-        </h1>
-        <div class="route-counter" id="routeCounter">
-            <i class="fas fa-cubes"></i>
-            <span class="count-number" id="countNumber">0</span>
-            <span class="count-label">routes</span>
-        </div>
+    <div class="bg-mesh">
+        <div class="blob"></div>
+        <div class="blob blob-2"></div>
     </div>
 
-    <div class="subhead">
-        <i class="fas fa-route"></i>
-        <span>nexus · 2026</span>
-        <i class="fas fa-bolt" style="color: #ffd700;"></i>
-        <span class="safe-badge"><i class="fas fa-shield-alt"></i> sanitized</span>
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <i class="fas fa-compass logo-icon"></i>
+            </div>
+            <h1>Nexus Explorer</h1>
+            <div class="badge-row">
+                <div class="status-badge">
+                    <i class="fas fa-code-branch"></i>
+                    <span>main</span>
+                </div>
+                <div class="status-badge" id="routeCounter">
+                    <i class="fas fa-layer-group"></i>
+                    <span id="countNumber">0</span> Routes
+                </div>
+                <div class="status-badge">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Secure</span>
+                </div>
+            </div>
+        </header>
+
+        <section class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search routes or tools..." autocomplete="off">
+                <span class="search-k">Ctrl + K</span>
+                <button class="search-clear" id="searchClear">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </section>
+
+        <main class="routes-grid" id="routesGrid">
+            <div class="loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <p>Initializing connection to Nexus repository...</p>
+            </div>
+        </main>
     </div>
 
-    <!-- 🔍 SEARCH BAR -->
-    <div class="search-container">
-        <div class="search-wrapper">
-            <i class="fas fa-search"></i>
-            <input 
-                type="text" 
-                id="searchInput" 
-                placeholder="🔍 Search for a tool... (Ctrl+K)" 
-                autocomplete="off"
-                aria-label="Search for tools"
-            />
-            <button class="search-clear" id="searchClear" aria-label="Clear search">
-                <i class="fas fa-times-circle"></i>
-            </button>
-        </div>
-    </div>
-    <div class="search-stats" id="searchStats">
-        <span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>
-    </div>
-
-    <div class="routes" id="routes">
-        <div class="loading-placeholder">
-            <i class="fas fa-spinner fa-pulse"></i>
-            <span>fetching files from repository...</span>
-        </div>
-    </div>
-</div>
-
-<div id="toast404" class="toast-404">
-    <i class="fas fa-exclamation-triangle"></i>
-    <span id="toastMessage">NOT FOUND 404 · redirecting to main route</span>
-</div>
-
-<script>
-    (function() {
-        'use strict';
-
-        // ================================================================
-        // 🔥 CONFIGURACIÓN DE GITHUB
-        // ================================================================
+    <script>
         const GITHUB_USER = "vostruskovo";
         const GITHUB_REPO = "rtmp";
         const BRANCH = "main";
-        // ================================================================
 
-        const container = document.getElementById('routes');
+        const grid = document.getElementById('routesGrid');
         const countNumber = document.getElementById('countNumber');
-        const toast = document.getElementById('toast404');
-        const toastMsg = document.getElementById('toastMessage');
         const searchInput = document.getElementById('searchInput');
         const searchClear = document.getElementById('searchClear');
-        const searchStats = document.getElementById('searchStats');
 
-        // Variables
-        let allCards = [];
-        let allFileNames = [];
-        let focusedIndex = -1;
-        let gridCols = 0;
+        let allFiles = [];
 
-        // ----- SANITIZACIÓN -----
-        function escapeHtml(unsafe) {
-            if (!unsafe || typeof unsafe !== 'string') return '';
-            return unsafe
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;")
-                .replace(/`/g, "&#x60;")
-                .replace(/\//g, "&#x2F;");
+        // --- ICON LOGIC ---
+        function getMetadata(name) {
+            const n = name.toLowerCase();
+            if (n.includes('map') || n.includes('route') || n.includes('gps')) 
+                return { icon: 'fa-map-location-dot', desc: 'Advanced spatial navigation and real-time mapping systems.' };
+            if (n.includes('med') || n.includes('health') || n.includes('doctor')) 
+                return { icon: 'fa-heart-pulse', desc: 'Comprehensive healthcare management and patient data analytics.' };
+            if (n.includes('appoint') || n.includes('calendar') || n.includes('schedule')) 
+                return { icon: 'fa-calendar-day', desc: 'Precision scheduling and enterprise appointment orchestration.' };
+            if (n.includes('car') || n.includes('auto') || n.includes('vehicle')) 
+                return { icon: 'fa-car-side', desc: 'Fleet monitoring and automotive logistics management.' };
+            if (n.includes('chat') || n.includes('message') || n.includes('talk')) 
+                return { icon: 'fa-comment-dots', desc: 'Real-time encrypted communication and collaborative messaging.' };
+            if (n.includes('video') || n.includes('stream') || n.includes('play')) 
+                return { icon: 'fa-play-circle', desc: 'High-performance media streaming and video content delivery.' };
+            if (n.includes('shop') || n.includes('store') || n.includes('cart')) 
+                return { icon: 'fa-shopping-bag', desc: 'Next-gen e-commerce platform with integrated payment flows.' };
+            if (n.includes('game') || n.includes('play') || n.includes('fun')) 
+                return { icon: 'fa-gamepad', desc: 'Interactive entertainment and cloud-based gaming modules.' };
+            
+            return { icon: 'fa-bolt', desc: 'A high-performance utility module integrated into the Nexus ecosystem.' };
         }
 
-        function sanitizeFileName(name) {
-            if (!name || typeof name !== 'string') return '';
-            return name.replace(/[^a-zA-Z0-9.\-_]/g, '');
-        }
-
-        function capitaliseSafe(str) {
-            if (!str || typeof str !== 'string') return '';
-            const clean = str.replace(/[^a-zA-Z0-9.\-_ ]/g, '');
-            if (!clean) return '';
-            return clean.charAt(0).toUpperCase() + clean.slice(1).toLowerCase();
-        }
-
-        function createSafeText(text) {
-            const element = document.createElement('span');
-            element.textContent = text;
-            return element;
-        }
-
-        // ----- 404 TOAST -----
-        function show404(fileName) {
-            const safeName = sanitizeFileName(fileName) || 'file';
-            toastMsg.innerHTML = '';
-            toastMsg.appendChild(createSafeText('❌ NOT FOUND 404 · '));
-            const strong = document.createElement('strong');
-            strong.textContent = safeName;
-            toastMsg.appendChild(strong);
-            toastMsg.appendChild(createSafeText(' · redirecting to main route'));
-            toast.style.display = 'flex';
-            setTimeout(() => { toast.style.display = 'none'; }, 3200);
-        }
-
-        // ----- FUNCIÓN INTELIGENTE PARA ICONOS -----
-        function getIconInfo(name) {
-            const cleanName = name.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
-            
-            if (cleanName.includes('map') || cleanName.includes('route') || 
-                cleanName.includes('gps') || cleanName.includes('navigation')) {
-                return {
-                    icon: 'fa-map-location-dot',
-                    label: '🗺️',
-                    desc: 'Interactive mapping & real-time routing',
-                    descIcon: 'fa-location-dot'
-                };
-            }
-            
-            if (cleanName.includes('med') || cleanName.includes('card') || 
-                cleanName.includes('health') || cleanName.includes('doctor') || 
-                cleanName.includes('hospital') || cleanName.includes('clinic')) {
-                return {
-                    icon: 'fa-heart-pulse',
-                    label: '💊',
-                    desc: 'Health records · patient management system',
-                    descIcon: 'fa-notes-medical'
-                };
-            }
-            
-            if (cleanName.includes('appoint') || cleanName.includes('calendar') || 
-                cleanName.includes('schedule') || cleanName.includes('booking') || 
-                cleanName.includes('meeting')) {
-                return {
-                    icon: 'fa-calendar-check',
-                    label: '📅',
-                    desc: 'Scheduling · appointments management',
-                    descIcon: 'fa-clock'
-                };
-            }
-            
-            if (cleanName.includes('car') || cleanName.includes('auto') || 
-                cleanName.includes('vehicle') || cleanName.includes('drive') || 
-                cleanName.includes('fleet')) {
-                return {
-                    icon: 'fa-car',
-                    label: '🚗',
-                    desc: 'Vehicle management · fleet control',
-                    descIcon: 'fa-road'
-                };
-            }
-            
-            if (cleanName.includes('chat') || cleanName.includes('message') || 
-                cleanName.includes('talk') || cleanName.includes('discord') || 
-                cleanName.includes('telegram')) {
-                return {
-                    icon: 'fa-comments',
-                    label: '💬',
-                    desc: 'Chat · real-time communication',
-                    descIcon: 'fa-message'
-                };
-            }
-            
-            if (cleanName.includes('video') || cleanName.includes('stream') || 
-                cleanName.includes('youtube') || cleanName.includes('watch') || 
-                cleanName.includes('movie')) {
-                return {
-                    icon: 'fa-video',
-                    label: '🎬',
-                    desc: 'Video · streaming platform',
-                    descIcon: 'fa-play'
-                };
-            }
-            
-            if (cleanName.includes('shop') || cleanName.includes('store') || 
-                cleanName.includes('buy') || cleanName.includes('cart') || 
-                cleanName.includes('market')) {
-                return {
-                    icon: 'fa-shop',
-                    label: '🛒',
-                    desc: 'E-commerce · online store',
-                    descIcon: 'fa-bag-shopping'
-                };
-            }
-            
-            if (cleanName.includes('blog') || cleanName.includes('post') || 
-                cleanName.includes('article') || cleanName.includes('news')) {
-                return {
-                    icon: 'fa-blog',
-                    label: '✍️',
-                    desc: 'Blog · content publishing',
-                    descIcon: 'fa-pen-fancy'
-                };
-            }
-            
-            if (cleanName.includes('game') || cleanName.includes('play') || 
-                cleanName.includes('fun') || cleanName.includes('arcade')) {
-                return {
-                    icon: 'fa-gamepad',
-                    label: '🎮',
-                    desc: 'Games · interactive entertainment',
-                    descIcon: 'fa-dice'
-                };
-            }
-
-            // 🔥 DEFAULT: 🌐 WWW
-            return {
-                icon: 'fa-globe',
-                label: '🌐',
-                desc: 'Web page',
-                descIcon: 'fa-link'
-            };
-        }
-
-        // ----- FUNCIÓN PARA ABRIR HERRAMIENTA -----
-        function openTool(file, tool, newTab = false) {
-            if (!file) return;
-            if (newTab) {
-                window.open(file, '_blank');
-            } else {
-                const safeHash = sanitizeFileName(tool);
-                if (safeHash) {
-                    window.location.hash = safeHash;
-                }
-                window.location.href = file;
-            }
-        }
-
-        // ----- FETCH FILES FROM GITHUB -----
-        async function fetchHtmlFiles() {
-            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`;
-            
+        async function fetchFiles() {
             try {
-                const response = await fetch(url);
-                if (!response.ok) {
-                    throw new Error(`GitHub API error: ${response.status}`);
-                }
-                const files = await response.json();
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`);
+                const data = await res.json();
                 
-                const htmlFiles = files
-                    .filter(file => file.type === 'file' && file.name.endsWith('.html'))
-                    .map(file => sanitizeFileName(file.name))
-                    .filter(name => name && name.toLowerCase() !== 'index.html');
+                allFiles = data
+                    .filter(f => f.type === 'file' && f.name.endsWith('.html') && f.name.toLowerCase() !== 'index.html')
+                    .map(f => f.name);
                 
-                return htmlFiles;
-            } catch (error) {
-                console.error('❌ Error fetching from GitHub:', error);
-                return [];
+                renderFiles(allFiles);
+                countNumber.textContent = allFiles.length;
+                grid.classList.add('loaded');
+            } catch (err) {
+                grid.innerHTML = `<div class="loading"><i class="fas fa-exclamation-triangle"></i><p>Failed to connect to repository. Please try again later.</p></div>`;
             }
         }
 
-        // ----- RENDER ROUTES -----
-        function renderRoutes(fileNames) {
-            container.innerHTML = '';
-            allCards = [];
-            allFileNames = fileNames;
-            focusedIndex = -1;
-
-            if (!fileNames || fileNames.length === 0) {
-                const empty = document.createElement('div');
-                empty.className = 'loading-placeholder';
-                const icon = document.createElement('i');
-                icon.className = 'fas fa-folder-open';
-                empty.appendChild(icon);
-                const text = document.createElement('span');
-                text.textContent = 'no HTML files found in repository';
-                empty.appendChild(text);
-                container.appendChild(empty);
-                countNumber.textContent = '0';
-                updateSearchStats(0, 0);
+        function renderFiles(files) {
+            if (files.length === 0) {
+                grid.innerHTML = `<div class="loading"><i class="fas fa-search"></i><p>No routes found matching your criteria.</p></div>`;
                 return;
             }
 
-            let renderedCount = 0;
-
-            fileNames.forEach((fileName) => {
-                const safeFileName = sanitizeFileName(fileName);
-                if (!safeFileName) return;
+            grid.innerHTML = files.map(file => {
+                const base = file.replace('.html', '');
+                const meta = getMetadata(base);
+                const title = base.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
                 
-                const baseName = safeFileName.replace(/\.html$/i, '');
-                const safeBaseName = sanitizeFileName(baseName);
-                if (!safeBaseName) return;
-
-                const card = document.createElement('div');
-                card.className = 'card';
-                card.dataset.tool = safeBaseName.toLowerCase();
-                card.dataset.file = safeFileName;
-                card.dataset.index = renderedCount;
-
-                const iconInfo = getIconInfo(safeBaseName);
-
-                // ICON
-                const iconWrapper = document.createElement('div');
-                iconWrapper.className = 'card-icon';
-                const icon = document.createElement('i');
-                icon.className = `fas ${iconInfo.icon}`;
-                iconWrapper.appendChild(icon);
-                const badge = document.createElement('span');
-                badge.className = 'icon-badge';
-                badge.textContent = iconInfo.label;
-                iconWrapper.appendChild(badge);
-
-                // TITLE
-                const title = document.createElement('h2');
-                title.textContent = capitaliseSafe(safeBaseName);
-
-                // DESCRIPTION
-                const desc = document.createElement('div');
-                desc.className = 'desc';
-                const descIcon = document.createElement('i');
-                descIcon.className = `fas ${iconInfo.descIcon}`;
-                desc.appendChild(descIcon);
-                const descText = document.createTextNode(' ' + iconInfo.desc);
-                desc.appendChild(descText);
-
-                // BADGE
-                const fileBadge = document.createElement('div');
-                fileBadge.className = 'badge';
-                fileBadge.textContent = '📁 ' + safeFileName;
-
-                // LINK (solo visual, no clickeable)
-                const link = document.createElement('div');
-                link.className = 'route-link';
-                link.setAttribute('aria-hidden', 'true');
-
-                const linkText = document.createTextNode(`Open ${capitaliseSafe(safeBaseName)}`);
-                link.appendChild(linkText);
-                const iconLink = document.createElement('i');
-                iconLink.className = 'fas fa-arrow-right';
-                link.appendChild(iconLink);
-
-                // Click hint
-                const clickHint = document.createElement('div');
-                clickHint.className = 'click-hint';
-                clickHint.textContent = '✦ click anywhere to open';
-
-                // ASSEMBLE
-                card.appendChild(iconWrapper);
-                card.appendChild(title);
-                card.appendChild(desc);
-                card.appendChild(fileBadge);
-                card.appendChild(link);
-                card.appendChild(clickHint);
-                container.appendChild(card);
-
-                allCards.push(card);
-                renderedCount++;
-
-                // ---- CLICK EN LA TARJETA COMPLETA ----
-                card.addEventListener('click', function(e) {
-                    // Si es Ctrl+Click o Cmd+Click → nueva pestaña
-                    const newTab = e.ctrlKey || e.metaKey;
-                    const file = this.dataset.file;
-                    const tool = this.dataset.tool;
-                    openTool(file, tool, newTab);
-                });
-
-                // ---- HOVER: remover focus de otros ----
-                card.addEventListener('mouseenter', function() {
-                    if (focusedIndex !== -1) {
-                        clearFocus();
-                    }
-                });
-            });
-
-            // Calcular columnas
-            updateGridColumns();
-
-            if (countNumber) {
-                countNumber.textContent = renderedCount;
-            }
-            
-            updateSearchStats(renderedCount, renderedCount);
-            console.log(`✅ Encontrados ${renderedCount} archivo(s) HTML automáticamente:`, fileNames);
+                return `
+                    <div class="card" onclick="window.location.href='${file}'">
+                        <div class="card-icon-box">
+                            <i class="fas ${meta.icon}"></i>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${meta.desc}</p>
+                        <div class="card-footer">
+                            <span class="file-name">${file}</span>
+                            <div class="visit-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
 
-        // ----- FUNCIÓN PARA CALCULAR COLUMNAS -----
-        function updateGridColumns() {
-            const containerWidth = container.offsetWidth;
-            const cardWidth = 220 + 32;
-            gridCols = Math.max(1, Math.floor(containerWidth / cardWidth));
-            if (gridCols < 1) gridCols = 1;
-        }
-
-        // ----- FUNCIONES DE FOCUS -----
-        function clearFocus() {
-            allCards.forEach(c => c.classList.remove('focused'));
-            focusedIndex = -1;
-        }
-
-        function getVisibleCards() {
-            return allCards.filter(c => !c.classList.contains('hidden'));
-        }
-
-        function getVisibleIndices() {
-            const indices = [];
-            allCards.forEach((card, idx) => {
-                if (!card.classList.contains('hidden')) {
-                    indices.push(idx);
-                }
-            });
-            return indices;
-        }
-
-        function getCurrentFocusedCard() {
-            if (focusedIndex >= 0 && focusedIndex < allCards.length) {
-                const card = allCards[focusedIndex];
-                if (!card.classList.contains('hidden')) {
-                    return card;
-                }
-            }
-            return null;
-        }
-
-        function setFocus(index) {
-            clearFocus();
-            const visibleIndices = getVisibleIndices();
-            if (visibleIndices.length === 0) return;
-            
-            let targetIndex = index;
-            if (!visibleIndices.includes(targetIndex)) {
-                let closest = visibleIndices[0];
-                let minDist = Math.abs(targetIndex - closest);
-                for (let i = 1; i < visibleIndices.length; i++) {
-                    const dist = Math.abs(targetIndex - visibleIndices[i]);
-                    if (dist < minDist) {
-                        minDist = dist;
-                        closest = visibleIndices[i];
-                    }
-                }
-                targetIndex = closest;
-            }
-            
-            const card = allCards[targetIndex];
-            if (card && !card.classList.contains('hidden')) {
-                card.classList.add('focused');
-                focusedIndex = targetIndex;
-                card.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-            }
-        }
-
-        function navigateArrows(direction) {
-            const visibleIndices = getVisibleIndices();
-            if (visibleIndices.length === 0) return;
-            
-            let currentIndex = focusedIndex;
-            
-            if (currentIndex === -1 || !visibleIndices.includes(currentIndex)) {
-                setFocus(visibleIndices[0]);
-                return;
-            }
-
-            const currentPos = visibleIndices.indexOf(currentIndex);
-            let newPos = currentPos;
-
-            switch(direction) {
-                case 'up':
-                    newPos = Math.max(0, currentPos - gridCols);
-                    break;
-                case 'down':
-                    newPos = Math.min(visibleIndices.length - 1, currentPos + gridCols);
-                    break;
-                case 'left':
-                    newPos = Math.max(0, currentPos - 1);
-                    break;
-                case 'right':
-                    newPos = Math.min(visibleIndices.length - 1, currentPos + 1);
-                    break;
-                default:
-                    return;
-            }
-
-            if (newPos !== currentPos) {
-                setFocus(visibleIndices[newPos]);
-            }
-        }
-
-        function openCurrentTool(newTab = true) {
-            const card = getCurrentFocusedCard();
-            if (card) {
-                const file = card.dataset.file;
-                const tool = card.dataset.tool;
-                openTool(file, tool, newTab);
-            }
-        }
-
-        // ----- SEARCH -----
-        function filterTools(searchTerm) {
-            const term = searchTerm.toLowerCase().trim();
-            
-            let visibleCount = 0;
-            
-            allCards.forEach((card) => {
-                const toolName = card.dataset.tool || '';
-                const fileName = card.dataset.file || '';
-                
-                const matches = term === '' || 
-                    toolName.includes(term) || 
-                    fileName.toLowerCase().includes(term);
-                
-                if (matches) {
-                    card.classList.remove('hidden');
-                    visibleCount++;
-                } else {
-                    card.classList.add('hidden');
-                }
-            });
-
-            const existingNoResults = container.querySelector('.no-results');
-            if (visibleCount === 0 && term !== '') {
-                if (!existingNoResults) {
-                    const noResults = document.createElement('div');
-                    noResults.className = 'no-results';
-                    noResults.id = 'noResults';
-                    const icon = document.createElement('i');
-                    icon.className = 'fas fa-search-minus';
-                    noResults.appendChild(icon);
-                    const text = document.createElement('span');
-                    text.textContent = `No tools found for "${term}"`;
-                    noResults.appendChild(text);
-                    container.appendChild(noResults);
-                } else {
-                    existingNoResults.style.display = 'flex';
-                    const span = existingNoResults.querySelector('span');
-                    if (span) span.textContent = `No tools found for "${term}"`;
-                }
-            } else {
-                if (existingNoResults) {
-                    existingNoResults.style.display = 'none';
-                }
-            }
-
-            if (focusedIndex !== -1) {
-                const focusedCard = allCards[focusedIndex];
-                if (!focusedCard || focusedCard.classList.contains('hidden')) {
-                    clearFocus();
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                }
-            } else {
-                const visibleIndices = getVisibleIndices();
-                if (visibleIndices.length > 0) {
-                    setFocus(visibleIndices[0]);
-                }
-            }
-
-            updateSearchStats(allCards.length, visibleCount);
-        }
-
-        function updateSearchStats(total, visible) {
-            if (searchStats) {
-                if (total === 0) {
-                    searchStats.innerHTML = `<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                } else if (visible === total) {
-                    searchStats.innerHTML = `Showing <strong>${total}</strong> tool${total > 1 ? 's' : ''} &nbsp;<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                } else {
-                    searchStats.innerHTML = `Showing <strong>${visible}</strong> of <strong>${total}</strong> tool${total > 1 ? 's' : ''} &nbsp;<span class="keyboard-hint">↑↓←→ navigate · Enter open · Click anywhere to open</span>`;
-                }
-            }
-        }
-
-        // ----- EVENT LISTENERS -----
-        searchInput.addEventListener('input', function() {
-            const term = this.value;
-            filterTools(term);
-            
-            if (term.length > 0) {
-                searchClear.classList.add('visible');
-            } else {
-                searchClear.classList.remove('visible');
-            }
+        // --- SEARCH & HOTKEYS ---
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allFiles.filter(f => f.toLowerCase().includes(term));
+            renderFiles(filtered);
+            searchClear.classList.toggle('visible', term.length > 0);
         });
 
-        searchClear.addEventListener('click', function() {
+        searchClear.addEventListener('click', () => {
             searchInput.value = '';
+            renderFiles(allFiles);
+            searchClear.classList.remove('visible');
             searchInput.focus();
-            filterTools('');
-            this.classList.remove('visible');
         });
 
-        // ----- KEYBOARD SHORTCUTS -----
-        document.addEventListener('keydown', function(e) {
-            // Ctrl+K / Cmd+K: focus search
+        window.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
                 e.preventDefault();
                 searchInput.focus();
-                searchInput.select();
-                return;
-            }
-
-            // Escape
-            if (e.key === 'Escape') {
-                if (document.activeElement === searchInput) {
-                    searchInput.value = '';
-                    filterTools('');
-                    searchClear.classList.remove('visible');
-                    searchInput.blur();
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                    return;
-                }
-                if (focusedIndex !== -1) {
-                    clearFocus();
-                }
-                return;
-            }
-
-            // Flechas
-            if (document.activeElement !== searchInput) {
-                const arrowKeys = ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'];
-                if (arrowKeys.includes(e.key)) {
-                    e.preventDefault();
-                    const direction = e.key.replace('Arrow', '').toLowerCase();
-                    navigateArrows(direction);
-                    return;
-                }
-            }
-
-            // ENTER: abrir en nueva pestaña
-            if (e.key === 'Enter' && document.activeElement !== searchInput) {
-                const card = getCurrentFocusedCard();
-                if (card) {
-                    e.preventDefault();
-                    openCurrentTool(true);
-                }
             }
         });
 
-        // ----- RESIZE -----
-        let resizeTimeout;
-        window.addEventListener('resize', function() {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                updateGridColumns();
-            }, 250);
-        });
-
-        // ----- MAIN -----
-        async function init() {
-            try {
-                const htmlFiles = await fetchHtmlFiles();
-                renderRoutes(htmlFiles);
-                setTimeout(() => {
-                    const visibleIndices = getVisibleIndices();
-                    if (visibleIndices.length > 0) {
-                        setFocus(visibleIndices[0]);
-                    }
-                }, 100);
-            } catch (error) {
-                console.error('❌ Error en init:', error);
-                renderRoutes([]);
-            }
-        }
-
-        init();
-        
-    })();
-</script>
+        fetchFiles();
+    </script>
 </body>
 </html>
