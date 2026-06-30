@@ -2212,40 +2212,67 @@ function handleEscKey(e) {
         { el: document.getElementById('editSavedItemModal'), fields: ['editSavedItemAlias', 'editSavedItemValue'] }
     ];
     
+    // NEW: Check if ANY field in the modal has content, regardless of focus
     for (const modal of modals) {
         if (modal.el && modal.el.style.display === 'flex') {
             let activeField = document.activeElement;
-            let fieldHasContent = false;
             let fieldId = activeField ? activeField.id : null;
             
+            // NEW: Check if focus is inside the modal OR if we just want to check all fields
+            let isInsideModal = false;
+            if (activeField && modal.el) {
+                isInsideModal = modal.el.contains(activeField);
+            }
+            
+            // If focus is inside modal and has content
             if (fieldId && modal.fields.includes(fieldId)) {
                 const value = activeField.value || '';
                 if (value.trim() !== '') {
-                    fieldHasContent = true;
+                    activeField.value = '';
+                    activeField.focus();
+                    showMessage(getTranslation('toastFieldCleared'), 'success');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
                 }
             }
             
-            if (fieldHasContent) {
-                activeField.value = '';
-                activeField.focus();
-                showMessage('🧹 Campo limpo!', 'success');
-                e.preventDefault();
-                e.stopPropagation();
-                return;
-            } else {
-                modal.el.style.display = 'none';
-                modal.fields.forEach(id => {
-                    const field = document.getElementById(id);
-                    if (field) field.value = '';
-                });
-                e.preventDefault();
-                e.stopPropagation();
-                return;
+            // NEW: If focus is NOT inside modal, check all fields for content
+            if (!isInsideModal) {
+                let hasContent = false;
+                let fieldWithContent = null;
+                
+                for (const fieldId of modal.fields) {
+                    const field = document.getElementById(fieldId);
+                    if (field && field.value && field.value.trim() !== '') {
+                        hasContent = true;
+                        fieldWithContent = field;
+                        break;
+                    }
+                }
+                
+                if (hasContent && fieldWithContent) {
+                    fieldWithContent.value = '';
+                    fieldWithContent.focus();
+                    showMessage(getTranslation('toastFieldCleared'), 'success');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
             }
+            
+            // If we get here, close the modal
+            modal.el.style.display = 'none';
+            modal.fields.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) field.value = '';
+            });
+            e.preventDefault();
+            e.stopPropagation();
+            return;
         }
     }
 }
-
 // ==================== INIT APP ====================
 async function initApp() {
     populateSpecialties();
