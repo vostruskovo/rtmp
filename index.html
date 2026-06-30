@@ -1,470 +1,522 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>My Routes · Nexus</title>
-  <style>
-    /* ── Reset & Base ── */
-    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>✦ Nexus · Elite Dashboard</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <!-- Google Fonts: Inter & Space Grotesk -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #030712;
+            --card-bg: rgba(17, 24, 39, 0.7);
+            --accent-primary: #fbbf24; /* Amber 400 */
+            --accent-secondary: #f59e0b; /* Amber 500 */
+            --text-main: #f9fafb;
+            --text-muted: #9ca3af;
+            --border-color: rgba(251, 191, 36, 0.1);
+            --glass-border: rgba(255, 255, 255, 0.05);
+            --glow-color: rgba(251, 191, 36, 0.15);
+            --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+        }
 
-    :root {
-      --bg:        #0a0a0f;
-      --surface:   #12121a;
-      --surface-2: #1a1a26;
-      --border:    rgba(255,255,255,.06);
-      --text:      #e4e4ed;
-      --text-dim:  #6b6b80;
-      --accent:    #7c5cfc;
-      --accent-2:  #00e5c8;
-      --danger:    #ff4c6e;
-      --glow:      rgba(124,92,252,.35);
-      --radius:    14px;
-    }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-    }
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            overflow-x: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 0% 0%, rgba(251, 191, 36, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 100% 100%, rgba(245, 158, 11, 0.05) 0%, transparent 50%);
+        }
 
-    /* ── Ambient Background ── */
-    body::before {
-      content: '';
-      position: fixed; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 20% 10%, rgba(124,92,252,.08), transparent),
-        radial-gradient(ellipse 50% 40% at 80% 80%, rgba(0,229,200,.06), transparent);
-      pointer-events: none;
-      z-index: 0;
-    }
+        /* --- BACKGROUND ANIMATION --- */
+        .bg-mesh {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.4;
+            filter: blur(100px);
+        }
+        .blob {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            background: var(--accent-primary);
+            border-radius: 50%;
+            animation: move 25s infinite alternate;
+        }
+        .blob-2 {
+            background: #4f46e5;
+            right: 0;
+            bottom: 0;
+            animation-delay: -5s;
+        }
+        @keyframes move {
+            from { transform: translate(-10%, -10%) rotate(0deg); }
+            to { transform: translate(20%, 20%) rotate(360deg); }
+        }
 
-    /* ── Grid Pattern Overlay ── */
-    body::after {
-      content: '';
-      position: fixed; inset: 0;
-      background-image:
-        linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
-      background-size: 60px 60px;
-      pointer-events: none;
-      z-index: 0;
-    }
+        /* --- LAYOUT --- */
+        .container {
+            max-width: 1200px;
+            width: 90%;
+            margin: 4rem auto;
+            position: relative;
+            z-index: 1;
+        }
 
-    /* ── Layout ── */
-    .app { position: relative; z-index: 1; }
+        /* --- HEADER --- */
+        header {
+            text-align: center;
+            margin-bottom: 4rem;
+            animation: fadeInDown 0.8s ease-out;
+        }
 
-    /* ── Top Bar ── */
-    .topbar {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px 32px;
-      border-bottom: 1px solid var(--border);
-      backdrop-filter: blur(20px);
-      background: rgba(10,10,15,.7);
-      position: sticky; top: 0; z-index: 100;
-    }
+        .logo-area {
+            display: inline-flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
 
-    .topbar-brand {
-      display: flex; align-items: center; gap: 12px;
-    }
+        .logo-icon {
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            filter: drop-shadow(0 0 15px var(--glow-color));
+        }
 
-    .topbar-brand .logo {
-      width: 36px; height: 36px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-2));
-      border-radius: 10px;
-      display: grid; place-items: center;
-      font-weight: 800; font-size: 16px; color: #fff;
-      box-shadow: 0 0 20px var(--glow);
-    }
+        h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 700;
+            letter-spacing: -1px;
+            background: linear-gradient(to bottom, #fff, #9ca3af);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
 
-    .topbar-brand h1 {
-      font-size: 18px; font-weight: 700; letter-spacing: -.3px;
-    }
+        .badge-row {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
 
-    .topbar-brand h1 span { color: var(--text-dim); font-weight: 400; }
+        .status-badge {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--glass-border);
+            padding: 0.5rem 1.2rem;
+            border-radius: 100px;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            backdrop-filter: blur(10px);
+            transition: var(--transition);
+        }
 
-    .topbar-actions { display: flex; gap: 8px; align-items: center; }
+        .status-badge:hover {
+            border-color: var(--accent-primary);
+            color: var(--text-main);
+        }
 
-    .icon-btn {
-      width: 38px; height: 38px;
-      border-radius: 10px;
-      border: 1px solid var(--border);
-      background: var(--surface);
-      color: var(--text-dim);
-      display: grid; place-items: center;
-      cursor: pointer;
-      transition: all .2s;
-      font-size: 16px;
-    }
-    .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(124,92,252,.08); }
+        .status-badge i {
+            color: var(--accent-primary);
+        }
 
-    /* ── Main Content ── */
-    .main { max-width: 860px; margin: 0 auto; padding: 48px 24px 80px; }
+        /* --- SEARCH --- */
+        .search-section {
+            max-width: 600px;
+            margin: 0 auto 4rem;
+            position: relative;
+            animation: fadeInUp 1s ease-out;
+        }
 
-    /* ── Section Header ── */
-    .section-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 32px;
-    }
+        .search-box {
+            position: relative;
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 20px;
+            padding: 0.5rem;
+            display: flex;
+            align-items: center;
+            backdrop-filter: blur(20px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            transition: var(--transition);
+        }
 
-    .section-header h2 {
-      font-size: 28px; font-weight: 700; letter-spacing: -.5px;
-    }
+        .search-box:focus-within {
+            border-color: var(--accent-primary);
+            box-shadow: 0 0 30px var(--glow-color);
+            transform: translateY(-2px);
+        }
 
-    .route-count {
-      font-size: 13px;
-      color: var(--text-dim);
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      padding: 5px 14px;
-      border-radius: 20px;
-      font-weight: 500;
-    }
+        .search-box i.fa-search {
+            margin-left: 1.5rem;
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
 
-    .route-count b { color: var(--accent); }
+        #searchInput {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 1rem;
+            color: #fff;
+            font-size: 1.1rem;
+            outline: none;
+            font-family: inherit;
+        }
 
-    /* ── Keyboard Hints ── */
-    .kbd-bar {
-      display: flex; gap: 16px; flex-wrap: wrap;
-      margin-bottom: 32px;
-      padding: 14px 20px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-    }
+        .search-k {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-right: 1rem;
+            border: 1px solid var(--glass-border);
+        }
 
-    .kbd-hint {
-      display: flex; align-items: center; gap: 8px;
-      font-size: 13px; color: var(--text-dim);
-    }
+        .search-clear {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 0.5rem;
+            margin-right: 0.5rem;
+            opacity: 0;
+            transition: var(--transition);
+        }
 
-    kbd {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 28px; height: 26px;
-      padding: 0 7px;
-      background: var(--surface-2);
-      border: 1px solid var(--border);
-      border-radius: 6px;
-      font-family: inherit;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--text);
-      box-shadow: 0 2px 0 rgba(0,0,0,.3);
-    }
+        .search-clear.visible { opacity: 1; }
+        .search-clear:hover { color: var(--accent-primary); }
 
-    /* ── Loading State ── */
-    .loader-wrap {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 80px 20px; gap: 20px;
-    }
+        /* --- GRID --- */
+        .routes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
 
-    .spinner {
-      width: 40px; height: 40px;
-      border: 3px solid var(--surface-2);
-      border-top-color: var(--accent);
-      border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
+        .routes-grid.loaded {
+            opacity: 1;
+            transform: translateY(0);
+        }
 
-    @keyframes spin { to { transform: rotate(360deg); } }
+        /* --- CARD --- */
+        .card {
+            background: var(--card-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            backdrop-filter: blur(10px);
+        }
 
-    .loader-text {
-      font-size: 14px; color: var(--text-dim);
-      animation: pulse 1.5s ease-in-out infinite;
-    }
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at top right, rgba(251, 191, 36, 0.1), transparent 70%);
+            opacity: 0;
+            transition: var(--transition);
+        }
 
-    @keyframes pulse { 0%,100%{ opacity:.5 } 50%{ opacity:1 } }
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(251, 191, 36, 0.3);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+            background: rgba(17, 24, 39, 0.9);
+        }
 
-    /* ── Empty / 404 State ── */
-    .empty-state {
-      text-align: center;
-      padding: 72px 20px;
-      animation: fadeUp .5s ease;
-    }
+        .card:hover::before { opacity: 1; }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(16px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
+        .card-icon-box {
+            width: 60px;
+            height: 60px;
+            background: rgba(251, 191, 36, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 1.8rem;
+            color: var(--accent-primary);
+            transition: var(--transition);
+        }
 
-    .empty-icon {
-      width: 72px; height: 72px;
-      margin: 0 auto 20px;
-      background: linear-gradient(135deg, rgba(255,76,110,.12), rgba(124,92,252,.12));
-      border: 1px solid rgba(255,76,110,.2);
-      border-radius: 50%;
-      display: grid; place-items: center;
-      font-size: 28px;
-    }
+        .card:hover .card-icon-box {
+            background: var(--accent-primary);
+            color: var(--bg-color);
+            transform: scale(1.1) rotate(5deg);
+        }
 
-    .empty-state h3 {
-      font-size: 20px; font-weight: 700;
-      margin-bottom: 8px;
-    }
+        .card h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            margin-bottom: 0.75rem;
+            color: #fff;
+        }
 
-    .empty-state p {
-      font-size: 14px; color: var(--text-dim);
-      max-width: 360px; margin: 0 auto 24px;
-      line-height: 1.6;
-    }
+        .card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+            flex-grow: 1;
+        }
 
-    .btn-primary {
-      display: inline-flex; align-items: center; gap: 8px;
-      padding: 11px 24px;
-      background: linear-gradient(135deg, var(--accent), #5a3de6);
-      color: #fff;
-      border: none; border-radius: 10px;
-      font-size: 14px; font-weight: 600;
-      cursor: pointer;
-      transition: all .25s;
-      box-shadow: 0 4px 24px var(--glow);
-    }
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 32px rgba(124,92,252,.5);
-    }
+        .card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
 
-    /* ── Route Cards (for populated state) ── */
-    .route-list { display: flex; flex-direction: column; gap: 12px; }
+        .file-name {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+        }
 
-    .route-card {
-      display: flex; align-items: center; gap: 16px;
-      padding: 18px 22px;
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      cursor: pointer;
-      transition: all .25s;
-      animation: fadeUp .4s ease both;
-    }
+        .visit-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: var(--transition);
+        }
 
-    .route-card:nth-child(1) { animation-delay: .05s; }
-    .route-card:nth-child(2) { animation-delay: .1s; }
-    .route-card:nth-child(3) { animation-delay: .15s; }
-    .route-card:nth-child(4) { animation-delay: .2s; }
+        .card:hover .visit-btn {
+            background: var(--accent-primary);
+            color: var(--bg-color);
+            transform: translateX(5px);
+        }
 
-    .route-card:hover {
-      border-color: var(--accent);
-      background: rgba(124,92,252,.04);
-      transform: translateX(4px);
-      box-shadow: 0 0 24px rgba(124,92,252,.08);
-    }
+        /* --- UTILS --- */
+        .loading {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem;
+            color: var(--text-muted);
+        }
 
-    .route-card.selected {
-      border-color: var(--accent);
-      background: rgba(124,92,252,.06);
-    }
+        .loading i {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            display: block;
+            color: var(--accent-primary);
+        }
 
-    .route-status {
-      width: 10px; height: 10px;
-      border-radius: 50%; flex-shrink: 0;
-    }
-    .route-status.active   { background: var(--accent-2); box-shadow: 0 0 10px rgba(0,229,200,.4); }
-    .route-status.inactive { background: var(--text-dim); }
-    .route-status.error    { background: var(--danger);   box-shadow: 0 0 10px rgba(255,76,110,.4); }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-    .route-info { flex: 1; min-width: 0; }
-    .route-path { font-size: 15px; font-weight: 600; font-family: 'JetBrains Mono', monospace; }
-    .route-meta { font-size: 12px; color: var(--text-dim); margin-top: 3px; }
-
-    .route-badge {
-      font-size: 11px; font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 6px;
-      text-transform: uppercase;
-      letter-spacing: .5px;
-    }
-    .route-badge.get    { background: rgba(0,229,200,.1); color: var(--accent-2); }
-    .route-badge.post   { background: rgba(124,92,252,.12); color: var(--accent); }
-    .route-badge.redirect { background: rgba(255,76,110,.1); color: var(--danger); }
-
-    .route-arrow {
-      color: var(--text-dim); font-size: 18px;
-      opacity: 0; transition: all .2s;
-    }
-    .route-card:hover .route-arrow { opacity: 1; transform: translateX(4px); }
-
-    /* ── Footer ── */
-    .footer {
-      text-align: center;
-      padding: 32px 20px;
-      font-size: 12px;
-      color: var(--text-dim);
-      border-top: 1px solid var(--border);
-    }
-    .footer a { color: var(--accent); text-decoration: none; }
-    .footer a:hover { text-decoration: underline; }
-
-    /* ── Responsive ── */
-    @media (max-width: 600px) {
-      .topbar { padding: 12px 16px; }
-      .main { padding: 32px 16px 60px; }
-      .section-header h2 { font-size: 22px; }
-      .kbd-bar { gap: 10px; padding: 12px 14px; }
-    }
-  </style>
+        /* Responsive */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            .container { margin: 2rem auto; }
+        }
+    </style>
 </head>
 <body>
-  <div class="app">
 
-    <!-- ── Top Bar ── -->
-    <header class="topbar">
-      <div class="topbar-brand">
-        <div class="logo">N</div>
-        <h1>Nexus <span>· Routes</span></h1>
-      </div>
-      <div class="topbar-actions">
-        <button class="icon-btn" title="Search">⌕</button>
-        <button class="icon-btn" title="Settings">⚙</button>
-        <button class="icon-btn" title="Notifications">🔔</button>
-      </div>
-    </header>
+    <div class="bg-mesh">
+        <div class="blob"></div>
+        <div class="blob blob-2"></div>
+    </div>
 
-    <!-- ── Main ── -->
-    <main class="main">
+    <div class="container">
+        <header>
+            <div class="logo-area">
+                <i class="fas fa-compass logo-icon"></i>
+            </div>
+            <h1>Nexus Rout</h1>
+            <div class="badge-row">
+                <div class="status-badge">
+                    <i class="fas fa-code-branch"></i>
+                    <span>main</span>
+                </div>
+                <div class="status-badge" id="routeCounter">
+                    <i class="fas fa-layer-group"></i>
+                    <span id="countNumber">0</span> Routes
+                </div>
+                <div class="status-badge">
+                    <i class="fas fa-shield-halved"></i>
+                    <span>Secure</span>
+                </div>
+            </div>
+        </header>
 
-      <div class="section-header">
-        <h2>My Routes</h2>
-        <span class="route-count"><b id="count">0</b> routes</span>
-      </div>
+        <section class="search-section">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" id="searchInput" placeholder="Search routes or tools..." autocomplete="off">
+                <span class="search-k">Ctrl + K</span>
+                <button class="search-clear" id="searchClear">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+        </section>
 
-      <!-- Keyboard Hints -->
-      <div class="kbd-bar">
-        <div class="kbd-hint"><kbd>↑</kbd><kbd>↓</kbd> Navigate</div>
-        <div class="kbd-hint"><kbd>Enter</kbd> Open</div>
-        <div class="kbd-hint"><kbd>Click</kbd> Select</div>
-      </div>
+        <main class="routes-grid" id="routesGrid">
+            <div class="loading">
+                <i class="fas fa-circle-notch fa-spin"></i>
+                <p>Initializing connection to Nexus repository...</p>
+            </div>
+        </main>
+    </div>
 
-      <!-- STATE 1: Loading -->
-      <div class="loader-wrap" id="state-loading">
-        <div class="spinner"></div>
-        <div class="loader-text">Fetching files from repository…</div>
-      </div>
+    <script>
+        const GITHUB_USER = "vostruskovo";
+        const GITHUB_REPO = "rtmp";
+        const BRANCH = "main";
 
-      <!-- STATE 2: Empty / 404 -->
-      <div class="empty-state" id="state-empty" style="display:none;">
-        <div class="empty-icon">⚠</div>
-        <h3>NOT FOUND · 404</h3>
-        <p>The requested route could not be found. Redirecting to the main route…</p>
-        <button class="btn-primary" onclick="goHome()">↩ Go to Main Route</button>
-      </div>
+        const grid = document.getElementById('routesGrid');
+        const countNumber = document.getElementById('countNumber');
+        const searchInput = document.getElementById('searchInput');
+        const searchClear = document.getElementById('searchClear');
 
-      <!-- STATE 3: Populated (demo) -->
-      <div class="route-list" id="state-routes" style="display:none;">
-        <div class="route-card" tabindex="0">
-          <div class="route-status active"></div>
-          <div class="route-info">
-            <div class="route-path">/</div>
-            <div class="route-meta">Main entry · index.html</div>
-          </div>
-          <span class="route-badge get">GET</span>
-          <span class="route-arrow">→</span>
-        </div>
-        <div class="route-card" tabindex="0">
-          <div class="route-status active"></div>
-          <div class="route-info">
-            <div class="route-path">/dashboard</div>
-            <div class="route-meta">Overview panel · dashboard.html</div>
-          </div>
-          <span class="route-badge get">GET</span>
-          <span class="route-arrow">→</span>
-        </div>
-        <div class="route-card" tabindex="0">
-          <div class="route-status error"></div>
-          <div class="route-info">
-            <div class="route-path">/api/routes</div>
-            <div class="route-meta">Fetch routes · 404 not found</div>
-          </div>
-          <span class="route-badge redirect">404</span>
-          <span class="route-arrow">→</span>
-        </div>
-        <div class="route-card" tabindex="0">
-          <div class="route-status inactive"></div>
-          <div class="route-info">
-            <div class="route-path">/settings</div>
-            <div class="route-meta">Configuration · settings.html</div>
-          </div>
-          <span class="route-badge post">POST</span>
-          <span class="route-arrow">→</span>
-        </div>
-      </div>
+        let allFiles = [];
 
-    </main>
+        // --- ICON LOGIC ---
+        function getMetadata(name) {
+            const n = name.toLowerCase();
+            if (n.includes('map') || n.includes('route') || n.includes('gps')) 
+                return { icon: 'fa-map-location-dot', desc: 'Advanced spatial navigation and real-time mapping systems.' };
+            if (n.includes('med') || n.includes('health') || n.includes('doctor')) 
+                return { icon: 'fa-heart-pulse', desc: 'Comprehensive healthcare management and patient data analytics.' };
+            if (n.includes('appoint') || n.includes('calendar') || n.includes('schedule')) 
+                return { icon: 'fa-calendar-day', desc: 'Precision scheduling and enterprise appointment orchestration.' };
+            if (n.includes('car') || n.includes('auto') || n.includes('vehicle')) 
+                return { icon: 'fa-car-side', desc: 'Fleet monitoring and automotive logistics management.' };
+            if (n.includes('chat') || n.includes('message') || n.includes('talk')) 
+                return { icon: 'fa-comment-dots', desc: 'Real-time encrypted communication and collaborative messaging.' };
+            if (n.includes('video') || n.includes('stream') || n.includes('play')) 
+                return { icon: 'fa-play-circle', desc: 'High-performance media streaming and video content delivery.' };
+            if (n.includes('shop') || n.includes('store') || n.includes('cart')) 
+                return { icon: 'fa-shopping-bag', desc: 'Next-gen e-commerce platform with integrated payment flows.' };
+            if (n.includes('game') || n.includes('play') || n.includes('fun')) 
+                return { icon: 'fa-gamepad', desc: 'Interactive entertainment and cloud-based gaming modules.' };
+            
+            return { icon: 'fa-bolt', desc: 'A high-performance utility module integrated into the Nexus ecosystem.' };
+        }
 
-    <!-- ── Footer ── -->
-    <footer class="footer">
-      nexus · 2026 &nbsp;·&nbsp; Built with ✦ &nbsp;·&nbsp; <a href="#">Documentation</a>
-    </footer>
-  </div>
+        async function fetchFiles() {
+            try {
+                const res = await fetch(`https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/contents?ref=${BRANCH}`);
+                const data = await res.json();
+                
+                allFiles = data
+                    .filter(f => f.type === 'file' && f.name.endsWith('.html') && f.name.toLowerCase() !== 'index.html')
+                    .map(f => f.name);
+                
+                renderFiles(allFiles);
+                countNumber.textContent = allFiles.length;
+                grid.classList.add('loaded');
+            } catch (err) {
+                grid.innerHTML = `<div class="loading"><i class="fas fa-exclamation-triangle"></i><p>Failed to connect to repository. Please try again later.</p></div>`;
+            }
+        }
 
-  <script>
-    // ── State Machine ──
-    const loading = document.getElementById('state-loading');
-    const empty   = document.getElementById('state-empty');
-    const routes  = document.getElementById('state-routes');
-    const count   = document.getElementById('count');
+        function renderFiles(files) {
+            if (files.length === 0) {
+                grid.innerHTML = `<div class="loading"><i class="fas fa-search"></i><p>No routes found matching your criteria.</p></div>`;
+                return;
+            }
 
-    function showState(id) {
-      [loading, empty, routes].forEach(el => el.style.display = 'none');
-      document.getElementById(id).style.display = '';
-    }
+            grid.innerHTML = files.map(file => {
+                const base = file.replace('.html', '');
+                const meta = getMetadata(base);
+                const title = base.split(/[-_]/).map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                
+                return `
+                    <div class="card" onclick="window.location.href='${file}'">
+                        <div class="card-icon-box">
+                            <i class="fas ${meta.icon}"></i>
+                        </div>
+                        <h2>${title}</h2>
+                        <p>${meta.desc}</p>
+                        <div class="card-footer">
+                            <span class="file-name">${file}</span>
+                            <div class="visit-btn">
+                                <i class="fas fa-arrow-right"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
 
-    // Simulate fetch → 404 flow (mirrors original behavior)
-    setTimeout(() => {
-      showState('state-empty');
-    }, 2200);
+        // --- SEARCH & HOTKEYS ---
+        searchInput.addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allFiles.filter(f => f.toLowerCase().includes(term));
+            renderFiles(filtered);
+            searchClear.classList.toggle('visible', term.length > 0);
+        });
 
-    // Demo: press 'D' to toggle demo routes
-    document.addEventListener('keydown', e => {
-      if (e.key === 'd' || e.key === 'D') {
-        const routeCards = routes.querySelectorAll('.route-card');
-        count.textContent = routeCards.length;
-        showState('state-routes');
-      }
-    });
+        searchClear.addEventListener('click', () => {
+            searchInput.value = '';
+            renderFiles(allFiles);
+            searchClear.classList.remove('visible');
+            searchInput.focus();
+        });
 
-    function goHome() {
-      showState('state-loading');
-      setTimeout(() => {
-        const routeCards = routes.querySelectorAll('.route-card');
-        count.textContent = routeCards.length;
-        showState('state-routes');
-      }, 1500);
-    }
+        window.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+                e.preventDefault();
+                searchInput.focus();
+            }
+        });
 
-    // Keyboard navigation for route cards
-    document.addEventListener('keydown', e => {
-      const cards = [...routes.querySelectorAll('.route-card')];
-      if (!cards.length || routes.style.display === 'none') return;
-
-      const idx = cards.findIndex(c => c.classList.contains('selected'));
-
-      if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-        e.preventDefault();
-        const next = idx < cards.length - 1 ? idx + 1 : 0;
-        cards.forEach(c => c.classList.remove('selected'));
-        cards[next].classList.add('selected');
-        cards[next].focus();
-      }
-      if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-        e.preventDefault();
-        const prev = idx > 0 ? idx - 1 : cards.length - 1;
-        cards.forEach(c => c.classList.remove('selected'));
-        cards[prev].classList.add('selected');
-        cards[prev].focus();
-      }
-      if (e.key === 'Enter' && idx >= 0) {
-        cards[idx].style.transform = 'scale(.97)';
-        setTimeout(() => cards[idx].style.transform = '', 150);
-      }
-    });
-  </script>
+        fetchFiles();
+    </script>
 </body>
 </html>
