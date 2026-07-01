@@ -1,0 +1,3324 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>MedCard Pro v32 - Full Export</title>
+   <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Inter', system-ui, -apple-system, 'Roboto', sans-serif;
+            font-size: 17px
+        }
+        
+        :root {
+            --primary: #0f5c6e;
+            --primary-dark: #0a4654;
+            --primary-light: #e6f4f0;
+            --secondary: #2c7a5e;
+            --danger: #e76f51;
+            --success: #2a9d8f;
+            --warning: #e9c46a;
+            --gray-100: #f1f5f9;
+            --gray-200: #e2e8f0;
+            --gray-600: #475569;
+            --gray-800: #1e293b;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+            --shadow-md: 0 4px 12px rgba(0,0,0,0.08);
+            --shadow-lg: 0 10px 25px -5px rgba(0,0,0,0.1);
+            --radius: 16px;
+            --radius-sm: 10px;
+        }
+        
+        body {
+            background: linear-gradient(135deg, #f0f4f8 0%, #e8edf2 100%);
+            padding: 16px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            padding: 24px 20px;
+            border-radius: var(--radius);
+            text-align: center;
+            position: relative;
+            border: 2px solid rgba(0,0,0,0.2);
+            box-shadow: 0 0 0 1px rgba(0,0,0,0.05), var(--shadow-md);
+        }
+        
+        h1 { font-size: 1.6rem; color: white; }
+        .subtitle { color: rgba(255,255,255,0.85); margin-top: 6px; font-size: 0.8rem; }
+        
+        .language-switcher {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            display: flex;
+            gap: 6px;
+        }
+        
+        .lang-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.3);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7rem;
+            min-height: 32px;
+            transition: all 0.3s ease;
+        }
+        .lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: rgba(255,255,255,0.6);
+        }
+        .lang-btn.active {
+            background: white;
+            color: #0f5c6e;
+            border: 2px solid white;
+        }
+        
+        .login-lang-btn {
+            background: transparent;
+            border: 2px solid rgba(255,255,255,0.5);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.7rem;
+            min-height: 32px;
+            transition: all 0.3s ease;
+        }
+        .login-lang-btn:hover {
+            background: rgba(255,255,255,0.2);
+            border-color: white;
+        }
+        .login-lang-btn.active {
+            background: white;
+            color: #0f5c6e;
+            border: 2px solid #0f5c6e;
+        }
+        
+        .main-content {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        .control-panel {
+            flex: 1.2;
+            min-width: 300px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 20px;
+            border: 2px solid rgba(0,0,0,0.25);
+        }
+        
+        .preview-section {
+            flex: 2.2;
+            min-width: 300px;
+            background: white;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow-md);
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid rgba(0,0,0,0.25);
+        }
+        
+        .section-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 16px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--primary-light);
+        }
+        
+        .form-group { margin-bottom: 18px; position: relative; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; font-size: 0.8rem; color: var(--gray-600); }
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            font-size: 16px;
+            background: white;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+        
+        .field-input-container { position: relative; }
+        .field-save-btn {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            color: var(--primary);
+            padding: 8px;
+            min-width: 44px;
+        }
+        
+        .smart-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: white;
+            border-radius: 12px;
+            box-shadow: var(--shadow-lg);
+            border: 2px solid black;
+            z-index: 1000;
+            max-height: 280px;
+            overflow-y: auto;
+            display: none;
+        }
+        
+        .dropdown-header { padding: 12px 14px; background: var(--gray-100); font-size: 0.7rem; font-weight: 600; border-bottom: 1px solid rgba(0,0,0,0.2); }
+        .dropdown-item { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; }
+        .dropdown-item:hover { background: var(--primary-light); }
+        .dropdown-item.selected { background: var(--primary-light); border-left: 4px solid var(--primary); }
+        .dropdown-item .item-name { font-weight: 600; flex: 1; }
+        .dropdown-item .item-value { font-size: 0.7rem; color: var(--gray-600); max-width: 45%; overflow: hidden; text-overflow: ellipsis; }
+        .dropdown-item .item-edit, .dropdown-item .item-delete {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 6px 10px;
+            border-radius: 30px;
+        }
+        .dropdown-item .item-edit { color: var(--primary); }
+        .dropdown-item .item-delete { color: var(--danger); }
+        
+        .layout-options {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 8px 0;
+        }
+        .layout-option {
+            padding: 12px 6px;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            background: white;
+        }
+        .layout-option.selected { border-color: var(--primary); background: var(--primary-light); border: 3px solid black; }
+        
+        .button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 0.85rem;
+            min-height: 44px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(0,0,0,0.2);
+        }
+        .button.secondary { background: var(--success); border: 1px solid rgba(0,0,0,0.2); }
+        .button.danger { background: var(--danger); border: 1px solid rgba(0,0,0,0.2); }
+        .button.excel { background: #1F7B4D; border: 1px solid rgba(0,0,0,0.2); }
+        
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 20px; }
+        .danger-actions { border-top: 2px solid var(--danger); margin-top: 20px; padding-top: 20px; }
+        
+        .paper-sheet {
+            background: white;
+            box-shadow: var(--shadow-lg);
+            margin: 0 auto;
+            border-radius: 12px;
+            width: 100%;
+            max-width: 1100px;
+            border: 2px solid black;
+        }
+        
+        .appointments-grid {
+            display: grid;
+            background: white;
+            padding: 0;
+            gap: 0;
+        }
+        
+        .layout-1-cards { grid-template-columns: 1fr; grid-template-rows: 1fr; }
+        .layout-2-cards { grid-template-columns: 1fr; grid-template-rows: repeat(2, 1fr); }
+        .layout-4-cards { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); }
+        .layout-6-cards { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(3, 1fr); }
+        .layout-8-cards { grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(4, 1fr); }
+        
+        .layout-1-cards .appointment-card { padding: 32px; height: 29.7cm; display: flex; flex-direction: column; justify-content: space-between; }
+        .layout-2-cards .appointment-card { padding: 24px; height: 14.85cm; display: flex; flex-direction: column; justify-content: space-between; }
+        .layout-4-cards .appointment-card { padding: 18px; height: 14.85cm; display: flex; flex-direction: column; justify-content: space-between; }
+        .layout-6-cards .appointment-card { padding: 12px; height: 9.9cm; display: flex; flex-direction: column; justify-content: space-between; }
+        .layout-8-cards .appointment-card { padding: 8px; height: 7.425cm; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .appointment-card .detail-label { font-weight: 800; color: var(--primary); min-width: 80px; }
+        .appointment-card .detail-value { color: var(--gray-800); flex: 1; word-break: break-word; }
+        
+        @media print {
+            body * { visibility: hidden; }
+            .paper-sheet, .paper-sheet * { visibility: visible; }
+            .paper-sheet { position: absolute; top: 0; left: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 2px solid black !important; background: white; }
+            .copy-badge, .clear-card-btn, .language-switcher, .actions, .control-panel, header, .saved-cards-section, button, .modal-overlay, .feedback-message, .smart-dropdown { display: none !important; }
+        }
+        
+        .appointment-card {
+            background: white;
+            border: 2px solid black;
+            cursor: pointer;
+            position: relative;
+            box-shadow: var(--shadow-sm);
+            transition: all 0.2s ease;
+            border-radius: 0;
+        }
+        .appointment-card:hover { border-color: var(--primary); box-shadow: var(--shadow-md); transform: translateY(-2px); border: 3px solid var(--primary); z-index: 1; }
+        
+        .card-logo-container {
+            background: linear-gradient(145deg, #ffffff 0%, var(--gray-100) 100%);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            overflow: hidden;
+            flex-shrink: 0;
+            border: 2px solid rgba(0,0,0,0.2);
+        }
+        .layout-1-cards .card-logo-container { width: 500px; height: 130px; }
+        .layout-2-cards .card-logo-container { width: 250px; height: 100px; }
+        .layout-4-cards .card-logo-container { width: 125px; height: 75px; }
+        .layout-6-cards .card-logo-container { width: 125px; height: 55px; }
+        .layout-8-cards .card-logo-container { width: 125px; height: 45px; }
+ 
+        .card-logo-container {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+}
+        .card-logo { max-width: 90%; max-height: 90%; object-fit: contain; }
+        .hospital-name { font-weight: 800; color: var(--primary); flex: 1; }
+        .layout-1-cards .hospital-name { font-size: 3rem; margin-left: 60px; }
+        .layout-2-cards .hospital-name { font-size: 2.5rem; margin-left: 45px; }
+        .layout-4-cards .hospital-name { font-size: 1.5rem; margin-left: 35px; }
+        
+        .card-title { font-weight: 800; color: var(--gray-600); letter-spacing: 1.5px; text-transform: uppercase; background: var(--gray-100); border-radius: 30px; display: inline-block; border: 1px solid rgba(0,0,0,0.15); padding: 2px 10px; }
+        .appointment-details { display: flex; flex-direction: column; }
+        .detail-row { display: flex; align-items: baseline; border-bottom: 1px dashed var(--gray-200); }
+        .card-footer { text-align: center; color: var(--gray-600); border-top: 1px solid var(--gray-200); background: var(--gray-50); border-radius: 12px; display: flex; justify-content: center; border: 1px solid rgba(0,0,0,0.1); padding: 8px; gap: 20px; }
+        
+        .copy-badge { 
+            position: absolute; 
+            top: 12px; 
+            left: 12px; 
+            background: var(--warning); 
+            color: #5a4a1a; 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 38px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            z-index: 10; 
+            border: 1px solid rgba(0,0,0,0.2);
+            transition: all 0.2s;
+        }
+        .copy-badge:hover { transform: scale(1.05); background: #e9c46a; }
+        .copy-badge.copied { background: var(--success); color: white; width: auto; padding: 0 14px; }
+        .copy-badge.copied::after { content: "✓ Copiado!"; font-size: 0.7rem; margin-left: 6px; }
+        
+        .clear-card-btn {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--danger);
+            color: white;
+            width: 38px;
+            height: 38px;
+            border-radius: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10;
+            border: 1px solid rgba(0,0,0,0.2);
+            transition: all 0.2s;
+            font-family: monospace;
+        }
+        .clear-card-btn:hover { background: #c0392b; transform: scale(1.05); }
+        
+        .feedback-message { position: fixed; bottom: 24px; right: 24px; padding: 12px 20px; border-radius: 50px; background: var(--gray-800); color: white; z-index: 1100; animation: slideRight 0.3s ease; border: 2px solid white; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); display: flex; align-items: center; justify-content: center; z-index: 1000; display: none; }
+        .modal-content { background: white; border-radius: 28px; width: 90%; max-width: 550px; max-height: 85vh; overflow-y: auto; padding: 24px; border: 3px solid black; }
+        .saved-items-container { max-height: 160px; overflow-y: auto; margin-top: 8px; background: var(--gray-100); border-radius: var(--radius-sm); padding: 8px; border: 1px solid rgba(0,0,0,0.2); }
+        .saved-item { padding: 12px; margin: 6px 0; background: white; border-radius: 40px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; border: 2px solid rgba(0,0,0,0.2); }
+        .saved-item-content { flex: 1; cursor: pointer; }
+        .saved-item-actions { display: flex; gap: 8px; }
+        .saved-item-edit, .saved-item-delete { background: none; border: none; font-size: 1rem; cursor: pointer; padding: 6px 10px; border-radius: 30px; }
+        .saved-item-edit { color: var(--primary); }
+        .saved-item-delete { color: var(--danger); }
+        .toggle-saved-cards-btn { background: var(--gray-600); color: white; border: none; padding: 10px 18px; border-radius: 40px; cursor: pointer; border: 1px solid rgba(0,0,0,0.2); }
+        .saved-cards-section { background: white; border-radius: var(--radius); padding: 28px; box-shadow: var(--shadow-md); display: none; border: 2px solid black; }
+        .saved-cards-section.active { display: block; }
+        .saved-cards-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; max-height: 500px; overflow-y: auto; margin-top: 20px; }
+        .saved-card-item { background: white; border: 2px solid black !important; border-radius: 12px; padding: 16px; cursor: pointer; transition: all 0.2s; }
+        .saved-card-item:hover { border-color: var(--primary) !important; transform: translateY(-2px); }
+        
+        @keyframes slideRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .esc-hint { margin-top: 16px; text-align: center; font-size: 0.7rem; color: var(--gray-600); }
+        .password-prompt {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.85);
+    backdrop-filter: blur(50px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+        .password-box { background: white; border-radius: 32px; padding: 32px; width: 90%; max-width: 400px; text-align: center; border: 3px solid black; }
+        .security-badge { background: #2a9d8f20; padding: 8px 12px; border-radius: 30px; font-size: 0.7rem; margin-top: 12px; }
+        .database-status { background: var(--gray-100); padding: 8px 16px; border-radius: 40px; display: inline-flex; align-items: center; gap: 12px; margin-bottom: 12px; flex-wrap: wrap; }
+
+        .card-logo-container {
+    background-size: cover !important;
+    background-position: center !important;
+    background-repeat: no-repeat !important;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 2px solid rgba(0,0,0,0.2);
+    position: relative;
+}
+.card-logo-container .logo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    color: white;
+    font-weight: bold;
+    font-size: 0.8rem;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.card-logo-container:hover .logo-overlay {
+    opacity: 1;
+}
+.card-logo { 
+    max-width: 90%; 
+    max-height: 90%; 
+    object-fit: contain;
+    position: relative;
+    z-index: 1;
+}
+
+.password-box {
+  color: #222;        /* dark gray text */
+}
+
+.password-box label {
+  color: #00c896;     /* neon green accent */
+}
+
+.password-box input[type="password"] {
+  background: #fff;   /* white background */
+  color: #111;        /* dark text inside */
+  border: 1px solid #00c896;
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.password-box {
+  color: #222 !important; /* overrides inline white */
+}
+
+
+.password-box {
+  background: #f9fafb;       /* light neutral background */
+  color: #222;               /* default text color */
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  max-width: 360px;
+  margin: auto;
+  font-family: 'Poppins', sans-serif;
+}
+
+.password-box h2 {
+  color: #0f5c6e;            /* strong accent for title */
+}
+
+.password-box p {
+  color: #444;               /* readable body text */
+}
+
+.password-box p strong {
+  color: #0f5c6e;            /* highlight important text */
+}
+
+.password-box input[type="password"] {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px 16px;
+  border: 1.5px solid #cbd5e1;
+  border-radius: 10px;
+  font-size: 16px;
+  color: #111;
+  background: #fff;
+}
+
+.password-box .button {
+  margin-top: 12px;
+  width: 100%;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.password-box .button.secondary {
+  background: #0f5c6e;
+  color: #fff;
+}
+
+.password-box .button:not(.secondary) {
+  background: #00c896;
+  color: #111;
+}
+
+.password-box .security-badge {
+  margin-top: 16px;
+  color: #555;
+  font-size: 0.8rem;
+}
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div class="language-switcher">
+            <button class="lang-btn active" data-lang="pt">🇧🇷 PT</button>
+            <button class="lang-btn" data-lang="en">🇺🇸 EN</button>
+            <button class="lang-btn" data-lang="es">🇪🇸 ES</button>
+        </div>
+        <h1 id="appTitle">🏥 MedCard Pro v32</h1>
+        <p id="appSubtitle" class="subtitle">❌ Clique no X para limpar o cartão individual | ENTER: dropdown → seleciona | fechado → salva</p>
+    </header>
+    
+    <div class="database-status">
+        <span>🔐 <span id="dbStatus">Secure Database (WebCrypto) - Export ALL cards</span></span>
+        <div style="display: flex; gap: 8px;">
+            <button id="exportDbBtn" class="button" style="padding: 6px 12px; font-size: 0.7rem;">📤 <span id="exportDbText">Exportar DB</span></button>
+            <button id="importDbBtn" class="button secondary" style="padding: 6px 12px; font-size: 0.7rem;">📥 <span id="importDbText">Importar DB</span></button>
+            <input type="file" id="importDbFile" accept=".json" style="display: none;">
+        </div>
+    </div>
+    
+    <div class="main-content">
+        <div class="control-panel">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="section-title" id="settingsTitle">⚙️ Configurações</h2>
+                <button id="toggleSavedBtn" class="toggle-saved-cards-btn">📁 <span id="savedSetsText">Conjuntos</span> <span id="savedCount">(0)</span></button>
+            </div>
+            
+            <div class="form-group">
+                <label id="layoutLabel">📐 Layout A4</label>
+                <div class="layout-options">
+                    <div class="layout-option" data-layout="1">1</div>
+                    <div class="layout-option selected" data-layout="2">2</div>
+                    <div class="layout-option" data-layout="4">4</div>
+                    <div class="layout-option" data-layout="6">6</div>
+                    <div class="layout-option" data-layout="8">8</div>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label id="patientLabel">👤 Paciente (só vazios)</label>
+                <div class="field-input-container" id="globalPacientContainer">
+                    <input type="text" id="globalPacient" placeholder="Clique para abrir ou digite" autocomplete="off">
+                    <button class="field-save-btn" id="savePacientBtn">💾</button>
+                    <div id="globalPacientDropdown" class="smart-dropdown"></div>
+                </div>
+                <div id="savedUsersList" class="saved-items-container"></div>
+            </div>
+            
+            <div class="form-group">
+                <label id="hospitalLabel">🏨 Hospital (só vazios)</label>
+                <div class="field-input-container" id="globalHospitalContainer">
+                    <input type="text" id="globalHospital" placeholder="Clique para abrir ou digite" autocomplete="off">
+                    <button class="field-save-btn" id="saveHospitalBtn">💾</button>
+                    <div id="globalHospitalDropdown" class="smart-dropdown"></div>
+                </div>
+                <div id="savedHospitalsList" class="saved-items-container"></div>
+                <div style="font-size:0.7rem; color:var(--gray-600); margin-top:4px;">💡 ALIAS = nome curto | VALOR = endereço completo</div>
+            </div>
+            
+            <div class="form-group">
+                <label id="specialityLabel">🔬 Especialidade (só vazios)</label>
+                <select id="global-speciality"></select>
+            </div>
+            
+            <div class="form-group">
+                <label id="dateLabel">📅 Data (só vazios)</label>
+                <input type="date" id="globalDate">
+            </div>
+            
+            <div class="form-group">
+                <label id="timeLabel">⏰ Horário (só vazios)</label>
+                <input type="time" id="globalHour">
+            </div>
+            
+            <div class="form-group">
+                <label id="logoLabel">🖼️ Logo Padrão</label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div id="logoPlaceholder" style="background: #f1f5f9; padding: 10px 20px; border-radius: 40px; cursor: pointer;">➕ <span id="addLogoText">Adicionar Logo</span></div>
+                    <img id="logoPreview" style="width: 80px; height: 60px; object-fit: contain; display: none;">
+                    <input type="file" id="logoUpload" accept="image/*" hidden>
+                    <button id="removeLogoBtn" class="button danger" style="display: none; padding: 8px 16px;"><span id="removeLogoText">Remover</span></button>
+                </div>
+            </div>
+            
+            <div class="actions">
+                <button id="saveSetBtn" class="button secondary">💾 <span id="saveSetText">Salvar Conjunto</span></button>
+                <button id="resetBtn" class="button danger">🔄 <span id="resetCardsText">Redefinir Cards</span></button>
+                <button id="excelExportBtn" class="button excel">📊 <span id="exportExcelText">Exportar Excel</span></button>
+            </div>
+            
+            <div class="danger-actions">
+                <div id="dangerZoneTitle" style="margin-bottom: 10px; font-size: 0.75rem; color: var(--danger);">⚠️ Área de Perigo</div>
+                <div class="actions">
+                    <button id="clearAllDataBtn" class="button danger">🗑️ <span id="deleteAllText">Deletar Tudo</span></button>
+                    <button id="cleanSystemBtn" class="button" style="background: #e9c46a; color: #5a4a1a;">🧹 <span id="cleanSystemText">Clean System</span></button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="preview-section">
+            <h2 class="section-title" id="previewTitle">📄 Pré-visualização</h2>
+            <div class="actions" style="margin-top: 10px;">
+                <button id="exportCardsBtn" class="button" style="background: #0f5c6e;">📤 <span id="exportAllText">Exportar TODOS</span></button>
+                <button id="importCardsBtn" class="button secondary">📥 <span id="importAllText">Importar TODOS</span></button>
+                <input type="file" id="importCardsFile" accept=".json" style="display: none;">
+            </div>
+            <br>
+            <div style="overflow-x: auto; text-align: center;">
+                <div class="paper-sheet">
+                    <div class="appointments-grid layout-2-cards" id="cardsGrid"></div>
+                </div>
+            </div>
+            <div class="actions">
+                <button id="pdfBtn" class="button">📑 <span id="pdfText">PDF</span></button>
+                <button id="printBtn" class="button secondary">🖨️ <span id="printText">Imprimir</span></button>
+                <button id="imageBtn" class="button">🖼️ <span id="pngText">PNG</span></button>
+            </div>
+            <div style="margin-top: 12px; padding: 8px; background: var(--primary-light); border-radius: 30px; text-align: center; font-size: 0.75rem;">
+                💡 <strong>❌ Clique no X</strong> para limpar o cartão individual | <strong>📋 Copiar</strong> e colar entre cards<br>
+                🎯 <strong>ENTER:</strong> dropdown aberto → seleciona | fechado → GLOBAL salva item / MODAL salva cartão<br>
+                ⌨️ <strong>ESC:</strong> campo com texto → limpa o campo | campo vazio → fecha modal
+            </div>
+        </div>
+    </div>
+    
+    <div class="saved-cards-section" id="savedSection">
+        <h2 class="section-title" id="savedSetsTitle">📦 Conjuntos Salvos</h2>
+        <div id="savedCardsList" class="saved-cards-container"></div>
+    </div>
+</div>
+
+<!-- Modals -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 style="color: var(--primary);" id="editCardTitle">✏️ Editar Cartão <span id="modalCardNum">1</span></h3>
+            <button id="modalCloseBtn" style="font-size: 28px; background: none; border: none; cursor: pointer;">&times;</button>
+        </div>
+        <div class="form-group">
+            <label id="modalPatientLabel">👤 Paciente</label>
+            <div class="field-input-container" id="modalPacientContainer">
+                <input type="text" id="modalPacient" placeholder="Clique para abrir" autocomplete="off">
+                <button class="field-save-btn" id="modalSavePacientBtn">💾</button>
+                <div class="smart-dropdown" id="modalPacientDropdown"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="modalHospitalLabel">🏨 Hospital</label>
+            <div class="field-input-container" id="modalHospitalContainer">
+                <input type="text" id="modalHospital" placeholder="Clique para abrir" autocomplete="off">
+                <button class="field-save-btn" id="modalSaveHospitalBtn">💾</button>
+                <div class="smart-dropdown" id="modalHospitalDropdown"></div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label id="modalSpecialityLabel">🔬 Especialidade</label>
+            <select id="modalSpeciality"></select>
+        </div>
+        <div class="form-group">
+            <label id="modalDateLabel">📅 Data</label>
+            <input type="date" id="modalDate">
+        </div>
+        <div class="form-group">
+            <label id="modalTimeLabel">⏰ Horário</label>
+            <input type="time" id="modalHour">
+        </div>
+        <div class="actions">
+            <button id="modalSaveBtn" class="button secondary">💾 <span id="modalSaveText">Salvar</span></button>
+            <button id="modalCancelBtn" class="button danger"><span id="modalCancelText">Cancelar</span></button>
+        </div>
+        <div class="esc-hint" id="modalHint">💡 ENTER: dropdown aberto seleciona | fechado salva o cartão | ESC: campo com texto limpa | vazio fecha</div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="saveSetModal">
+    <div class="modal-content" id="saveSetModalContent">
+        <h3 id="saveSetModalTitle">💾 Salvar Conjunto</h3>
+        <div class="form-group">
+            <label id="setNameLabel">Nome do Conjunto</label>
+            <input type="text" id="setName" placeholder="Ex: Consultas Abril" autocomplete="off">
+        </div>
+        <div class="actions">
+            <button id="confirmSaveSetBtn" class="button secondary"><span id="confirmSaveSetText">Salvar</span></button>
+            <button id="cancelSaveSetBtn" class="button danger"><span id="cancelSaveSetText">Cancelar</span></button>
+        </div>
+    </div>
+</div>
+<div class="modal-overlay" id="saveItemModal"><div class="modal-content"><h3 id="saveItemModalTitle">💾 Salvar Item</h3><div class="form-group"><label id="saveItemAliasLabel">📝 Apelido (Alias)</label><input type="text" id="saveItemAlias" placeholder="Digite um apelido"></div><div class="form-group"><label id="saveItemValueLabel">📋 Valor Completo</label><textarea id="saveItemValue" rows="3"></textarea></div><div class="actions"><button id="confirmSaveItemBtn" class="button secondary"><span id="confirmSaveItemText">Salvar</span></button><button id="cancelSaveItemBtn" class="button danger"><span id="cancelSaveItemText">Cancelar</span></button></div></div></div>
+<div class="modal-overlay" id="editSavedItemModal"><div class="modal-content"><h3 id="editSavedItemTitle">✏️ Editar Item</h3><div class="form-group"><label id="editSavedItemAliasLabel">📝 Apelido (Alias)</label><input type="text" id="editSavedItemAlias"></div><div class="form-group"><label id="editSavedItemValueLabel">📋 Valor Completo</label><textarea id="editSavedItemValue" rows="3"></textarea></div><div class="actions"><button id="confirmEditSavedItemBtn" class="button secondary"><span id="confirmEditSavedItemText">Salvar</span></button><button id="cancelEditSavedItemBtn" class="button danger"><span id="cancelEditSavedItemText">Cancelar</span></button></div></div></div>
+
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+// ==================== COMPLETE REWRITE - FIXED VERSION ====================
+
+// ==================== XSS SANITIZATION HELPERS ====================
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+function sanitizeInput(str) {
+    if (!str) return '';
+    return String(str).replace(/[<>&"']/g, function(match) {
+        const map = { '<': '&lt;', '>': '&gt;', '&': '&amp;', '"': '&quot;', "'": '&#039;' };
+        return map[match];
+    });
+}
+
+// ==================== TRANSLATIONS ====================
+const translations = {
+    pt: { 
+        appTitle: "🏥 MedCard Pro v32", 
+        appSubtitle: "❌ X limpa cartão individual | ESC: campo com texto limpa | vazio fecha", 
+        settingsTitle: "⚙️ Configurações", 
+        savedSetsText: "Conjuntos", 
+        layoutLabel: "📐 Layout A4", 
+        patientLabel: "👤 Paciente (só vazios)", 
+        hospitalLabel: "🏨 Hospital (só vazios)", 
+        specialityLabel: "🔬 Especialidade (só vazios)", 
+        dateLabel: "📅 Data (só vazios)", 
+        timeLabel: "⏰ Horário (só vazios)", 
+        logoLabel: "🖼️ Logo Padrão", 
+        previewTitle: "📄 Pré-visualização", 
+        editCardTitle: "✏️ Editar Cartão", 
+        modalPatientLabel: "👤 Paciente", 
+        modalHospitalLabel: "🏨 Hospital", 
+        modalSpecialityLabel: "🔬 Especialidade", 
+        modalDateLabel: "📅 Data", 
+        modalTimeLabel: "⏰ Horário", 
+        modalHint: "💡 ENTER: dropdown aberto seleciona | fechado salva o cartão | ESC: campo com texto limpa | vazio fecha", 
+        saveSetModalTitle: "💾 Salvar Conjunto", 
+        setNameLabel: "Nome do Conjunto", 
+        saveItemModalTitle: "💾 Salvar Item", 
+        saveItemAliasLabel: "📝 Apelido (Alias)", 
+        saveItemValueLabel: "📋 Valor Completo", 
+        editSavedItemTitle: "✏️ Editar Item", 
+        editSavedItemAliasLabel: "📝 Apelido (Alias)", 
+        editSavedItemValueLabel: "📋 Valor Completo", 
+        dangerZoneTitle: "⚠️ Área de Perigo", 
+        savedSetsTitle: "📦 Conjuntos Salvos", 
+        cardHospital: "", 
+        cardTitle: "AGENDAMENTO MÉDICO", 
+        cardPatient: "Paciente:", 
+        cardSpecialty: "Especialidade:", 
+        cardDate: "Data:", 
+        cardTime: "Horário:", 
+        cardLocation: "Local:", 
+        cardFooter1: "✓ Chegar 15 min antes", 
+        cardFooter2: "📞 Agendamento confirmado",
+        exportDb: "Exportar DB",
+        importDb: "Importar DB",
+        exportAll: "Exportar TODOS",
+        importAll: "Importar TODOS",
+        exportExcel: "Exportar Excel",
+        saveSet: "Salvar Conjunto",
+        resetCards: "Redefinir Cards",
+        deleteAll: "Deletar Tudo",
+        cleanSystem: "Clean System",
+        addLogo: "Adicionar Logo",
+        removeLogo: "Remover",
+        pdf: "PDF",
+        print: "Imprimir",
+        png: "PNG",
+        save: "Salvar",
+        cancel: "Cancelar",
+        dbStatus: "🔒 WebCrypto | Exporta TODOS os cards e logos",
+        toastCleared: "🗑️ Cartão {0} limpo!",
+        toastApplied: "✅ {0} aplicado em {1} vazio(s)",
+        toastHospital: "✅ Hospital aplicado em {0} card(s)",
+        toastUserSaved: '✅ "{0}" salvo!',
+        toastSetSaved: '✅ "{0}" salvo com sucesso!',
+        toastSetLoaded: '"{0}" carregado!',
+        toastRemoved: "Removido!",
+        toastAllRemoved: "Todos os dados removidos!",
+        toastExcel: "Excel exportado!",
+        toastPDF: "PDF gerado!",
+        toastPNG: "Imagem salva!",
+        toastDbExported: "Database exportado!",
+        toastDbExportError: "Erro ao exportar",
+        toastInvalidFile: "❌ Arquivo inválido!",
+        toastImportConfirm: "Deseja importar {0} cartões?\n\nLayout: {1} cartões\n\n⚠️ Isso substituirá os dados atuais!",
+        toastImportSuccess: "✅ {0} cartões importados com sucesso!",
+        toastNoEmptyFields: "⚠️ Nenhum campo vazio para preencher",
+        toastNameRequired: "⚠️ Digite um nome para o conjunto",
+        toastDatabaseNotInitialized: "⚠️ Database não inicializado",
+        toastSaveError: "❌ Erro ao salvar!",
+        toastNoDataToExport: "⚠️ Nenhum dado encontrado no sistema. Deseja exportar mesmo assim?",
+        toastExportConfirm: "📦 Exportar TODOS os dados?\n\n📋 {0} cartões\n📁 {1} conjuntos salvos\n🖼️ Logos incluídos\n👤 {2} pacientes salvos\n🏨 {3} hospitais salvos\n\n⚠️ Isso exportará TODOS os dados do sistema!",
+        toastExportSuccess: "✅ Exportados {0} cartões, {1} conjuntos, {2} pacientes e {3} hospitais!",
+        toastImportAllConfirm: "📥 Importar TODOS os dados?\n\n📋 {0} cartões\n📁 {1} conjuntos salvos\n👤 {2} pacientes salvos\n🏨 {3} hospitais salvos\n🖼️ Logos incluídos\n\n⚠️ Isso SUBSTITUIRÁ todos os dados atuais!",
+        toastImportAllSuccess: "✅ Importados {0} cartões, {1} conjuntos!",
+        toastImportError: "❌ Erro ao importar: {0}",
+        toastExportError: "❌ Erro ao exportar: {0}",
+        toastImageError: "Erro ao processar imagem",
+        toastLogoAdded: "Logo adicionado!",
+        toastFieldCleared: "🧹 Campo limpo!",
+        toastUnlocked: "✅ Desbloqueado! Cards com botão X!",
+        toastNewDb: "✅ Novo banco criado com botão X!",
+        toastCopied: "📋 Cartão {0} copiado!",
+        toastPasted: "✨ Cartão {0} atualizado via cola!"
+    },
+    en: { 
+        appTitle: "🏥 MedCard Pro v32", 
+        appSubtitle: "❌ X clears card | ESC: field with text clears | empty closes", 
+        settingsTitle: "⚙️ Settings", 
+        savedSetsText: "Sets", 
+        layoutLabel: "📐 A4 Layout", 
+        patientLabel: "👤 Patient (empty only)", 
+        hospitalLabel: "🏨 Hospital (empty only)", 
+        specialityLabel: "🔬 Specialty (empty only)", 
+        dateLabel: "📅 Date (empty only)", 
+        timeLabel: "⏰ Time (empty only)", 
+        logoLabel: "🖼️ Default Logo", 
+        previewTitle: "📄 Preview", 
+        editCardTitle: "✏️ Edit Card", 
+        modalPatientLabel: "👤 Patient", 
+        modalHospitalLabel: "🏨 Hospital", 
+        modalSpecialityLabel: "🔬 Specialty", 
+        modalDateLabel: "📅 Date", 
+        modalTimeLabel: "⏰ Time", 
+        modalHint: "💡 ENTER: dropdown open selects | closed saves card | ESC: field with text clears | empty closes", 
+        saveSetModalTitle: "💾 Save Set", 
+        setNameLabel: "Set Name", 
+        saveItemModalTitle: "💾 Save Item", 
+        saveItemAliasLabel: "📝 Alias", 
+        saveItemValueLabel: "📋 Full Value", 
+        editSavedItemTitle: "✏️ Edit Item", 
+        editSavedItemAliasLabel: "📝 Alias", 
+        editSavedItemValueLabel: "📋 Full Value", 
+        dangerZoneTitle: "⚠️ Danger Zone", 
+        savedSetsTitle: "📦 Saved Sets", 
+        cardHospital: "", 
+        cardTitle: "MEDICAL APPOINTMENT", 
+        cardPatient: "Patient:", 
+        cardSpecialty: "Specialty:", 
+        cardDate: "Date:", 
+        cardTime: "Time:", 
+        cardLocation: "Location:", 
+        cardFooter1: "✓ Arrive 15 min early", 
+        cardFooter2: "📞 Appointment confirmed",
+        exportDb: "Export DB",
+        importDb: "Import DB",
+        exportAll: "Export ALL",
+        importAll: "Import ALL",
+        exportExcel: "Export Excel",
+        saveSet: "Save Set",
+        resetCards: "Reset Cards",
+        deleteAll: "Delete All",
+        cleanSystem: "Clean System",
+        addLogo: "Add Logo",
+        removeLogo: "Remove",
+        pdf: "PDF",
+        print: "Print",
+        png: "PNG",
+        save: "Save",
+        cancel: "Cancel",
+        dbStatus: "🔒 WebCrypto | Exports ALL cards and logos",
+        toastCleared: "🗑️ Card {0} cleared!",
+        toastApplied: "✅ {0} applied to {1} empty(s)",
+        toastHospital: "✅ Hospital applied to {0} card(s)",
+        toastUserSaved: '✅ "{0}" saved!',
+        toastSetSaved: '✅ "{0}" saved successfully!',
+        toastSetLoaded: '"{0}" loaded!',
+        toastRemoved: "Removed!",
+        toastAllRemoved: "All data removed!",
+        toastExcel: "Excel exported!",
+        toastPDF: "PDF generated!",
+        toastPNG: "Image saved!",
+        toastDbExported: "Database exported!",
+        toastDbExportError: "Export error",
+        toastInvalidFile: "❌ Invalid file!",
+        toastImportConfirm: "Import {0} cards?\n\nLayout: {1} cards\n\n⚠️ This will replace current data!",
+        toastImportSuccess: "✅ {0} cards imported successfully!",
+        toastNoEmptyFields: "⚠️ No empty fields to fill",
+        toastNameRequired: "⚠️ Enter a name for the set",
+        toastDatabaseNotInitialized: "⚠️ Database not initialized",
+        toastSaveError: "❌ Error saving!",
+        toastNoDataToExport: "⚠️ No data found in system. Export anyway?",
+        toastExportConfirm: "📦 Export ALL data?\n\n📋 {0} cards\n📁 {1} saved sets\n🖼️ Logos included\n👤 {2} saved patients\n🏨 {3} saved hospitals\n\n⚠️ This will export ALL system data!",
+        toastExportSuccess: "✅ Exported {0} cards, {1} sets, {2} patients and {3} hospitals!",
+        toastImportAllConfirm: "📥 Import ALL data?\n\n📋 {0} cards\n📁 {1} saved sets\n👤 {2} saved patients\n🏨 {3} saved hospitals\n🖼️ Logos included\n\n⚠️ This will REPLACE all current data!",
+        toastImportAllSuccess: "✅ Imported {0} cards, {1} sets!",
+        toastImportError: "❌ Import error: {0}",
+        toastExportError: "❌ Export error: {0}",
+        toastImageError: "Error processing image",
+        toastLogoAdded: "Logo added!",
+        toastFieldCleared: "🧹 Field cleared!",
+        toastUnlocked: "✅ Unlocked! Cards with X button!",
+        toastNewDb: "✅ New database created with X button!",
+        toastCopied: "📋 Card {0} copied!",
+        toastPasted: "✨ Card {0} updated via paste!"
+    },
+    es: { 
+        appTitle: "🏥 MedCard Pro v32", 
+        appSubtitle: "❌ X limpia tarjeta | ESC: campo con texto limpia | vacío cierra", 
+        settingsTitle: "⚙️ Configuración", 
+        savedSetsText: "Conjuntos", 
+        layoutLabel: "📐 Diseño A4", 
+        patientLabel: "👤 Paciente (solo vacíos)", 
+        hospitalLabel: "🏨 Hospital (solo vacíos)", 
+        specialityLabel: "🔬 Especialidad (solo vacíos)", 
+        dateLabel: "📅 Fecha (solo vacíos)", 
+        timeLabel: "⏰ Hora (solo vacíos)", 
+        logoLabel: "🖼️ Logo Predeterminado", 
+        previewTitle: "📄 Vista Previa", 
+        editCardTitle: "✏️ Editar Tarjeta", 
+        modalPatientLabel: "👤 Paciente", 
+        modalHospitalLabel: "🏨 Hospital", 
+        modalSpecialityLabel: "🔬 Especialidad", 
+        modalDateLabel: "📅 Fecha", 
+        modalTimeLabel: "⏰ Hora", 
+        modalHint: "💡 ENTER: desplegable abierto selecciona | cerrado guarda tarjeta | ESC: campo con texto limpia | vacío cierra", 
+        saveSetModalTitle: "💾 Guardar Conjunto", 
+        setNameLabel: "Nombre del Conjunto", 
+        saveItemModalTitle: "💾 Guardar Item", 
+        saveItemAliasLabel: "📝 Alias", 
+        saveItemValueLabel: "📋 Valor Completo", 
+        editSavedItemTitle: "✏️ Editar Item", 
+        editSavedItemAliasLabel: "📝 Alias", 
+        editSavedItemValueLabel: "📋 Valor Completo", 
+        dangerZoneTitle: "⚠️ Zona de Peligro", 
+        savedSetsTitle: "📦 Conjuntos Guardados", 
+        cardHospital: "", 
+        cardTitle: "CITA MÉDICA", 
+        cardPatient: "Paciente:", 
+        cardSpecialty: "Especialidad:", 
+        cardDate: "Fecha:", 
+        cardTime: "Hora:", 
+        cardLocation: "Ubicación:", 
+        cardFooter1: "✓ Llegar 15 min antes", 
+        cardFooter2: "📞 Cita confirmada",
+        exportDb: "Exportar DB",
+        importDb: "Importar DB",
+        exportAll: "Exportar TODOS",
+        importAll: "Importar TODOS",
+        exportExcel: "Exportar Excel",
+        saveSet: "Guardar Conjunto",
+        resetCards: "Reiniciar Tarjetas",
+        deleteAll: "Eliminar Todo",
+        cleanSystem: "Limpiar Sistema",
+        addLogo: "Agregar Logo",
+        removeLogo: "Eliminar",
+        pdf: "PDF",
+        print: "Imprimir",
+        png: "PNG",
+        save: "Guardar",
+        cancel: "Cancelar",
+        dbStatus: "🔒 WebCrypto | Exporta TODAS las tarjetas y logos",
+        toastCleared: "🗑️ Tarjeta {0} limpiada!",
+        toastApplied: "✅ {0} aplicado en {1} vacío(s)",
+        toastHospital: "✅ Hospital aplicado en {0} tarjeta(s)",
+        toastUserSaved: '✅ "{0}" guardado!',
+        toastSetSaved: '✅ "{0}" guardado con éxito!',
+        toastSetLoaded: '"{0}" cargado!',
+        toastRemoved: "¡Eliminado!",
+        toastAllRemoved: "¡Todos los datos eliminados!",
+        toastExcel: "¡Excel exportado!",
+        toastPDF: "¡PDF generado!",
+        toastPNG: "¡Imagen guardada!",
+        toastDbExported: "¡Base de datos exportada!",
+        toastDbExportError: "Error al exportar",
+        toastInvalidFile: "❌ ¡Archivo inválido!",
+        toastImportConfirm: "¿Importar {0} tarjetas?\n\nDiseño: {1} tarjetas\n\n⚠️ ¡Esto reemplazará los datos actuales!",
+        toastImportSuccess: "✅ ¡{0} tarjetas importadas con éxito!",
+        toastNoEmptyFields: "⚠️ No hay campos vacíos para llenar",
+        toastNameRequired: "⚠️ Ingrese un nombre para el conjunto",
+        toastDatabaseNotInitialized: "⚠️ Base de datos no inicializada",
+        toastSaveError: "❌ ¡Error al guardar!",
+        toastNoDataToExport: "⚠️ No se encontraron datos. ¿Exportar de todos modos?",
+        toastExportConfirm: "📦 ¿Exportar TODOS los datos?\n\n📋 {0} tarjetas\n📁 {1} conjuntos guardados\n🖼️ Logos incluidos\n👤 {2} pacientes guardados\n🏨 {3} hospitales guardados\n\n⚠️ ¡Esto exportará TODOS los datos del sistema!",
+        toastExportSuccess: "✅ Exportados {0} tarjetas, {1} conjuntos, {2} pacientes y {3} hospitales!",
+        toastImportAllConfirm: "📥 ¿Importar TODOS los datos?\n\n📋 {0} tarjetas\n📁 {1} conjuntos guardados\n👤 {2} pacientes guardados\n🏨 {3} hospitales guardados\n🖼️ Logos incluidos\n\n⚠️ ¡Esto REEMPLAZARÁ todos los datos actuales!",
+        toastImportAllSuccess: "✅ ¡Importados {0} tarjetas, {1} conjuntos!",
+        toastImportError: "❌ Error al importar: {0}",
+        toastExportError: "❌ Error al exportar: {0}",
+        toastImageError: "Error al procesar imagen",
+        toastLogoAdded: "¡Logo agregado!",
+        toastFieldCleared: "🧹 ¡Campo limpiado!",
+        toastUnlocked: "✅ ¡Desbloqueado! ¡Tarjetas con botón X!",
+        toastNewDb: "✅ ¡Nueva base de datos creada con botón X!",
+        toastCopied: "📋 ¡Tarjeta {0} copiada!",
+        toastPasted: "✨ ¡Tarjeta {0} actualizada vía pegar!"
+    }
+};
+
+// ==================== LOGIN SCREEN TRANSLATIONS ====================
+const path = window.location.pathname;
+const fileName = path.substring(path.lastIndexOf('/') + 1);
+const match = fileName.match(/v\d+/);
+const APP_VERSION = match ? match[0] : 'v32';
+
+const loginTranslations = {
+    pt: {
+        title: '🔐 MedCard Pro '+APP_VERSION,
+        subtitle: 'WebCrypto AES-GCM + PBKDF2',
+        desc: '❌ Clique no X para limpar cada card',
+        logos: '🖼️ Logos NÃO são criptografados (armazenados separadamente)',
+        system: '💡 Exporta TODOS os cards e logos do sistema',
+        esc: '⌨️ ESC: campo com texto limpa | campo vazio fecha modal',
+        placeholder: 'Digite sua senha',
+        unlock: '🔓 Desbloquear',
+        newDb: '🆕 Criar Novo Banco',
+        security: '🔒 Nenhuma senha é armazenada'
+    },
+    en: {
+        title: '🔐 MedCard Pro '+APP_VERSION,
+        subtitle: 'WebCrypto AES-GCM + PBKDF2',
+        desc: '❌ Click X to clear each card',
+        logos: '🖼️ Logos are NOT encrypted (stored separately)',
+        system: '💡 Exports ALL cards and logos from the system',
+        esc: '⌨️ ESC: field with text clears | empty closes modal',
+        placeholder: 'Enter your password',
+        unlock: '🔓 Unlock',
+        newDb: '🆕 Create New Database',
+        security: '🔒 No password is stored'
+    },
+    es: {
+        title: '🔐 MedCard Pro '+APP_VERSION,
+        subtitle: 'WebCrypto AES-GCM + PBKDF2',
+        desc: '❌ Haz clic en X para limpiar cada tarjeta',
+        logos: '🖼️ Los logos NO están encriptados (almacenados por separado)',
+        system: '💡 Exporta TODAS las tarjetas y logos del sistema',
+        esc: '⌨️ ESC: campo con texto limpia | vacío cierra modal',
+        placeholder: 'Ingrese su contraseña',
+        unlock: '🔓 Desbloquear',
+        newDb: '🆕 Crear Nueva Base de Datos',
+        security: '🔒 No se almacena ninguna contraseña'
+    }
+};
+
+// ==================== GLOBAL LANGUAGE ====================
+let langGLOBAL = 'en';
+
+// ==================== GLOBAL STATE ====================
+let currentLang = 'en';
+let currentLayout = 4;
+let globalLogo = null;
+let cardData = [];
+let individualLogos = [];
+let copiedCardBuffer = null;
+let copiedFromIndex = null;
+let pastedCards = new Set();
+let currentEditIndex = -1;
+let db = { savedUsers: [], savedHospitals: [], savedCards: [], settings: { lastLayout: 4 } };
+let cryptoKey = null;
+
+// ==================== PASSWORD STORAGE ====================
+let savedLoginPassword = '';
+
+// ==================== LOGO STORAGE - SEPARATE FROM ENCRYPTED DATA ====================
+function saveLogosToStorage(logoData) {
+    try {
+        localStorage.setItem('medcard_logos', JSON.stringify(logoData));
+    } catch(e) {
+        console.warn('Logo storage error:', e);
+    }
+}
+
+function loadLogosFromStorage() {
+    try {
+        const data = localStorage.getItem('medcard_logos');
+        return data ? JSON.parse(data) : { globalLogo: null, individualLogos: [] };
+    } catch(e) {
+        return { globalLogo: null, individualLogos: [] };
+    }
+}
+
+function clearLogosStorage() {
+    localStorage.removeItem('medcard_logos');
+}
+
+// ==================== HELPER FUNCTIONS ====================
+function capitalize(s) { if(!s) return ''; return s.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' '); }
+
+function formatDateForDisplay(d) { 
+    if(!d) return ''; 
+    if(d.includes('/')) return d; 
+    const parts = d.split('-'); 
+    if(parts.length === 3) return `${parts[2]}/${parts[1]}/${parts[0]}`; 
+    return d; 
+}
+
+function formatDateForInput(d) { 
+    if(!d) return ''; 
+    if(d.includes('-')) return d; 
+    const parts = d.split('/'); 
+    if(parts.length === 3) return `${parts[2]}-${parts[1]}-${parts[0]}`; 
+    return d; 
+}
+
+function getTranslation(key, ...args) {
+    const t = translations[currentLang] || translations.pt;
+    let msg = t[key] || key;
+    args.forEach((arg, i) => {
+        msg = msg.replace(`{${i}}`, arg);
+    });
+    return msg;
+}
+
+function showMessage(msg, type='success') { 
+    const div=document.createElement('div'); 
+    div.className='feedback-message'; 
+    div.style.background=type==='error'?'#e76f51':'#2a9d8f'; 
+    div.textContent = msg;
+    document.body.appendChild(div); 
+    setTimeout(()=>div.remove(),3500); 
+}
+
+function isEmptyField(v) { return !v || v === '' || v === '_________________' || v.trim() === ''; }
+
+function getHospitalDisplayName(v) { 
+    if(!v) return '';
+    const h = db.savedHospitals.find(h=>h.hospitalName===v); 
+    return h ? h.alias : v; 
+}
+
+function getHospitalFullAddress(v) { 
+    if(!v) return '';
+    const h = db.savedHospitals.find(h=>h.hospitalName===v); 
+    return h ? h.hospitalName : v; 
+}
+
+function resetArrays() {
+    cardData = [];
+    individualLogos = [];
+    for(let i = 0; i < 8; i++) {
+        cardData.push({});
+        individualLogos.push(null);
+    }
+}
+
+function resizeArrays() {
+    while(cardData.length < 8) { cardData.push({}); }
+    while(individualLogos.length < 8) { individualLogos.push(null); }
+    if(cardData.length > 8) { cardData = cardData.slice(0, 8); }
+    if(individualLogos.length > 8) { individualLogos = individualLogos.slice(0, 8); }
+}
+
+// ==================== LOGO COMPRESSION ====================
+function compressLogo(dataUrl) {
+    if (!dataUrl) return null;
+    return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = function() {
+            const canvas = document.createElement('canvas');
+            const maxSize = 300;
+            let width = img.width;
+            let height = img.height;
+            if (width > height) {
+                if (width > maxSize) {
+                    height = Math.round(height * maxSize / width);
+                    width = maxSize;
+                }
+            } else {
+                if (height > maxSize) {
+                    width = Math.round(width * maxSize / height);
+                    height = maxSize;
+                }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.8));
+        };
+        img.onerror = function() {
+            resolve(dataUrl);
+        };
+        img.src = dataUrl;
+    });
+}
+
+// ==================== CARD OPERATIONS ====================
+function clearCard(index) {
+    if(index >= 0 && index < currentLayout) {
+        cardData[index] = {};
+        individualLogos[index] = null;
+        const logoData = loadLogosFromStorage();
+        logoData.individualLogos = individualLogos;
+        saveLogosToStorage(logoData);
+        renderCards();
+        showMessage(getTranslation('toastCleared', index+1), 'success');
+    }
+}
+
+function applyToAll(field, value, processFn = null) { 
+    let updated = 0; 
+    for(let i = 0; i < currentLayout; i++) { 
+        if(!cardData[i]) cardData[i] = {}; 
+        cardData[i][field] = processFn ? processFn(value) : value; 
+        updated++; 
+    } 
+    if(updated > 0) { 
+        renderCards(); 
+        showMessage(getTranslation('toastApplied', field, updated)); 
+    } 
+    return updated; 
+}
+
+function applyPatient(v) { applyToAll('pacient', capitalize(sanitizeInput(v))); }
+function applySpecialty(v) { applyToAll('speciality', sanitizeInput(v)); }
+function applyDate(v) { applyToAll('date', formatDateForDisplay(sanitizeInput(v))); }
+function applyTime(v) { applyToAll('hour', sanitizeInput(v)); }
+
+function applyHospital(v) { 
+    const safe = sanitizeInput(v);
+    const displayName = getHospitalDisplayName(safe);
+    let up = 0; 
+    for(let i = 0; i < currentLayout; i++) { 
+        if(!cardData[i]) cardData[i] = {}; 
+        cardData[i].hospitalFullValue = safe; 
+        cardData[i].hospital = displayName; 
+        up++; 
+    } 
+    if(up > 0) { 
+        renderCards(); 
+        showMessage(getTranslation('toastHospital', up)); 
+    } 
+}
+
+// ==================== DROPDOWN SYSTEM ====================
+function setupSmartDropdown(inputId, containerId, storageArray, getValueFunc, itemType, isModal = false, modalSaveCallback = null) {
+    const input = document.getElementById(inputId);
+    const container = document.getElementById(containerId);
+    if(!input || !container) return;
+    
+    let dropdown = container.querySelector('.smart-dropdown');
+    if (!dropdown) { 
+        dropdown = document.createElement('div'); 
+        dropdown.className = 'smart-dropdown'; 
+        container.appendChild(dropdown); 
+    }
+    
+    let currentSelectedIndex = -1;
+    let isSelectingFromDropdown = false;
+    let isDropdownOpen = false;
+    let currentItems = [];
+    
+    function renderDropdown(filter = '') {
+        const searchTerm = filter.toLowerCase().trim();
+        currentItems = searchTerm === '' ? [...storageArray] : storageArray.filter(item => 
+            item.alias.toLowerCase().includes(searchTerm) || 
+            (getValueFunc(item) || '').toLowerCase().includes(searchTerm)
+        );
+        if(currentItems.length === 0) { 
+            dropdown.style.display = 'none'; 
+            isDropdownOpen = false;
+            return; 
+        }
+        dropdown.style.display = 'block';
+        isDropdownOpen = true;
+        dropdown.innerHTML = `<div class="dropdown-header">📋 ${currentItems.length} resultado(s) | ↑↓ | ENTER seleciona</div>`;
+        currentItems.forEach((item, idx) => {
+            const displayValue = getValueFunc(item);
+            const safeAlias = escapeHtml(item.alias);
+            const safeValue = escapeHtml(displayValue);
+            const safeId = escapeHtml(String(item.id));
+            const safeType = escapeHtml(itemType);
+            dropdown.innerHTML += `<div class="dropdown-item" data-index="${idx}" data-id="${safeId}" data-value="${safeValue}" data-alias="${safeAlias}">
+                <span class="item-name">${safeAlias}</span>
+                <span class="item-value">${safeValue.substring(0, 35)}</span>
+                <div><button class="item-edit" data-id="${safeId}" data-type="${safeType}" data-alias="${safeAlias}" data-value="${safeValue}">✏️</button>
+                <button class="item-delete" data-id="${safeId}" data-type="${safeType}">🗑️</button></div>
+            </div>`;
+        });
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.onclick = (e) => { 
+                if(e.target.classList.contains('item-edit') || e.target.classList.contains('item-delete')) return; 
+                isSelectingFromDropdown = true;
+                selectItem(item.dataset.value, itemType);
+                setTimeout(() => { isSelectingFromDropdown = false; }, 200);
+            };
+            const editBtn = item.querySelector('.item-edit');
+            if(editBtn) editBtn.onclick = (e) => { 
+                e.stopPropagation(); 
+                openEditSavedItem(editBtn.dataset.type, parseInt(editBtn.dataset.id), editBtn.dataset.alias, editBtn.dataset.value); 
+                dropdown.style.display = 'none'; 
+                isDropdownOpen = false;
+            };
+            const delBtn = item.querySelector('.item-delete');
+            if(delBtn) delBtn.onclick = (e) => { 
+                e.stopPropagation(); 
+                if(confirm('Excluir?')) deleteSavedItem(delBtn.dataset.type, parseInt(delBtn.dataset.id)); 
+                renderDropdown(input.value); 
+            };
+        });
+        currentSelectedIndex = -1;
+    }
+    
+    function selectItem(value, type) { 
+        input.value = type === 'user' ? capitalize(value) : value; 
+        dropdown.style.display = 'none'; 
+        isDropdownOpen = false;
+        currentSelectedIndex = -1;
+        input.dispatchEvent(new Event('input', { bubbles: true }));
+    }
+    
+    function openDropdown() { 
+        if(storageArray.length > 0) {
+            renderDropdown(input.value);
+            if(currentSelectedIndex >= 0 && currentSelectedIndex < currentItems.length) {
+                updateSelection();
+            }
+        }
+    }
+    
+    function updateSelection() { 
+        const items = dropdown.querySelectorAll('.dropdown-item'); 
+        items.forEach((it, idx) => it.classList.toggle('selected', idx === currentSelectedIndex)); 
+        if(currentSelectedIndex >= 0 && items[currentSelectedIndex]) 
+            items[currentSelectedIndex].scrollIntoView({ block: 'nearest' }); 
+    }
+    
+    function selectCurrent() { 
+        const selected = dropdown.querySelector('.dropdown-item.selected'); 
+        if(selected) { 
+            isSelectingFromDropdown = true;
+            selectItem(selected.dataset.value, itemType); 
+            currentSelectedIndex = -1; 
+            setTimeout(() => { isSelectingFromDropdown = false; }, 200);
+            return true; 
+        } 
+        return false; 
+    }
+    
+    input.addEventListener('click', (e) => { 
+        e.stopPropagation(); 
+        if (!isDropdownOpen) {
+            openDropdown(); 
+        } else {
+            if (dropdown.style.display === 'none') {
+                openDropdown();
+            }
+        }
+    });
+    
+    input.addEventListener('input', () => { 
+        if (input.value.length > 0 || isDropdownOpen) {
+            renderDropdown(input.value); 
+            currentSelectedIndex = -1; 
+        } else {
+            renderDropdown('');
+            currentSelectedIndex = -1;
+        }
+    });
+    
+    input.addEventListener('focus', () => {
+        if (isSelectingFromDropdown) return;
+        setTimeout(() => {
+            if (!isDropdownOpen && storageArray.length > 0) {
+                openDropdown();
+            }
+        }, 50);
+    });
+    
+    input.addEventListener('blur', () => {
+        setTimeout(() => {
+            const activeElement = document.activeElement;
+            if (container.contains(activeElement) || (activeElement && activeElement.closest && activeElement.closest('.smart-dropdown'))) {
+                return;
+            }
+            if (activeElement && (activeElement.classList.contains('item-edit') || activeElement.classList.contains('item-delete'))) {
+                return;
+            }
+            dropdown.style.display = 'none';
+            isDropdownOpen = false;
+            currentSelectedIndex = -1;
+        }, 150);
+    });
+    
+    input.addEventListener('keydown', (e) => {
+        const isOpen = isDropdownOpen && dropdown.style.display === 'block';
+        const items = dropdown.querySelectorAll('.dropdown-item');
+        
+        if(isOpen && items.length > 0) {
+            if(e.key === 'ArrowDown') { 
+                e.preventDefault(); 
+                currentSelectedIndex = (currentSelectedIndex + 1) % items.length; 
+                updateSelection(); 
+            }
+            else if(e.key === 'ArrowUp') { 
+                e.preventDefault(); 
+                currentSelectedIndex = (currentSelectedIndex - 1 + items.length) % items.length; 
+                updateSelection(); 
+            }
+            else if(e.key === 'Enter') { 
+                e.preventDefault(); 
+                if (currentSelectedIndex >= 0) {
+                    selectCurrent();
+                } else {
+                    dropdown.style.display = 'none';
+                    isDropdownOpen = false;
+                    return;
+                }
+                return;
+            }
+            else if(e.key === 'Escape') { 
+                dropdown.style.display = 'none'; 
+                isDropdownOpen = false;
+                currentSelectedIndex = -1; 
+                e.preventDefault();
+            }
+            if (['ArrowDown', 'ArrowUp', 'Enter', 'Escape'].includes(e.key)) {
+                e.stopPropagation();
+            }
+            return;
+        }
+        
+        if(e.key === 'Enter' && !isOpen) {
+            e.preventDefault();
+            if(isSelectingFromDropdown) {
+                isSelectingFromDropdown = false;
+                return;
+            }
+            if(isModal && modalSaveCallback) {
+                modalSaveCallback();
+            } else {
+                const val = input.value.trim();
+                if(val) {
+                    const customEv = new CustomEvent('custom-save', { detail: { value: sanitizeInput(val) } });
+                    input.dispatchEvent(customEv);
+                }
+            }
+            return;
+        }
+        
+        if(e.key === 'ArrowDown' && !isOpen) { 
+            e.preventDefault(); 
+            openDropdown(); 
+        }
+    });
+    
+    document.addEventListener('click', function(e) {
+        if (!container.contains(e.target)) {
+            dropdown.style.display = 'none';
+            isDropdownOpen = false;
+            currentSelectedIndex = -1;
+        }
+    });
+    
+    input._dropdownData = { dropdown, isDropdownOpen: () => isDropdownOpen, currentSelectedIndex: () => currentSelectedIndex, selectCurrent };
+}
+
+function openEditSavedItem(type, id, alias, value) { 
+    document.getElementById('editSavedItemAlias').value = sanitizeInput(alias); 
+    document.getElementById('editSavedItemValue').value = sanitizeInput(value); 
+    document.getElementById('editSavedItemModal').style.display = 'flex'; 
+    window.editingItemType = type; 
+    window.editingItemId = id; 
+}
+
+async function saveEditedSavedItem() { 
+    const newAlias = document.getElementById('editSavedItemAlias').value.trim(); 
+    const newValue = document.getElementById('editSavedItemValue').value.trim(); 
+    if(!newAlias||!newValue) { showMessage('Preencha todos os campos','warning'); return; } 
+    const safeAlias = sanitizeInput(newAlias);
+    const safeValue = sanitizeInput(newValue);
+    if(window.editingItemType === 'user') { 
+        const idx = db.savedUsers.findIndex(u=>u.id===window.editingItemId); 
+        if(idx!==-1) { 
+            const oldVal = db.savedUsers[idx].fullName; 
+            db.savedUsers[idx].alias = safeAlias; 
+            db.savedUsers[idx].fullName = capitalize(safeValue); 
+            await saveDb(); 
+            for(let i=0;i<cardData.length;i++) if(cardData[i]?.pacient === oldVal) cardData[i].pacient = capitalize(safeValue); 
+            renderCards(); 
+            showMessage('Paciente atualizado!'); 
+        } 
+    } else if(window.editingItemType === 'hospital') { 
+        const idx = db.savedHospitals.findIndex(h=>h.id===window.editingItemId); 
+        if(idx!==-1) { 
+            const oldVal = db.savedHospitals[idx].hospitalName; 
+            db.savedHospitals[idx].alias = safeAlias; 
+            db.savedHospitals[idx].hospitalName = safeValue; 
+            await saveDb(); 
+            for(let i=0;i<cardData.length;i++) if(cardData[i]?.hospitalFullValue === oldVal) { 
+                cardData[i].hospital = safeAlias; 
+                cardData[i].hospitalFullValue = safeValue; 
+            } 
+            renderCards(); 
+            showMessage('Hospital atualizado!'); 
+        } 
+    } 
+    renderGlobalSavedItems(); 
+    setupAllDropdowns(); 
+    document.getElementById('editSavedItemModal').style.display = 'none'; 
+}
+
+async function deleteSavedItem(type, id) { 
+    if(type==='user') db.savedUsers = db.savedUsers.filter(u=>u.id!==id); 
+    else db.savedHospitals = db.savedHospitals.filter(h=>h.id!==id); 
+    await saveDb(); 
+    renderGlobalSavedItems(); 
+    setupAllDropdowns(); 
+    showMessage(getTranslation('toastRemoved')); 
+}
+
+// ==================== RENDER FUNCTIONS ====================
+function renderGlobalSavedItems() {
+    const usersDiv = document.getElementById('savedUsersList'); 
+    usersDiv.innerHTML = db.savedUsers.map(u => {
+        const safeAlias = escapeHtml(u.alias);
+        const safeFullName = escapeHtml(u.fullName);
+        return `<div class="saved-item" data-value="${safeFullName}" data-type="user">
+            <span class="saved-item-content">👤 ${safeAlias}</span>
+            <div class="saved-item-actions">
+                <button class="saved-item-edit" data-id="${u.id}" data-type="user" data-alias="${safeAlias}" data-value="${safeFullName}">✏️</button>
+                <button class="saved-item-delete" data-id="${u.id}" data-type="user">🗑️</button>
+            </div>
+        </div>`;
+    }).join('');
+    
+    const hospDiv = document.getElementById('savedHospitalsList'); 
+    hospDiv.innerHTML = db.savedHospitals.map(h => {
+        const safeAlias = escapeHtml(h.alias);
+        const safeHospitalName = escapeHtml(h.hospitalName);
+        return `<div class="saved-item" data-value="${safeHospitalName}" data-alias="${safeAlias}" data-type="hospital">
+            <span class="saved-item-content">🏥 ${safeAlias}</span>
+            <div class="saved-item-actions">
+                <button class="saved-item-edit" data-id="${h.id}" data-type="hospital" data-alias="${safeAlias}" data-value="${safeHospitalName}">✏️</button>
+                <button class="saved-item-delete" data-id="${h.id}" data-type="hospital">🗑️</button>
+            </div>
+        </div>`;
+    }).join('');
+    
+    usersDiv.addEventListener('click', function(e) {
+        const target = e.target.closest('.saved-item-content');
+        if (target) {
+            const item = target.closest('.saved-item');
+            if (item) {
+                const value = item.dataset.value;
+                if (value) {
+                    applyPatient(value);
+                }
+            }
+            return;
+        }
+        const editBtn = e.target.closest('.saved-item-edit');
+        if (editBtn) {
+            e.stopPropagation();
+            openEditSavedItem(editBtn.dataset.type, parseInt(editBtn.dataset.id), editBtn.dataset.alias, editBtn.dataset.value);
+            return;
+        }
+        const delBtn = e.target.closest('.saved-item-delete');
+        if (delBtn) {
+            e.stopPropagation();
+            if (confirm('Excluir?')) {
+                deleteSavedItem(delBtn.dataset.type, parseInt(delBtn.dataset.id));
+            }
+        }
+    });
+    
+    hospDiv.addEventListener('click', function(e) {
+        const target = e.target.closest('.saved-item-content');
+        if (target) {
+            const item = target.closest('.saved-item');
+            if (item) {
+                const value = item.dataset.value;
+                if (value) {
+                    applyHospital(value);
+                }
+            }
+            return;
+        }
+        const editBtn = e.target.closest('.saved-item-edit');
+        if (editBtn) {
+            e.stopPropagation();
+            openEditSavedItem(editBtn.dataset.type, parseInt(editBtn.dataset.id), editBtn.dataset.alias, editBtn.dataset.value);
+            return;
+        }
+        const delBtn = e.target.closest('.saved-item-delete');
+        if (delBtn) {
+            e.stopPropagation();
+            if (confirm('Excluir?')) {
+                deleteSavedItem(delBtn.dataset.type, parseInt(delBtn.dataset.id));
+            }
+        }
+    });
+}
+
+function renderCards() {
+    resizeArrays();
+    const grid = document.getElementById('cardsGrid');
+    const t = translations[currentLang];
+    grid.className = `appointments-grid layout-${currentLayout}-cards`;
+    grid.innerHTML = '';
+    
+    for(let i=0;i<currentLayout;i++) {
+        const d = cardData[i] || {};
+        const logo = (i < individualLogos.length && individualLogos[i]) || globalLogo;
+        const hospFull = d.hospitalFullValue || d.hospital || '';
+        
+        const hasHospitalName = getHospitalDisplayName(hospFull) && getHospitalDisplayName(hospFull).trim();
+        
+        const safePatient = escapeHtml(capitalize(d.pacient || '') || '_________________');
+        const safeSpeciality = escapeHtml(d.speciality || '_________________');
+        const safeDate = escapeHtml(d.date || '__/__/____');
+        const safeHour = escapeHtml(d.hour || '__:__');
+        const safeHospitalName = hasHospitalName ? escapeHtml(capitalize(getHospitalDisplayName(hospFull))) : 'Hospital';
+        const safeHospitalFull = hasHospitalName ? escapeHtml(getHospitalFullAddress(hospFull)) : '_________________';
+        const safeCardTitle = escapeHtml(t.cardTitle);
+        const safeCardPatient = escapeHtml(t.cardPatient);
+        const safeCardSpecialty = escapeHtml(t.cardSpecialty);
+        const safeCardDate = escapeHtml(t.cardDate);
+        const safeCardTime = escapeHtml(t.cardTime);
+        const safeCardLocation = escapeHtml(t.cardLocation);
+        const safeFooter1 = escapeHtml(t.cardFooter1);
+        const safeFooter2 = escapeHtml(t.cardFooter2);
+        
+        const hasLogo = logo ? true : false;
+        const bgStyle = hasLogo ? `style="background-image: url('${escapeHtml(logo)}'); background-size: cover; background-position: center; background-repeat: no-repeat;"` : '';
+        
+        grid.innerHTML += `<div class="appointment-card" data-card-index="${i}">
+            <div class="copy-badge" data-copy-index="${i}">📋</div>
+            <div class="clear-card-btn" data-clear-index="${i}" title="Limpar este cartão">✕</div>
+            <div style="display:flex;align-items:center;gap:10px;">
+                <div class="card-logo-container" data-logo-index="${i}" ${bgStyle}>
+                    ${hasLogo ? '' : '<span style="font-size:42px;">🏥</span>'}
+                    <div class="logo-overlay">🔄 Trocar</div>
+                </div>
+                <div class="hospital-name">${safeHospitalName}</div>
+            </div>
+            <div class="card-title">${safeCardTitle}</div>
+            <div class="appointment-details">
+                <div class="detail-row"><span class="detail-label">${safeCardPatient}</span><span class="detail-value">${safePatient}</span></div>
+                <div class="detail-row"><span class="detail-label">${safeCardSpecialty}</span><span class="detail-value">${safeSpeciality}</span></div>
+                <div class="detail-row"><span class="detail-label">${safeCardDate}</span><span class="detail-value">${safeDate}</span></div>
+                <div class="detail-row"><span class="detail-label">${safeCardTime}</span><span class="detail-value">${safeHour}</span></div>
+                <div class="detail-row"><span class="detail-label">${safeCardLocation}</span><span class="detail-value">${safeHospitalFull}</span></div>
+            </div>
+            <div class="card-footer"><span>${safeFooter1}</span><span>${safeFooter2}</span></div>
+        </div>`;
+    }
+    attachCardEvents();
+}
+
+function attachCardEvents() {
+    document.querySelectorAll('.copy-badge').forEach(b => { 
+        b.onclick = (e) => { 
+            e.stopPropagation(); 
+            const idx = parseInt(b.dataset.copyIndex); 
+            copiedCardBuffer = { ...cardData[idx] }; 
+            copiedFromIndex = idx; 
+            pastedCards.clear(); 
+            b.classList.add('copied'); 
+            setTimeout(() => b.classList.remove('copied'), 1000); 
+            showMessage(getTranslation('toastCopied', idx+1)); 
+        }; 
+    });
+    
+    document.querySelectorAll('.clear-card-btn').forEach(btn => { 
+        btn.onclick = (e) => { 
+            e.stopPropagation(); 
+            const idx = parseInt(btn.dataset.clearIndex); 
+            clearCard(idx); 
+        }; 
+    });
+    
+    document.querySelectorAll('.appointment-card').forEach(card => { 
+        card.onclick = (e) => { 
+            if(e.target.closest('.copy-badge')) return; 
+            if(e.target.closest('.clear-card-btn')) return; 
+            if(e.target.closest('.card-logo-container')) return; 
+            const idx = parseInt(card.dataset.cardIndex); 
+            if(copiedCardBuffer !== null && copiedFromIndex !== idx && !pastedCards.has(idx)) { 
+                cardData[idx] = { ...copiedCardBuffer }; 
+                if(individualLogos[copiedFromIndex]) individualLogos[idx] = individualLogos[copiedFromIndex]; 
+                pastedCards.add(idx); 
+                renderCards(); 
+                showMessage(getTranslation('toastPasted', idx+1)); 
+            } else { 
+                openEditModal(idx); 
+            } 
+        }; 
+    });
+    
+    document.querySelectorAll('.card-logo-container').forEach(cont => { 
+        cont.onclick = (e) => { 
+            e.stopPropagation(); 
+            const idx = parseInt(cont.dataset.logoIndex); 
+            const inp = document.createElement('input'); 
+            inp.type = 'file'; 
+            inp.accept = 'image/*'; 
+            inp.onchange = async (ev) => { 
+                const f = ev.target.files[0]; 
+                if(f) { 
+                    const r = new FileReader(); 
+                    r.onload = async (ev2) => { 
+                        try {
+                            const compressed = await compressLogo(ev2.target.result);
+                            individualLogos[idx] = compressed;
+                            const logoData = loadLogosFromStorage();
+                            logoData.individualLogos = individualLogos;
+                            saveLogosToStorage(logoData);
+                            renderCards(); 
+                            showMessage(getTranslation('toastLogoAdded')); 
+                        } catch(err) {
+                            showMessage(getTranslation('toastImageError'), 'error');
+                        }
+                    }; 
+                    r.readAsDataURL(f); 
+                } 
+            }; 
+            inp.click(); 
+        }; 
+    });
+}
+
+// ==================== MODAL FUNCTIONS ====================
+function openEditModal(idx) { 
+    currentEditIndex = idx; 
+    const d = cardData[idx] || {}; 
+    document.getElementById('modalCardNum').textContent = idx+1; 
+    document.getElementById('modalPacient').value = d.pacient || ''; 
+    document.getElementById('modalHospital').value = d.hospitalFullValue || d.hospital || ''; 
+    document.getElementById('modalSpeciality').value = d.speciality || ''; 
+    document.getElementById('modalDate').value = formatDateForInput(d.date); 
+    document.getElementById('modalHour').value = d.hour || ''; 
+    setupModalDropdowns(); 
+    document.getElementById('editModal').style.display = 'flex'; 
+}
+
+async function saveModalEdit() { 
+    if(currentEditIndex === -1) return; 
+    const safePacient = sanitizeInput(document.getElementById('modalPacient').value);
+    const safeHospital = sanitizeInput(document.getElementById('modalHospital').value);
+    const safeSpeciality = sanitizeInput(document.getElementById('modalSpeciality').value);
+    const safeDate = sanitizeInput(document.getElementById('modalDate').value);
+    const safeHour = sanitizeInput(document.getElementById('modalHour').value);
+    
+    cardData[currentEditIndex] = { 
+        pacient: capitalize(safePacient), 
+        hospital: getHospitalDisplayName(safeHospital), 
+        hospitalFullValue: safeHospital, 
+        speciality: safeSpeciality, 
+        date: formatDateForDisplay(safeDate), 
+        hour: safeHour 
+    }; 
+    renderCards(); 
+    await saveDb(); 
+    document.getElementById('editModal').style.display = 'none'; 
+    currentEditIndex = -1; 
+    showMessage('Cartão atualizado!'); 
+}
+
+async function resetAll() { 
+    const pac = capitalize(sanitizeInput(document.getElementById('globalPacient').value)); 
+    const hosp = sanitizeInput(document.getElementById('globalHospital').value); 
+    const spec = sanitizeInput(document.getElementById('global-speciality').value); 
+    const date = formatDateForDisplay(sanitizeInput(document.getElementById('globalDate').value)); 
+    const hour = sanitizeInput(document.getElementById('globalHour').value); 
+    for(let i=0;i<currentLayout;i++) { 
+        if(!cardData[i]) cardData[i]={}; 
+        if(pac && isEmptyField(cardData[i].pacient)) cardData[i].pacient=pac; 
+        if(hosp && isEmptyField(cardData[i].hospitalFullValue)) { 
+            cardData[i].hospitalFullValue=hosp; 
+            cardData[i].hospital=getHospitalDisplayName(hosp); 
+        } 
+        if(spec && isEmptyField(cardData[i].speciality)) cardData[i].speciality=spec; 
+        if(date && isEmptyField(cardData[i].date)) cardData[i].date=date; 
+        if(hour && isEmptyField(cardData[i].hour)) cardData[i].hour=hour; 
+    } 
+    individualLogos.fill(null); 
+    renderCards(); 
+    await saveDb(); 
+    showMessage('Campos vazios preenchidos!'); 
+}
+
+// ==================== SAVE ITEM FUNCTIONS ====================
+function saveAndApplyUser() { 
+    let v = document.getElementById('globalPacient').value.trim(); 
+    if(v) { 
+        const safeV = sanitizeInput(v); 
+        const capV = capitalize(safeV); 
+        const existing=db.savedUsers.find(u=>u.fullName===capV); 
+        if(existing) { 
+            applyPatient(capV); 
+            document.getElementById('globalPacient').value=''; 
+        } else { 
+            document.getElementById('saveItemAlias').value=safeV.split(' ')[0]; 
+            document.getElementById('saveItemValue').value=capV; 
+            document.getElementById('saveItemModal').style.display='flex'; 
+            window.pendingSaveType='user'; 
+        } 
+    } 
+}
+
+function saveAndApplyHospital() { 
+    let v = document.getElementById('globalHospital').value.trim(); 
+    if(v) { 
+        const safeV = sanitizeInput(v); 
+        const existing=db.savedHospitals.find(h=>h.hospitalName===safeV); 
+        if(existing) { 
+            applyHospital(safeV); 
+            document.getElementById('globalHospital').value=''; 
+        } else { 
+            document.getElementById('saveItemAlias').value=safeV.split(',')[0].substring(0,25); 
+            document.getElementById('saveItemValue').value=safeV; 
+            document.getElementById('saveItemModal').style.display='flex'; 
+            window.pendingSaveType='hospital'; 
+        } 
+    } 
+}
+
+async function confirmSaveItem() { 
+    const alias=sanitizeInput(document.getElementById('saveItemAlias').value.trim()); 
+    const full=sanitizeInput(document.getElementById('saveItemValue').value.trim()); 
+    if(!alias||!full) { 
+        showMessage('Preencha todos os campos','warning'); 
+        return; 
+    } 
+    if(window.pendingSaveType==='user') { 
+        db.savedUsers.push({id:Date.now(),alias,fullName:capitalize(full)}); 
+        await saveDb(); 
+        applyPatient(capitalize(full)); 
+        showMessage(getTranslation('toastUserSaved', alias)); 
+    } else if(window.pendingSaveType==='hospital') { 
+        db.savedHospitals.push({id:Date.now(),alias,hospitalName:full}); 
+        await saveDb(); 
+        applyHospital(full); 
+        showMessage(getTranslation('toastUserSaved', alias)); 
+    } 
+    renderGlobalSavedItems(); 
+    document.getElementById('saveItemModal').style.display='none'; 
+    setupAllDropdowns(); 
+}
+
+// ==================== SAVE/LOAD SETS ====================
+async function saveCurrentSet() { 
+    const nameInput = document.getElementById('setName');
+    const name = sanitizeInput(nameInput.value.trim()); 
+    
+    if (!name) { 
+        showMessage(getTranslation('toastNameRequired'), 'warning');
+        nameInput.focus();
+        nameInput.select();
+        return; 
+    }
+    
+    db.savedCards = db.savedCards.filter(c => c.name.toLowerCase() !== name.toLowerCase());
+    
+    const cardsSnapshot = [];
+    for(let i = 0; i < currentLayout; i++) {
+        cardsSnapshot.push(cardData[i] ? {...cardData[i]} : {});
+    }
+    
+    const logosSnapshot = [];
+    for(let i = 0; i < currentLayout; i++) {
+        const logo = (i < individualLogos.length && individualLogos[i]) ? individualLogos[i] : null;
+        logosSnapshot.push(logo);
+    }
+    
+    const logoKey = 'logos_' + Date.now();
+    const logoData = {
+        globalLogo: globalLogo,
+        individualLogos: logosSnapshot
+    };
+    localStorage.setItem(logoKey, JSON.stringify(logoData));
+    
+    db.savedCards.unshift({
+        id: Date.now(),
+        name: name,
+        layout: currentLayout,
+        timestamp: new Date().toISOString(),
+        logoKey: logoKey,
+        cards: cardsSnapshot
+    }); 
+    
+    if (db.savedCards.length > 30) db.savedCards.pop(); 
+    
+    try {
+        await saveDb(); 
+        renderSavedCardsList(); 
+        document.getElementById('saveSetModal').style.display = 'none'; 
+        document.getElementById('savedCount').textContent = `(${db.savedCards.length})`; 
+        nameInput.value = ''; 
+        showMessage(getTranslation('toastSetSaved', name)); 
+    } catch(e) {
+        showMessage(getTranslation('toastSaveError'), 'error');
+        console.error(e);
+    }
+}
+
+function renderSavedCardsList() { 
+    const container=document.getElementById('savedCardsList'); 
+    if(!db.savedCards.length) { 
+        container.innerHTML='<div style="text-align:center;padding:40px;">Nenhum conjunto salvo</div>'; 
+        return; 
+    } 
+    container.innerHTML=db.savedCards.map(c => {
+        const safeName = escapeHtml(c.name);
+        const safeDate = escapeHtml(new Date(c.timestamp).toLocaleString());
+        const safeLayout = escapeHtml(String(c.layout));
+        return `<div class="saved-card-item" data-id="${c.id}">
+            <div style="font-weight:700;">${safeName}</div>
+            <div style="font-size:0.7rem;">${safeDate}</div>
+            <div>📋 ${safeLayout} cartões</div>
+            <button class="delete-card-btn" data-id="${c.id}" style="margin-top:8px;background:#fee2e2;border:none;padding:4px 12px;border-radius:20px;">✖ Remover</button>
+        </div>`;
+    }).join(''); 
+    
+    document.querySelectorAll('.saved-card-item').forEach(item=>{ 
+        item.onclick=async(e)=>{ 
+            if(e.target.classList.contains('delete-card-btn')) return; 
+            const set=db.savedCards.find(c=>c.id==item.dataset.id); 
+            if(set){ 
+                resetArrays();
+                currentLayout=set.layout; 
+                document.querySelectorAll('.layout-option').forEach(o=>o.classList.remove('selected')); 
+                document.querySelector(`.layout-option[data-layout="${currentLayout}"]`).classList.add('selected'); 
+                
+                if(set.logoKey) {
+                    try {
+                        const logoDataStr = localStorage.getItem(set.logoKey);
+                        if(logoDataStr) {
+                            const logoData = JSON.parse(logoDataStr);
+                            globalLogo = logoData.globalLogo || null;
+                            if(logoData.individualLogos && logoData.individualLogos.length > 0) {
+                                for(let i = 0; i < logoData.individualLogos.length && i < 8; i++) {
+                                    individualLogos[i] = logoData.individualLogos[i] || null;
+                                }
+                            }
+                        }
+                    } catch(e) {
+                        console.warn('Error loading logos:', e);
+                    }
+                }
+                
+                if(globalLogo){ 
+                    document.getElementById('logoPreview').src=globalLogo; 
+                    document.getElementById('logoPreview').style.display='block'; 
+                    document.getElementById('logoPlaceholder').style.display='none'; 
+                    document.getElementById('removeLogoBtn').style.display='inline-block'; 
+                } else {
+                    document.getElementById('logoPreview').style.display='none'; 
+                    document.getElementById('logoPlaceholder').style.display='block'; 
+                    document.getElementById('removeLogoBtn').style.display='none'; 
+                }
+                
+                for(let i=0;i<set.cards.length && i<8;i++) {
+                    cardData[i] = {...set.cards[i]};
+                }
+                
+                await saveDb(); 
+                renderCards(); 
+                showMessage(getTranslation('toastSetLoaded', set.name)); 
+            } 
+        }; 
+    }); 
+    document.querySelectorAll('.delete-card-btn').forEach(btn=>{ 
+        btn.onclick=async(e)=>{ 
+            e.stopPropagation(); 
+            const set = db.savedCards.find(c=>c.id==btn.dataset.id);
+            if(set && set.logoKey) {
+                localStorage.removeItem(set.logoKey);
+            }
+            db.savedCards=db.savedCards.filter(c=>c.id!=btn.dataset.id); 
+            await saveDb(); 
+            renderSavedCardsList(); 
+            document.getElementById('savedCount').textContent=`(${db.savedCards.length})`; 
+            showMessage(getTranslation('toastRemoved')); 
+        }; 
+    }); 
+}
+
+// ==================== DANGER FUNCTIONS ====================
+async function deleteAllData() { 
+    if(confirm('Tem certeza?')) { 
+        db.savedUsers=[]; 
+        db.savedHospitals=[]; 
+        const cards = db.savedCards || [];
+        cards.forEach(c => {
+            if(c.logoKey) localStorage.removeItem(c.logoKey);
+        });
+        db.savedCards=[]; 
+        globalLogo=null; 
+        resetArrays();
+        clearLogosStorage();
+        await saveDb(); 
+        renderGlobalSavedItems(); 
+        renderSavedCardsList(); 
+        renderCards(); 
+        document.getElementById('savedCount').textContent='(0)'; 
+        document.getElementById('logoPreview').style.display='none'; 
+        document.getElementById('logoPlaceholder').style.display='block'; 
+        document.getElementById('removeLogoBtn').style.display='none'; 
+        showMessage(getTranslation('toastAllRemoved')); 
+    } 
+}
+
+async function cleanSystem() { 
+    if(confirm('Limpar TODO o sistema? Esta ação é irreversível!')) { 
+        localStorage.clear(); 
+        location.reload(); 
+    } 
+}
+
+// ==================== EXPORT FUNCTIONS ====================
+function exportToExcel() { 
+    const rows=[['Paciente','Hospital (Alias)','Endereço','Especialidade','Data','Horário']]; 
+    for(let i=0;i<currentLayout;i++){const d=cardData[i]||{}; 
+        rows.push([
+            capitalize(d.pacient||''),
+            capitalize(getHospitalDisplayName(d.hospitalFullValue||'')),
+            getHospitalFullAddress(d.hospitalFullValue||''),
+            d.speciality||'',
+            d.date||'',
+            d.hour||''
+        ]);
+    } 
+    const blob=new Blob([rows.map(r=>r.join('\t')).join('\n')],{type:'application/vnd.ms-excel'}); 
+    const a=document.createElement('a'); 
+    a.href=URL.createObjectURL(blob); 
+    a.download='agendamentos.xls'; 
+    a.click(); 
+    showMessage(getTranslation('toastExcel')); 
+}
+
+async function generatePDF() { 
+    const sheet=document.querySelector('.paper-sheet'); 
+    const badges=document.querySelectorAll('.copy-badge'); 
+    const clearBtns=document.querySelectorAll('.clear-card-btn'); 
+    badges.forEach(b=>b.style.display='none'); 
+    clearBtns.forEach(b=>b.style.display='none'); 
+    sheet.style.width='210mm'; 
+    sheet.style.minHeight='297mm'; 
+    await new Promise(r=>setTimeout(r,300)); 
+    try { 
+        const canvas=await html2canvas(sheet,{scale:3,backgroundColor:'#ffffff'}); 
+        const imgData=canvas.toDataURL('image/png'); 
+        const {jsPDF}=window.jspdf; 
+        const pdf=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'}); 
+        pdf.addImage(imgData,'PNG',0,0,210,297); 
+        pdf.save(`agendamentos.pdf`); 
+        showMessage(getTranslation('toastPDF')); 
+    } catch(e){ 
+        showMessage(getTranslation('toastExportError', e.message), 'error'); 
+    } finally { 
+        sheet.style.width=''; 
+        sheet.style.minHeight=''; 
+        badges.forEach(b=>b.style.display='flex'); 
+        clearBtns.forEach(b=>b.style.display='flex'); 
+    } 
+}
+
+function printPreview() { 
+    const badges=document.querySelectorAll('.copy-badge'); 
+    const clearBtns=document.querySelectorAll('.clear-card-btn'); 
+    badges.forEach(b=>b.style.display='none'); 
+    clearBtns.forEach(b=>b.style.display='none'); 
+    setTimeout(()=>{ 
+        window.print(); 
+        setTimeout(()=>{ 
+            badges.forEach(b=>b.style.display='flex'); 
+            clearBtns.forEach(b=>b.style.display='flex'); 
+        },500); 
+    },100); 
+}
+
+async function downloadImage() { 
+    const sheet=document.querySelector('.paper-sheet'); 
+    const badges=document.querySelectorAll('.copy-badge'); 
+    const clearBtns=document.querySelectorAll('.clear-card-btn'); 
+    badges.forEach(b=>b.style.display='none'); 
+    clearBtns.forEach(b=>b.style.display='none'); 
+    const canvas=await html2canvas(sheet,{scale:2}); 
+    badges.forEach(b=>b.style.display='flex'); 
+    clearBtns.forEach(b=>b.style.display='flex'); 
+    const a=document.createElement('a'); 
+    a.download='cartoes.png'; 
+    a.href=canvas.toDataURL(); 
+    a.click(); 
+    showMessage(getTranslation('toastPNG')); 
+}
+
+// ==================== EXPORT ALL CARDS ====================
+function exportAllCardsWithConfig() {
+    try {
+        let totalCards = 0;
+        let totalSets = db.savedCards ? db.savedCards.length : 0;
+        
+        for (let i = 0; i < 8; i++) {
+            if (cardData[i] && (cardData[i].pacient || cardData[i].hospital || cardData[i].speciality || cardData[i].date || cardData[i].hour)) {
+                totalCards++;
+            }
+        }
+        
+        if (db.savedCards) {
+            for (const set of db.savedCards) {
+                if (set.cards) {
+                    for (const card of set.cards) {
+                        if (card && (card.pacient || card.hospital || card.speciality || card.date || card.hour)) {
+                            totalCards++;
+                        }
+                    }
+                }
+            }
+        }
+        
+        if (totalCards === 0 && totalSets === 0) {
+            if (!confirm(getTranslation('toastNoDataToExport'))) {
+                return;
+            }
+        } else {
+            const msg = getTranslation('toastExportConfirm', totalCards, totalSets, db.savedUsers.length, db.savedHospitals.length);
+            if (!confirm(msg)) {
+                return;
+            }
+        }
+        
+        const exportData = {
+            version: 'v32',
+            timestamp: new Date().toISOString(),
+            exportType: 'full_system_export',
+            currentLayout: currentLayout,
+            currentCards: [],
+            currentLogos: {
+                globalLogo: globalLogo,
+                individualLogos: []
+            },
+            savedSets: [],
+            savedUsers: db.savedUsers || [],
+            savedHospitals: db.savedHospitals || [],
+            allLogos: {}
+        };
+        
+        for (let i = 0; i < 8; i++) {
+            const card = cardData[i] || {};
+            exportData.currentCards.push({
+                pacient: card.pacient || '',
+                hospital: card.hospital || '',
+                hospitalFullValue: card.hospitalFullValue || '',
+                speciality: card.speciality || '',
+                date: card.date || '',
+                hour: card.hour || ''
+            });
+        }
+        
+        for (let i = 0; i < 8; i++) {
+            exportData.currentLogos.individualLogos.push(individualLogos[i] || null);
+        }
+        
+        if (db.savedCards && db.savedCards.length > 0) {
+            for (const savedSet of db.savedCards) {
+                const setExport = {
+                    id: savedSet.id,
+                    name: savedSet.name,
+                    layout: savedSet.layout,
+                    timestamp: savedSet.timestamp,
+                    logoKey: savedSet.logoKey,
+                    cards: []
+                };
+                
+                if (savedSet.cards && Array.isArray(savedSet.cards)) {
+                    for (const card of savedSet.cards) {
+                        setExport.cards.push({
+                            pacient: card.pacient || '',
+                            hospital: card.hospital || '',
+                            hospitalFullValue: card.hospitalFullValue || '',
+                            speciality: card.speciality || '',
+                            date: card.date || '',
+                            hour: card.hour || ''
+                        });
+                    }
+                }
+                
+                exportData.savedSets.push(setExport);
+                
+                if (savedSet.logoKey) {
+                    const logoData = localStorage.getItem(savedSet.logoKey);
+                    if (logoData) {
+                        try {
+                            exportData.allLogos[savedSet.logoKey] = JSON.parse(logoData);
+                        } catch (e) {
+                            exportData.allLogos[savedSet.logoKey] = logoData;
+                        }
+                    }
+                }
+            }
+        }
+        
+        const currentLogoKey = 'current_logos_' + Date.now();
+        const currentLogoData = {
+            globalLogo: globalLogo,
+            individualLogos: individualLogos
+        };
+        exportData.allLogos[currentLogoKey] = currentLogoData;
+        exportData.currentLogoKey = currentLogoKey;
+        
+        const encryptedData = localStorage.getItem('medcard_encrypted_v2');
+        if (encryptedData) {
+            exportData.encryptedDb = encryptedData;
+            exportData.salt = localStorage.getItem('medcard_salt');
+        }
+        
+        const json = JSON.stringify(exportData, null, 2);
+        const blob = new Blob([json], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `medcard_full_export_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showMessage(getTranslation('toastExportSuccess', totalCards, totalSets, db.savedUsers.length, db.savedHospitals.length), 'success');
+    } catch (e) {
+        showMessage(getTranslation('toastExportError', e.message), 'error');
+        console.error(e);
+    }
+}
+
+// ==================== IMPORT ALL CARDS ====================
+function importAllCardsWithConfig(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const importData = JSON.parse(e.target.result);
+            
+            if (!importData.exportType || importData.exportType !== 'full_system_export') {
+                if (importData.cards && Array.isArray(importData.cards)) {
+                    importCardsWithConfigFromData(importData);
+                    return;
+                }
+                showMessage(getTranslation('toastInvalidFile'), 'error');
+                return;
+            }
+            
+            let totalCards = 0;
+            if (importData.currentCards) {
+                totalCards += importData.currentCards.filter(c => c && (c.pacient || c.hospital || c.speciality || c.date || c.hour)).length;
+            }
+            let totalSets = importData.savedSets ? importData.savedSets.length : 0;
+            let totalUsers = importData.savedUsers ? importData.savedUsers.length : 0;
+            let totalHospitals = importData.savedHospitals ? importData.savedHospitals.length : 0;
+            
+            if (importData.savedSets) {
+                for (const set of importData.savedSets) {
+                    if (set.cards) {
+                        totalCards += set.cards.filter(c => c && (c.pacient || c.hospital || c.speciality || c.date || c.hour)).length;
+                    }
+                }
+            }
+            
+            const msg = getTranslation('toastImportAllConfirm', totalCards, totalSets, totalUsers, totalHospitals);
+            if (!confirm(msg)) {
+                return;
+            }
+            
+            if (importData.savedUsers && Array.isArray(importData.savedUsers)) {
+                db.savedUsers = importData.savedUsers;
+            }
+            
+            if (importData.savedHospitals && Array.isArray(importData.savedHospitals)) {
+                db.savedHospitals = importData.savedHospitals;
+            }
+            
+            if (importData.savedSets && Array.isArray(importData.savedSets)) {
+                db.savedCards = importData.savedSets;
+                
+                if (importData.allLogos) {
+                    for (const set of db.savedCards) {
+                        if (set.logoKey && importData.allLogos[set.logoKey]) {
+                            try {
+                                const logoData = importData.allLogos[set.logoKey];
+                                localStorage.setItem(set.logoKey, JSON.stringify(logoData));
+                            } catch (err) {
+                                console.warn('Error restoring logo for set:', set.name, err);
+                            }
+                        }
+                    }
+                }
+            }
+            
+            if (importData.currentCards && Array.isArray(importData.currentCards)) {
+                resetArrays();
+                const cardCount = Math.min(importData.currentCards.length, 8);
+                for (let i = 0; i < cardCount; i++) {
+                    const importedCard = importData.currentCards[i] || {};
+                    cardData[i] = {
+                        pacient: importedCard.pacient || '',
+                        hospital: importedCard.hospital || '',
+                        hospitalFullValue: importedCard.hospitalFullValue || '',
+                        speciality: importedCard.speciality || '',
+                        date: importedCard.date || '',
+                        hour: importedCard.hour || ''
+                    };
+                }
+            }
+            
+            if (importData.currentLogos) {
+                globalLogo = importData.currentLogos.globalLogo || null;
+                if (importData.currentLogos.individualLogos) {
+                    for (let i = 0; i < Math.min(importData.currentLogos.individualLogos.length, 8); i++) {
+                        individualLogos[i] = importData.currentLogos.individualLogos[i] || null;
+                    }
+                }
+                
+                const logoData = loadLogosFromStorage();
+                logoData.globalLogo = globalLogo;
+                logoData.individualLogos = individualLogos;
+                saveLogosToStorage(logoData);
+            }
+            
+            if (importData.currentLayout) {
+                currentLayout = importData.currentLayout;
+                db.settings.lastLayout = currentLayout;
+                document.querySelectorAll('.layout-option').forEach(o => {
+                    o.classList.remove('selected');
+                    if (parseInt(o.dataset.layout) === currentLayout) {
+                        o.classList.add('selected');
+                    }
+                });
+            }
+            
+            if (globalLogo) {
+                document.getElementById('logoPreview').src = globalLogo;
+                document.getElementById('logoPreview').style.display = 'block';
+                document.getElementById('logoPlaceholder').style.display = 'none';
+                document.getElementById('removeLogoBtn').style.display = 'inline-block';
+            } else {
+                document.getElementById('logoPreview').style.display = 'none';
+                document.getElementById('logoPlaceholder').style.display = 'block';
+                document.getElementById('removeLogoBtn').style.display = 'none';
+            }
+            
+            saveDb().then(() => {
+                renderCards();
+                renderSavedCardsList();
+                renderGlobalSavedItems();
+                setupAllDropdowns();
+                document.getElementById('savedCount').textContent = `(${db.savedCards.length})`;
+                
+                showMessage(getTranslation('toastImportAllSuccess', totalCards, totalSets), 'success');
+            });
+            
+        } catch (err) {
+            showMessage(getTranslation('toastImportError', err.message), 'error');
+            console.error(err);
+        }
+    };
+    reader.readAsText(file);
+}
+
+function importCardsWithConfigFromData(importData) {
+    if (!importData.cards || !Array.isArray(importData.cards)) {
+        showMessage(getTranslation('toastInvalidFile'), 'error');
+        return;
+    }
+    
+    const msg = getTranslation('toastImportConfirm', importData.cards.length, importData.layout || currentLayout);
+    if (!confirm(msg)) {
+        return;
+    }
+    
+    if (importData.layout) {
+        currentLayout = importData.layout;
+        db.settings.lastLayout = currentLayout;
+        document.querySelectorAll('.layout-option').forEach(o => {
+            o.classList.remove('selected');
+            if (parseInt(o.dataset.layout) === currentLayout) {
+                o.classList.add('selected');
+            }
+        });
+    }
+    
+    resetArrays();
+    
+    const cardCount = Math.min(importData.cards.length, 8);
+    for (let i = 0; i < cardCount; i++) {
+        const importedCard = importData.cards[i] || {};
+        cardData[i] = {
+            pacient: importedCard.pacient || '',
+            hospital: importedCard.hospital || '',
+            hospitalFullValue: importedCard.hospitalFullValue || '',
+            speciality: importedCard.speciality || '',
+            date: importedCard.date || '',
+            hour: importedCard.hour || ''
+        };
+    }
+    
+    if (importData.logos) {
+        globalLogo = importData.logos.globalLogo || null;
+        if (importData.logos.individualLogos) {
+            for (let i = 0; i < Math.min(importData.logos.individualLogos.length, 8); i++) {
+                individualLogos[i] = importData.logos.individualLogos[i] || null;
+            }
+        }
+        
+        const logoData = loadLogosFromStorage();
+        logoData.globalLogo = globalLogo;
+        logoData.individualLogos = individualLogos;
+        saveLogosToStorage(logoData);
+        
+        if (globalLogo) {
+            document.getElementById('logoPreview').src = globalLogo;
+            document.getElementById('logoPreview').style.display = 'block';
+            document.getElementById('logoPlaceholder').style.display = 'none';
+            document.getElementById('removeLogoBtn').style.display = 'inline-block';
+        } else {
+            document.getElementById('logoPreview').style.display = 'none';
+            document.getElementById('logoPlaceholder').style.display = 'block';
+            document.getElementById('removeLogoBtn').style.display = 'none';
+        }
+    }
+    
+    saveDb();
+    renderCards();
+    showMessage(getTranslation('toastImportSuccess', cardCount), 'success');
+}
+
+// ==================== SPECIALTY LIST ====================
+function populateSpecialties() {
+    const specialties = [
+        'Alergologista', 'Anestesiologista', 'Angiologista', 'Cardiologista',
+        'Cirurgião Cardiovascular', 'Cirurgião Geral', 'Cirurgião Plástico', 'Cirurgião Torácico',
+        'Cirurgião Vascular', 'Clínico Geral', 'Dermatologista', 'Endocrinologista',
+        'Gastroenterologista', 'Geriatra', 'Ginecologista', 'Hematologista',
+        'Infectologista', 'Mastologista', 'Nefrologista', 'Neurocirurgião',
+        'Neurologista', 'Nutrólogo', 'Obstetra', 'Oftalmologista',
+        'Oncologista', 'Ortopedista', 'Otorrinolaringologista', 'Pediatra',
+        'Pneumologista', 'Psiquiatra', 'Radiologista', 'Reumatologista',
+        'Urologista', 'Medicina do Trabalho', 'Medicina Esportiva', 'Medicina Intensiva',
+        'Medicina Nuclear', 'Medicina Preventiva', 'Patologista', 'Proctologista'
+    ];
+    const sel = document.getElementById('global-speciality');
+    const modalSel = document.getElementById('modalSpeciality');
+    sel.innerHTML = '';
+    modalSel.innerHTML = '';
+    specialties.forEach(s => {
+        const safeS = escapeHtml(s);
+        sel.appendChild(new Option(safeS, safeS));
+        modalSel.appendChild(new Option(safeS, safeS));
+    });
+}
+
+// ==================== DROPDOWN SETUP ====================
+function setupAllDropdowns() { 
+    setupSmartDropdown('globalPacient','globalPacientContainer',db.savedUsers,i=>i.fullName,'user',false,null); 
+    setupSmartDropdown('globalHospital','globalHospitalContainer',db.savedHospitals,i=>i.hospitalName,'hospital',false,null); 
+}
+
+function setupModalDropdowns() { 
+    setupSmartDropdown('modalPacient','modalPacientContainer',db.savedUsers,i=>i.fullName,'user',true,saveModalEdit); 
+    setupSmartDropdown('modalHospital','modalHospitalContainer',db.savedHospitals,i=>i.hospitalName,'hospital',true,saveModalEdit); 
+    const modalSpec=document.getElementById('modalSpeciality'); 
+    const modalDate=document.getElementById('modalDate'); 
+    const modalHour=document.getElementById('modalHour'); 
+    if(modalSpec) modalSpec.onkeypress=(e)=>{if(e.key==='Enter'){e.preventDefault();saveModalEdit();}}; 
+    if(modalDate) modalDate.onkeypress=(e)=>{if(e.key==='Enter'){e.preventDefault();saveModalEdit();}}; 
+    if(modalHour) modalHour.onkeypress=(e)=>{if(e.key==='Enter'){e.preventDefault();saveModalEdit();}}; 
+}
+
+// ==================== DATABASE FUNCTIONS ====================
+async function deriveKey(password, salt) { 
+    const enc = new TextEncoder(); 
+    const keyMat = await crypto.subtle.importKey('raw', enc.encode(password), { name: 'PBKDF2' }, false, ['deriveKey']); 
+    return await crypto.subtle.deriveKey({ name: 'PBKDF2', salt: salt, iterations: 100000, hash: 'SHA-256' }, keyMat, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']); 
+}
+
+async function encryptData(data, key) { 
+    const enc = new TextEncoder(); 
+    const dataBuf = enc.encode(JSON.stringify(data)); 
+    const iv = crypto.getRandomValues(new Uint8Array(12)); 
+    const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv: iv }, key, dataBuf); 
+    const result = new Uint8Array(iv.length + encrypted.byteLength); 
+    result.set(iv); 
+    result.set(new Uint8Array(encrypted), iv.length); 
+    return btoa(String.fromCharCode.apply(null, result)); 
+}
+
+async function decryptData(encryptedBase64, key) { 
+    const encryptedData = Uint8Array.from(atob(encryptedBase64), c => c.charCodeAt(0)); 
+    const iv = encryptedData.slice(0, 12); 
+    const data = encryptedData.slice(12); 
+    const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: iv }, key, data); 
+    return JSON.parse(new TextDecoder().decode(decrypted)); 
+}
+
+async function saveDb() { 
+    if (!cryptoKey) {
+        showMessage(getTranslation('toastDatabaseNotInitialized'), 'error');
+        return;
+    }
+    try {
+        const encrypted = await encryptData(db, cryptoKey); 
+        localStorage.setItem('medcard_encrypted_v2', encrypted); 
+    } catch(e) {
+        console.error('Save error:', e);
+        showMessage(getTranslation('toastSaveError'), 'error');
+        throw e;
+    }
+}
+
+async function loadDb(password, salt) { 
+    const encrypted = localStorage.getItem('medcard_encrypted_v2'); 
+    if (!encrypted) throw new Error('No database'); 
+    const key = await deriveKey(password, salt); 
+    db = await decryptData(encrypted, key); 
+    cryptoKey = key; 
+    return true; 
+}
+
+async function createNewDb(password) { 
+    const salt = crypto.getRandomValues(new Uint8Array(32)); 
+    const key = await deriveKey(password, salt); 
+    db = { savedUsers: [], savedHospitals: [], savedCards: [], settings: { lastLayout: 4 } }; 
+    const encrypted = await encryptData(db, key); 
+    localStorage.setItem('medcard_encrypted_v2', encrypted); 
+    localStorage.setItem('medcard_salt', btoa(String.fromCharCode.apply(null, salt))); 
+    cryptoKey = key; 
+}
+
+function getStoredSalt() { 
+    const saltBase64 = localStorage.getItem('medcard_salt'); 
+    return saltBase64 ? Uint8Array.from(atob(saltBase64), c=>c.charCodeAt(0)) : null; 
+}
+
+function databaseExists() { 
+    return localStorage.getItem('medcard_encrypted_v2') !== null; 
+}
+
+// ==================== LANGUAGE ====================
+function updateLanguage(lang) { 
+    currentLang = lang; 
+    const t = translations[lang]; 
+    document.getElementById('appTitle').textContent = t.appTitle;
+    document.getElementById('appSubtitle').textContent = t.appSubtitle;
+    document.getElementById('settingsTitle').textContent = t.settingsTitle;
+    document.getElementById('savedSetsText').textContent = t.savedSetsText;
+    document.getElementById('layoutLabel').textContent = t.layoutLabel;
+    document.getElementById('patientLabel').textContent = t.patientLabel;
+    document.getElementById('hospitalLabel').textContent = t.hospitalLabel;
+    document.getElementById('specialityLabel').textContent = t.specialityLabel;
+    document.getElementById('dateLabel').textContent = t.dateLabel;
+    document.getElementById('timeLabel').textContent = t.timeLabel;
+    document.getElementById('logoLabel').textContent = t.logoLabel;
+    document.getElementById('previewTitle').textContent = t.previewTitle;
+    document.getElementById('dbStatus').textContent = t.dbStatus;
+    
+    document.getElementById('exportDbText').textContent = t.exportDb;
+    document.getElementById('importDbText').textContent = t.importDb;
+    document.getElementById('exportAllText').textContent = t.exportAll;
+    document.getElementById('importAllText').textContent = t.importAll;
+    document.getElementById('exportExcelText').textContent = t.exportExcel;
+    document.getElementById('saveSetText').textContent = t.saveSet;
+    document.getElementById('resetCardsText').textContent = t.resetCards;
+    document.getElementById('deleteAllText').textContent = t.deleteAll;
+    document.getElementById('cleanSystemText').textContent = t.cleanSystem;
+    document.getElementById('addLogoText').textContent = t.addLogo;
+    document.getElementById('removeLogoText').textContent = t.removeLogo;
+    document.getElementById('pdfText').textContent = t.pdf;
+    document.getElementById('printText').textContent = t.print;
+    document.getElementById('pngText').textContent = t.png;
+    document.getElementById('modalSaveText').textContent = t.save;
+    document.getElementById('modalCancelText').textContent = t.cancel;
+    document.getElementById('confirmSaveSetText').textContent = t.save;
+    document.getElementById('cancelSaveSetText').textContent = t.cancel;
+    document.getElementById('confirmSaveItemText').textContent = t.save;
+    document.getElementById('cancelSaveItemText').textContent = t.cancel;
+    document.getElementById('confirmEditSavedItemText').textContent = t.save;
+    document.getElementById('cancelEditSavedItemText').textContent = t.cancel;
+    
+    const editTitle = document.getElementById('editCardTitle');
+    if(editTitle) {
+        editTitle.innerHTML = t.editCardTitle + ' <span id="modalCardNum">1</span>';
+    }
+    
+    document.getElementById('modalPatientLabel').textContent = t.modalPatientLabel;
+    document.getElementById('modalHospitalLabel').textContent = t.modalHospitalLabel;
+    document.getElementById('modalSpecialityLabel').textContent = t.modalSpecialityLabel;
+    document.getElementById('modalDateLabel').textContent = t.modalDateLabel;
+    document.getElementById('modalTimeLabel').textContent = t.modalTimeLabel;
+    document.getElementById('modalHint').textContent = t.modalHint;
+    document.getElementById('saveSetModalTitle').textContent = t.saveSetModalTitle;
+    document.getElementById('setNameLabel').textContent = t.setNameLabel;
+    document.getElementById('saveItemModalTitle').textContent = t.saveItemModalTitle;
+    document.getElementById('saveItemAliasLabel').textContent = t.saveItemAliasLabel;
+    document.getElementById('saveItemValueLabel').textContent = t.saveItemValueLabel;
+    document.getElementById('editSavedItemTitle').textContent = t.editSavedItemTitle;
+    document.getElementById('editSavedItemAliasLabel').textContent = t.editSavedItemAliasLabel;
+    document.getElementById('editSavedItemValueLabel').textContent = t.editSavedItemValueLabel;
+    document.getElementById('dangerZoneTitle').textContent = t.dangerZoneTitle;
+    document.getElementById('savedSetsTitle').textContent = t.savedSetsTitle;
+    
+    document.querySelectorAll('.lang-btn').forEach(function(btn){ 
+        if(btn.dataset.lang === lang) {
+            btn.classList.add('active');
+        } else {
+            btn.classList.remove('active');
+        }
+    }); 
+    renderCards(); 
+}
+
+// ==================== SMART ESC HANDLER ====================
+function handleEscKey(e) {
+    if (e.key !== 'Escape') return;
+    
+    const modals = [
+        { el: document.getElementById('editModal'), fields: ['modalPacient', 'modalHospital', 'modalSpeciality', 'modalDate', 'modalHour'] },
+        { el: document.getElementById('saveSetModal'), fields: ['setName'] },
+        { el: document.getElementById('saveItemModal'), fields: ['saveItemAlias', 'saveItemValue'] },
+        { el: document.getElementById('editSavedItemModal'), fields: ['editSavedItemAlias', 'editSavedItemValue'] }
+    ];
+    
+    // NEW: Check if ANY field in the modal has content, regardless of focus
+    for (const modal of modals) {
+        if (modal.el && modal.el.style.display === 'flex') {
+            let activeField = document.activeElement;
+            let fieldId = activeField ? activeField.id : null;
+            
+            // NEW: Check if focus is inside the modal OR if we just want to check all fields
+            let isInsideModal = false;
+            if (activeField && modal.el) {
+                isInsideModal = modal.el.contains(activeField);
+            }
+            
+            // If focus is inside modal and has content
+            if (fieldId && modal.fields.includes(fieldId)) {
+                const value = activeField.value || '';
+                if (value.trim() !== '') {
+                    activeField.value = '';
+                    activeField.focus();
+                    showMessage(getTranslation('toastFieldCleared'), 'success');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+            }
+            
+            // NEW: If focus is NOT inside modal, check all fields for content
+            if (!isInsideModal) {
+                let hasContent = false;
+                let fieldWithContent = null;
+                
+                for (const fieldId of modal.fields) {
+                    const field = document.getElementById(fieldId);
+                    if (field && field.value && field.value.trim() !== '') {
+                        hasContent = true;
+                        fieldWithContent = field;
+                        break;
+                    }
+                }
+                
+                if (hasContent && fieldWithContent) {
+                    fieldWithContent.value = '';
+                    fieldWithContent.focus();
+                    showMessage(getTranslation('toastFieldCleared'), 'success');
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return;
+                }
+            }
+            
+            // If we get here, close the modal
+            modal.el.style.display = 'none';
+            modal.fields.forEach(id => {
+                const field = document.getElementById(id);
+                if (field) field.value = '';
+            });
+            e.preventDefault();
+            e.stopPropagation();
+            return;
+        }
+    }
+}
+
+
+// ==================== PASSWORD PROMPT ====================
+function showPasswordPrompt() {
+    const path = window.location.pathname;
+    const fileName = path.substring(path.lastIndexOf('/') + 1);
+    const match = fileName.match(/v\d+/);
+    const version = match ? match[0] : 'v32';
+
+    const lang = langGLOBAL || 'pt';
+    const t = loginTranslations[lang] || loginTranslations.pt;
+
+    const resp=true;
+    const overlay = document.createElement('div'); 
+    
+
+    overlay.className = 'password-prompt';
+    overlay.innerHTML = `
+      <div class="password-box" style="color: #1a1a1a;">
+    <div style="display: flex; justify-content: flex-end; gap: 8px; margin-bottom: 12px;">
+        <button class="login-lang-btn" data-lang="pt"
+            style="background: ${lang === 'pt' ? '#0f5c6e' : 'transparent'}; 
+                   color: ${lang === 'pt' ? 'white' : '#0f5c6e'}; 
+                   border: 2px solid ${lang === 'pt' ? '#0f5c6e' : '#0f5c6e'}; 
+                   padding: 6px 16px; 
+                   border-radius: 25px; 
+                   cursor: pointer; 
+                   font-weight: 700; 
+                   font-size: 0.75rem; 
+                   min-height: 36px;
+                   transition: all 0.3s ease;
+                   box-shadow: ${lang === 'pt' ? '0 2px 8px rgba(15, 92, 110, 0.3)' : 'none'};"
+            onmouseover="this.style.background='${lang === 'pt' ? '#0a4654' : '#e6f4f0'}'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.background='${lang === 'pt' ? '#0f5c6e' : 'transparent'}'; this.style.transform='scale(1)';">
+            🇧🇷 PT
+        </button>
+        <button class="login-lang-btn" data-lang="en"
+            style="background: ${lang === 'en' ? '#0f5c6e' : 'transparent'}; 
+                   color: ${lang === 'en' ? 'white' : '#0f5c6e'}; 
+                   border: 2px solid ${lang === 'en' ? '#0f5c6e' : '#0f5c6e'}; 
+                   padding: 6px 16px; 
+                   border-radius: 25px; 
+                   cursor: pointer; 
+                   font-weight: 700; 
+                   font-size: 0.75rem; 
+                   min-height: 36px;
+                   transition: all 0.3s ease;
+                   box-shadow: ${lang === 'en' ? '0 2px 8px rgba(15, 92, 110, 0.3)' : 'none'};"
+            onmouseover="this.style.background='${lang === 'en' ? '#0a4654' : '#e6f4f0'}'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.background='${lang === 'en' ? '#0f5c6e' : 'transparent'}'; this.style.transform='scale(1)';">
+            🇺🇸 EN
+        </button>
+        <button class="login-lang-btn" data-lang="es"
+            style="background: ${lang === 'es' ? '#0f5c6e' : 'transparent'}; 
+                   color: ${lang === 'es' ? 'white' : '#0f5c6e'}; 
+                   border: 2px solid ${lang === 'es' ? '#0f5c6e' : '#0f5c6e'}; 
+                   padding: 6px 16px; 
+                   border-radius: 25px; 
+                   cursor: pointer; 
+                   font-weight: 700; 
+                   font-size: 0.75rem; 
+                   min-height: 36px;
+                   transition: all 0.3s ease;
+                   box-shadow: ${lang === 'es' ? '0 2px 8px rgba(15, 92, 110, 0.3)' : 'none'};"
+            onmouseover="this.style.background='${lang === 'es' ? '#0a4654' : '#e6f4f0'}'; this.style.transform='scale(1.05)';"
+            onmouseout="this.style.background='${lang === 'es' ? '#0f5c6e' : 'transparent'}'; this.style.transform='scale(1)';">
+            🇪🇸 ES
+        </button>
+    </div>
+        <h2 style="color: #1a1a1a;">${t.title}</h2>
+        <p style="color: #333;">${t.subtitle}</p>
+        <p style="color: #333;"><strong>${t.desc}</strong></p>
+        <p style="font-size:0.8rem; color:#666;">${t.logos}</p>
+        <p style="font-size:0.7rem; color:#888;">${t.system}</p>
+        <p style="font-size:0.7rem; color:#888;">${t.esc}</p>
+        <input type="password" id="pwdInput" placeholder="${t.placeholder}" style="margin-top: 16px; width: 100%; padding: 12px 16px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 16px; color: #1a1a1a;" value="${savedLoginPassword}">
+        <button id="unlockBtn" class="button secondary" style="margin-top: 12px; width: 100%;">${t.unlock}</button>
+        <button id="newDbBtn" class="button" style="margin-top: 8px; width: 100%;">${t.newDb}</button>
+        <div class="security-badge" style="margin-top: 16px; color: #555;">${t.security}</div>
+      </div>
+    `;
+
+    // Remove old overlay if exists
+    const oldOverlay = document.querySelector('.password-prompt');
+    if (oldOverlay) {
+        oldOverlay.remove();
+    }
+    
+    document.body.appendChild(overlay);
+    
+    // Focus and restore cursor position
+    const pwdInput = document.getElementById('pwdInput');
+    if (pwdInput) {
+        pwdInput.focus();
+        if (savedLoginPassword) {
+            pwdInput.setSelectionRange(savedLoginPassword.length, savedLoginPassword.length);
+        }
+    }
+    
+    // Login screen language buttons
+    // ==================== TOGGLE: KEEP PASSWORD ON LANGUAGE CHANGE ====================
+let keepPasswordOnLangChange = true;  // ← Toggle this: true = keep, false = clear
+
+// Login screen language buttons
+document.querySelectorAll('.login-lang-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        const newLang = this.dataset.lang;
+        
+        // Store current password BEFORE destroying DOM
+        const currentPwd = document.getElementById('pwdInput');
+        if (currentPwd) {
+            if (keepPasswordOnLangChange) {
+                savedLoginPassword = currentPwd.value;  // Keep password
+            } else {
+                savedLoginPassword = '';  // Clear password
+            }
+        }
+        
+        langGLOBAL = newLang;
+        showPasswordPrompt();
+    });
+});
+
+// Save password on every input change (only if keep is enabled)
+document.getElementById('pwdInput').addEventListener('input', function(e) {
+    if (KEEP_PASSWORD_ON_LANG_CHANGE) {
+        savedLoginPassword = this.value;
+    }
+});
+
+    // Save password on every input change
+    document.getElementById('pwdInput').addEventListener('input', function(e) {
+    
+        savedLoginPassword = this.value;
+    });
+    
+    document.getElementById('unlockBtn').onclick = async function() { 
+        const password = document.getElementById('pwdInput').value; 
+        if(!password) return; 
+        try { 
+            const salt = getStoredSalt(); 
+            if(!salt) throw new Error('No salt'); 
+            await loadDb(password, salt); 
+            overlay.remove(); 
+            currentLang = langGLOBAL;
+            savedLoginPassword = ''; // Clear after successful login
+            initApp(); 
+            showMessage(getTranslation('toastUnlocked')); 
+        } catch(e) { 
+            alert('Senha incorreta!'); 
+            document.getElementById('pwdInput').value = ''; 
+            savedLoginPassword = '';
+            document.getElementById('pwdInput').focus();
+        } 
+    };
+    
+    document.getElementById('pwdInput').addEventListener('keydown', async function(e) { 
+        if(e.key === 'Enter') { 
+            const password = document.getElementById('pwdInput').value; 
+            if(!password) return; 
+            try { 
+                const salt = getStoredSalt(); 
+                await loadDb(password, salt); 
+                overlay.remove(); 
+                currentLang = langGLOBAL;
+                savedLoginPassword = ''; // Clear after successful login
+                initApp(); 
+                showMessage(getTranslation('toastUnlocked')); 
+            } catch(e) { 
+                alert('Senha incorreta!'); 
+                document.getElementById('pwdInput').value = ''; 
+                savedLoginPassword = '';
+                document.getElementById('pwdInput').focus();
+            } 
+        } 
+    });
+    
+    document.getElementById('newDbBtn').onclick = async function() { 
+        const password = prompt('Digite uma senha forte (mínimo 4 caracteres):\n\n⚠️ GUARDE ESTA SENHA!'); 
+        if(password && password.length>=4) { 
+            const confirmPwd = prompt('Confirme a senha:'); 
+            if(password===confirmPwd) { 
+                await createNewDb(password); 
+                overlay.remove(); 
+                currentLang = langGLOBAL;
+                savedLoginPassword = '';
+                initApp(); 
+                showMessage(getTranslation('toastNewDb')); 
+            } else alert('Senhas não coincidem!'); 
+        } else alert('Senha deve ter no mínimo 4 caracteres!'); 
+    };
+}
+
+// ==================== INIT APP ====================
+async function initApp() {
+    populateSpecialties();
+    resetArrays();
+    globalLogo = null;
+    clearLogosStorage();
+    
+    document.getElementById('logoPreview').style.display = 'none'; 
+    document.getElementById('logoPlaceholder').style.display = 'block'; 
+    document.getElementById('removeLogoBtn').style.display = 'none'; 
+    
+    const layoutOptions = document.querySelectorAll('.layout-option');
+    layoutOptions.forEach(o => o.classList.remove('selected'));
+
+    currentLayout = db.settings.lastLayout || 4;
+
+    layoutOptions.forEach(opt => {
+        if (parseInt(opt.dataset.layout) === currentLayout) {
+            opt.classList.add('selected');
+        }
+        opt.onclick = () => {
+            layoutOptions.forEach(o => o.classList.remove('selected'));
+            opt.classList.add('selected');
+            currentLayout = parseInt(opt.dataset.layout);
+            db.settings.lastLayout = currentLayout;
+            saveDb();
+            renderCards();
+        };
+    });
+    
+    renderCards(); 
+    renderSavedCardsList(); 
+    renderGlobalSavedItems();
+    document.getElementById('savedCount').textContent = `(${db.savedCards.length})`;
+    
+    const t = translations[currentLang];
+    document.getElementById('dbStatus').textContent = t.dbStatus;
+    setupAllDropdowns();
+    
+    const saveSetModal = document.getElementById('saveSetModal');
+    const setNameInput = document.getElementById('setName');
+
+    document.getElementById('confirmSaveSetBtn').onclick = function(e) {
+        e.preventDefault();
+        saveCurrentSet();
+    };
+
+    document.getElementById('cancelSaveSetBtn').onclick = function(e) {
+        e.preventDefault();
+        saveSetModal.style.display = 'none';
+        setNameInput.value = '';
+    };
+
+    setNameInput.addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            e.stopPropagation();
+            saveCurrentSet();
+        }
+    });
+
+    document.getElementById('saveSetBtn').onclick = function() {
+        const modal = document.getElementById('saveSetModal');
+        modal.style.display = 'flex';
+        const input = document.getElementById('setName');
+        input.value = '';
+        setTimeout(function() {
+            input.focus();
+            input.select();
+        }, 100);
+    };
+
+    document.addEventListener('keydown', handleEscKey);
+
+    document.getElementById('resetBtn').onclick = resetAll;
+    document.getElementById('pdfBtn').onclick = generatePDF;
+    document.getElementById('printBtn').onclick = printPreview;
+    document.getElementById('imageBtn').onclick = downloadImage;
+    document.getElementById('excelExportBtn').onclick = exportToExcel;
+    document.getElementById('clearAllDataBtn').onclick = deleteAllData;
+    document.getElementById('cleanSystemBtn').onclick = cleanSystem;
+    document.getElementById('toggleSavedBtn').onclick = function() {
+        document.getElementById('savedSection').classList.toggle('active');
+    };
+    
+    document.getElementById('savePacientBtn').onclick = saveAndApplyUser;
+    document.getElementById('saveHospitalBtn').onclick = saveAndApplyHospital;
+    
+    document.getElementById('modalSaveBtn').onclick = saveModalEdit;
+    document.getElementById('modalCancelBtn').onclick = function() { 
+        document.getElementById('editModal').style.display = 'none'; 
+    };
+    document.getElementById('modalCloseBtn').onclick = function() { 
+        document.getElementById('editModal').style.display = 'none'; 
+    };
+    
+    document.getElementById('confirmSaveItemBtn').onclick = confirmSaveItem;
+    document.getElementById('cancelSaveItemBtn').onclick = function() { 
+        document.getElementById('saveItemModal').style.display = 'none'; 
+    };
+    
+    document.getElementById('saveItemAlias').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            confirmSaveItem();
+        }
+    });
+    document.getElementById('saveItemValue').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault();
+            confirmSaveItem();
+        }
+    });
+
+    document.getElementById('confirmEditSavedItemBtn').onclick = saveEditedSavedItem;
+    document.getElementById('cancelEditSavedItemBtn').onclick = function() { 
+        document.getElementById('editSavedItemModal').style.display = 'none'; 
+    };
+    
+    document.getElementById('editSavedItemAlias').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter') {
+            e.preventDefault();
+            saveEditedSavedItem();
+        }
+    });
+    document.getElementById('editSavedItemValue').addEventListener('keydown', function(e) {
+        if(e.key === 'Enter' && e.ctrlKey) {
+            e.preventDefault();
+            saveEditedSavedItem();
+        }
+    });
+
+    document.getElementById('modalSavePacientBtn').onclick = function() { 
+        let v = document.getElementById('modalPacient').value; 
+        if(v) { 
+            const safeV = sanitizeInput(v);
+            document.getElementById('saveItemAlias').value = safeV.split(' ')[0]; 
+            document.getElementById('saveItemValue').value = safeV; 
+            document.getElementById('saveItemModal').style.display = 'flex'; 
+            window.pendingSaveType = 'user'; 
+        } 
+    };
+    document.getElementById('modalSaveHospitalBtn').onclick = function() { 
+        let v = document.getElementById('modalHospital').value; 
+        if(v) { 
+            const safeV = sanitizeInput(v);
+            document.getElementById('saveItemAlias').value = safeV.split(',')[0].substring(0,25); 
+            document.getElementById('saveItemValue').value = safeV; 
+            document.getElementById('saveItemModal').style.display = 'flex'; 
+            window.pendingSaveType = 'hospital'; 
+        } 
+    };
+    
+    document.getElementById('logoPlaceholder').onclick = function() { 
+        document.getElementById('logoUpload').click(); 
+    };
+    document.getElementById('logoUpload').onchange = async function(e) { 
+        const f = e.target.files[0]; 
+        if(f) { 
+            const r = new FileReader(); 
+            r.onload = async function(ev) { 
+                try {
+                    const compressed = await compressLogo(ev.target.result);
+                    globalLogo = compressed; 
+                    const logoData = loadLogosFromStorage();
+                    logoData.globalLogo = compressed;
+                    saveLogosToStorage(logoData);
+                    document.getElementById('logoPreview').src = compressed; 
+                    document.getElementById('logoPreview').style.display = 'block'; 
+                    document.getElementById('logoPlaceholder').style.display = 'none'; 
+                    document.getElementById('removeLogoBtn').style.display = 'inline-block'; 
+                    renderCards(); 
+                    showMessage(getTranslation('toastLogoAdded')); 
+                } catch(err) {
+                    showMessage(getTranslation('toastImageError'), 'error');
+                }
+            }; 
+            r.readAsDataURL(f); 
+        } 
+    };
+    document.getElementById('removeLogoBtn').onclick = function() { 
+        globalLogo = null; 
+        const logoData = loadLogosFromStorage();
+        logoData.globalLogo = null;
+        saveLogosToStorage(logoData);
+        document.getElementById('logoPreview').style.display = 'none'; 
+        document.getElementById('logoPlaceholder').style.display = 'block'; 
+        document.getElementById('removeLogoBtn').style.display = 'none'; 
+        renderCards(); 
+    };
+    
+    document.getElementById('exportDbBtn').onclick = async function() { 
+        try {
+            const encrypted = await encryptData(db, cryptoKey); 
+            const logoData = {};
+            db.savedCards.forEach(c => {
+                if(c.logoKey) {
+                    const data = localStorage.getItem(c.logoKey);
+                    if(data) logoData[c.logoKey] = JSON.parse(data);
+                }
+            });
+            const exportData = { 
+                version: 2, 
+                salt: localStorage.getItem('medcard_salt'), 
+                data: encrypted,
+                logos: logoData
+            }; 
+            const blob = new Blob([JSON.stringify(exportData)], {type: 'application/json'}); 
+            const a = document.createElement('a'); 
+            a.href = URL.createObjectURL(blob); 
+            a.download = `medcard_backup_${Date.now()}.json`; 
+            a.click(); 
+            showMessage(getTranslation('toastDbExported')); 
+        } catch(e) {
+            showMessage(getTranslation('toastDbExportError'), 'error');
+        }
+    };
+    document.getElementById('importDbBtn').onclick = function() { 
+        document.getElementById('importDbFile').click(); 
+    };
+    document.getElementById('importDbFile').onchange = async function(e) { 
+        const file = e.target.files[0]; 
+        if(file) { 
+            const reader = new FileReader(); 
+            reader.onload = async function(ev) { 
+                const password = prompt('Digite a senha do database importado:'); 
+                if(password) { 
+                    try { 
+                        const importObj = JSON.parse(ev.target.result); 
+                        const salt = Uint8Array.from(atob(importObj.salt), c=>c.charCodeAt(0)); 
+                        const key = await deriveKey(password, salt); 
+                        const importedDb = await decryptData(importObj.data, key); 
+                        db = importedDb; 
+                        cryptoKey = key; 
+                        localStorage.setItem('medcard_encrypted_v2', importObj.data); 
+                        localStorage.setItem('medcard_salt', importObj.salt);
+                        if(importObj.logos) {
+                            Object.keys(importObj.logos).forEach(key => {
+                                localStorage.setItem(key, JSON.stringify(importObj.logos[key]));
+                            });
+                        }
+                        location.reload(); 
+                    } catch(err) { 
+                        alert('Erro: ' + err.message); 
+                    } 
+                } 
+            }; 
+            reader.readAsText(file); 
+        } 
+    };
+    
+    document.getElementById('exportCardsBtn').onclick = function() {
+        exportAllCardsWithConfig();
+    };
+
+    document.getElementById('importCardsBtn').onclick = function() {
+        document.getElementById('importCardsFile').click();
+    };
+
+    document.getElementById('importCardsFile').onchange = function(e) {
+        if (this.files && this.files[0]) {
+            importAllCardsWithConfig(this.files[0]);
+            this.value = '';
+        }
+    };
+    
+    document.getElementById('globalPacient').addEventListener('custom-save', saveAndApplyUser);
+    document.getElementById('globalHospital').addEventListener('custom-save', saveAndApplyHospital);
+    document.getElementById('globalDate').addEventListener('keypress', function(e) { 
+        if(e.key === 'Enter') { 
+            e.preventDefault(); 
+            applyDate(document.getElementById('globalDate').value); 
+        } 
+    });
+    document.getElementById('globalHour').addEventListener('keypress', function(e) { 
+        if(e.key === 'Enter') { 
+            e.preventDefault(); 
+            applyTime(document.getElementById('globalHour').value); 
+        } 
+    });
+    document.getElementById('global-speciality').addEventListener('keypress', function(e) { 
+        if(e.key === 'Enter') { 
+            e.preventDefault(); 
+            applySpecialty(document.getElementById('global-speciality').value); 
+        } 
+    });
+    document.getElementById('global-speciality').onchange = function(e) { 
+        applySpecialty(e.target.value); 
+    };
+    document.getElementById('globalDate').onchange = function(e) { 
+        applyDate(e.target.value); 
+    };
+    document.getElementById('globalHour').onchange = function(e) { 
+        applyTime(e.target.value); 
+    };
+    
+    document.querySelectorAll('.lang-btn').forEach(function(btn) { 
+        btn.addEventListener('click', function() { 
+            const newLang = this.dataset.lang;
+            langGLOBAL = newLang;
+            currentLang = newLang;
+            updateLanguage(newLang);
+            
+            const loginOverlay = document.querySelector('.password-prompt');
+            if (loginOverlay) {
+                loginOverlay.remove();
+                showPasswordPrompt();
+            }
+        }); 
+    });
+    updateLanguage(langGLOBAL);
+}
+
+// ==================== START ====================
+if (databaseExists()) showPasswordPrompt(); 
+else showPasswordPrompt();
+
+// ==================== ENTER KEY HANDLING FOR MODAL ====================
+document.addEventListener('DOMContentLoaded', function() {
+    const modalPacient = document.getElementById('modalPacient');
+    if (modalPacient) {
+        modalPacient.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const dropdownData = this._dropdownData;
+                if (dropdownData && dropdownData.isDropdownOpen()) {
+                    if (dropdownData.currentSelectedIndex() >= 0) {
+                        e.preventDefault();
+                        dropdownData.selectCurrent();
+                        return;
+                    } else {
+                        e.preventDefault();
+                        const dropdown = this.parentElement.querySelector('.smart-dropdown');
+                        if (dropdown) {
+                            dropdown.style.display = 'none';
+                            if (this._dropdownData) {
+                                this._dropdownData._isOpen = false;
+                            }
+                        }
+                        saveModalEdit();
+                        return;
+                    }
+                } else {
+                    e.preventDefault();
+                    saveModalEdit();
+                    return;
+                }
+            }
+        });
+    }
+    
+    const modalHospital = document.getElementById('modalHospital');
+    if (modalHospital) {
+        modalHospital.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                const dropdownData = this._dropdownData;
+                if (dropdownData && dropdownData.isDropdownOpen()) {
+                    if (dropdownData.currentSelectedIndex() >= 0) {
+                        e.preventDefault();
+                        dropdownData.selectCurrent();
+                        return;
+                    } else {
+                        e.preventDefault();
+                        const dropdown = this.parentElement.querySelector('.smart-dropdown');
+                        if (dropdown) {
+                            dropdown.style.display = 'none';
+                            if (this._dropdownData) {
+                                this._dropdownData._isOpen = false;
+                            }
+                        }
+                        saveModalEdit();
+                        return;
+                    }
+                } else {
+                    e.preventDefault();
+                    saveModalEdit();
+                    return;
+                }
+            }
+        });
+    }
+});
+
+
+// ==================== VERSION EXTRACTION ====================
+/*const path = window.location.pathname;
+const fileName = path.substring(path.lastIndexOf('/') + 1);
+const match = fileName.match(/v\d+/);
+const APP_VERSION = match ? match[0] : 'v32';
+*/
+document.title = `MedCard Pro ${APP_VERSION} - Full Export`;
+
+document.addEventListener('DOMContentLoaded', function() {
+    const appTitle = document.getElementById('appTitle');
+    if (appTitle) {
+        appTitle.textContent = `🏥 MedCard Pro ${APP_VERSION}`;
+    }
+    
+    Object.keys(translations).forEach(lang => {
+        translations[lang].appTitle = `🏥 MedCard Pro ${APP_VERSION}`;
+    });
+    
+    if (typeof currentLang !== 'undefined' && currentLang) {
+        const t = translations[currentLang];
+        document.getElementById('appTitle').textContent = t.appTitle;
+    }
+});
+
+
+const pwdi = document.getElementById("pwdInput");
+
+pwdi.addEventListener('keydown', (evt) => {
+  if (evt.key === 'Escape') {
+    evt.preventDefault();
+    pwdi.value = ""; // clears the input field
+  }
+});
+
+</script>
+</body>
+</html>
