@@ -65,14 +65,76 @@
       padding: 10px;
       border-radius: 8px;
       border: 1px solid rgba(255,255,255,0.05);
-      background: transparent;
+      background: rgba(255,255,255,0.02);
       color: inherit;
       outline: none;
       margin-bottom: 12px;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    input[type="text"]:focus, textarea:focus, select:focus {
+      border-color: var(--whatsapp-green);
+      box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+    }
+    select option {
+      background: var(--bg);
+      color: #e6eef8;
     }
     textarea {
       min-height: 84px;
       resize: vertical;
+    }
+    .char-counter {
+      font-size: 11px;
+      color: #6b83b8;
+      text-align: right;
+      margin-top: -8px;
+      margin-bottom: 10px;
+    }
+    .char-counter.warn {
+      color: #f5a623;
+    }
+    .history-section {
+      width: 100%;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid rgba(255,255,255,0.05);
+    }
+    .history-list {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      max-height: 160px;
+      overflow-y: auto;
+    }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(255,255,255,0.04);
+      cursor: pointer;
+      font-size: 12px;
+      color: #cddcff;
+      transition: background 0.15s ease;
+    }
+    .history-item:hover {
+      background: rgba(37,211,102,0.08);
+      border-color: rgba(37,211,102,0.2);
+    }
+    .history-item .hist-type {
+      font-size: 13px;
+    }
+    .history-item .hist-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .history-item .hist-time {
+      font-size: 10px;
+      color: #6b83b8;
     }
     button {
       background: var(--whatsapp-green);
@@ -120,6 +182,15 @@
       background: white;
       border-radius: 6px;
       border: 2px solid var(--whatsapp-green);
+      transition: box-shadow 0.3s ease;
+    }
+    @keyframes qrPulse {
+      0%   { transform: scale(0.97); box-shadow: 0 0 0 rgba(37,211,102,0.5); }
+      50%  { transform: scale(1.02); box-shadow: 0 0 22px rgba(37,211,102,0.45); }
+      100% { transform: scale(1); box-shadow: 0 0 0 rgba(37,211,102,0); }
+    }
+    .qr-pulse {
+      animation: qrPulse 0.5s ease-out;
     }
     .note {
       font-size: 13px;
@@ -414,7 +485,8 @@
           <div id="phoneHelp" class="small">Ex: para +55 75 9192-8553 → selecione +55 e digite 7591928553</div>
 
           <label for="message">Mensagem inicial (opcional)</label>
-          <textarea id="message" placeholder="Olá, vim pelo QR... (opcional)"></textarea>
+          <textarea id="message" placeholder="Olá, vim pelo QR... (opcional)" maxlength="300"></textarea>
+          <div class="char-counter" id="msgCharCounter">0 / 300</div>
 
           <div class="name-persistence-section">
             <div style="font-weight:600;color:var(--whatsapp-green);margin-bottom:8px;font-size:14px">
@@ -590,6 +662,15 @@
           <span class="name-tag">Maria Santos</span><br>
           <span style="font-size:11px;color:#9fb7ff">Maria Santos - Olá! Vim através do seu QR Code...</span>
         </div>
+
+        <div class="history-section">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+            <strong id="historyTitle" style="font-size:12px;color:#9fb7ff">🕘 Recentes</strong>
+            <button id="clearHistory" class="copy-btn" style="padding:4px 8px;font-size:11px;display:none">✕</button>
+          </div>
+          <div id="historyList" class="history-list"></div>
+          <div id="historyEmpty" class="small" style="text-align:center">Nenhum QR gerado ainda</div>
+        </div>
       </aside>
     </div>
   </div>
@@ -623,11 +704,6 @@
     const genVcardBtn = document.getElementById('genVcard');
     const downloadVcfBtn = document.getElementById('downloadVcf');
     const shareContactBtn = document.getElementById('shareContact');
-
-    // --- Update preview in real-time ---
-    nameInput.addEventListener('input', updatePreview);
-    phoneInput.addEventListener('input', updatePreview);
-    msgInput.addEventListener('input', updatePreview);
 
     function updatePreview() {
       const name = nameInput.value || 'Maria Santos';
@@ -688,32 +764,37 @@
       }, 5000);
     }
 
-    async function generate(){
+    async function generate(silent = false){
       const country = ccSelect.value.trim();
       const phone = phoneInput.value.trim();
       const name = nameInput.value.trim();
       const message = msgInput.value.trim();
       const persistenceMethod = document.querySelector('input[name="persistenceMethod"]:checked').value;
 
+      const t = translations[currentLang];
+
       if(!country){
-        showStatus('Por favor selecione o código do país.', 'error');
+        if(!silent) showStatus(t.statusPhoneError, 'error');
         return;
       }
       if(!phone){
-        showStatus('Digite o número do telefone.', 'error');
-        phoneInput.focus();
+        if(!silent){ showStatus(t.statusPhoneMissing, 'error'); phoneInput.focus(); }
         return;
       }
       if(!name){
-        showStatus('Digite o nome do contato para identificação persistente.', 'error');
-        nameInput.focus();
+        if(!silent){ showStatus(t.statusNameMissing, 'error'); nameInput.focus(); }
         return;
       }
 
       const full = sanitizeNumber(country, phone);
       if(!validatePhoneDigits(full)){
-        showStatus('Número parece inválido (poucos dígitos). Verifique.', 'error');
+        if(!silent) showStatus(t.statusInvalidNumber, 'error');
         return;
+      }
+
+      if(!silent){
+        genBtn.disabled = true;
+        genBtn.style.opacity = '0.7';
       }
 
       // --- PERSISTENT NAME SYSTEM ---
@@ -723,13 +804,13 @@
         if (message) {
           finalMessage = `${name} - ${message}`;
         } else {
-          finalMessage = `${name} - Olá! Entre em contato comigo através deste QR Code.`;
+          finalMessage = `${name} - ${t.defaultGreetingTag}`;
         }
       } else {
         if (message) {
           finalMessage = `👤 ${name}: ${message}`;
         } else {
-          finalMessage = `👤 ${name}: Olá! Entre em contato comigo.`;
+          finalMessage = `👤 ${name}: ${t.defaultGreetingPrefix}`;
         }
       }
 
@@ -738,6 +819,7 @@
       try {
         const dataUrl = await QRCode.toDataURL(waLink, {width: 520, margin: 1});
         qrImg.src = dataUrl;
+        pulseQr();
         downloadBtn.href = dataUrl;
         downloadBtn.style.display = 'inline-block';
         linkArea.style.display = 'block';
@@ -751,17 +833,44 @@
         copyLink.onclick = async () => {
           try {
             await navigator.clipboard.writeText(waLink); 
-            showStatus('Link copiado para a área de transferência!');
+            showStatus(t.statusLinkCopied);
           } catch(e) {
-            prompt('Copie manualmente:', waLink);
+            prompt(t.statusCopyManual, waLink);
           }
         };
 
-        showStatus(`✅ QR Code gerado! "${name}" aparecerá persistentemente no WhatsApp.`);
+        if(!silent){
+          showStatus(`${t.statusSuccess}${name}${t.statusSuccessEnd}`);
+          saveToHistory(name, waLink, 'qr');
+        }
       } catch(err) {
         console.error(err);
-        showStatus('Erro inesperado ao gerar o QR.', 'error');
+        if(!silent) showStatus(t.statusError, 'error');
+      } finally {
+        if(!silent){
+          genBtn.disabled = false;
+          genBtn.style.opacity = '';
+        }
       }
+    }
+
+    // --- Debounced live preview: auto-generate QR while typing ---
+    let livePreviewTimer = null;
+    function scheduleLivePreview(){
+      clearTimeout(livePreviewTimer);
+      livePreviewTimer = setTimeout(() => {
+        if(ccSelect.value.trim() && phoneInput.value.trim() && nameInput.value.trim()){
+          generate(true);
+        }
+      }, 700);
+    }
+
+    // --- Small "pop" animation whenever a new QR image lands ---
+    function pulseQr(){
+      qrImg.classList.remove('qr-pulse');
+      // force reflow so the animation can restart
+      void qrImg.offsetWidth;
+      qrImg.classList.add('qr-pulse');
     }
 
     // --- vCard generation ---
@@ -772,8 +881,10 @@
       const company = vcardCompanyInput.value.trim();
       const title = vcardTitleInput.value.trim();
       
+      const t = translations[currentLang];
+
       if (!name || !phone) {
-        showStatus('Por favor preencha pelo menos o nome e telefone.', 'error');
+        showStatus(t.statusVcardMissing, 'error');
         return;
       }
       
@@ -809,7 +920,7 @@ TEL:${phone}`;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showStatus('vCard baixado com sucesso!');
+            showStatus(t.statusVcardDownload);
           };
           downloadVcfBtn.style.display = 'inline-block';
           
@@ -821,20 +932,21 @@ TEL:${phone}`;
                   text: `Telefone: ${phone}`,
                   files: [new File([blob], `${name}.vcf`, { type: 'text/vcard' })]
                 });
-                showStatus('Contato compartilhado com sucesso!');
+                showStatus(t.statusVcardShared);
               } catch (err) {
-                console.log('Erro ao compartilhar:', err);
-                showStatus('Erro ao compartilhar contato.', 'error');
+                console.log('Share error:', err);
+                showStatus(t.statusVcardShareError, 'error');
               }
             };
             shareContactBtn.style.display = 'inline-block';
           }
           
-          showStatus('vCard gerado com sucesso!');
+          showStatus(t.statusVcardSuccess);
+          saveToHistory(name, 'vCard - ' + name, 'vcard');
         })
         .catch(err => {
           console.error(err);
-          showStatus('Erro ao gerar QR code do vCard.', 'error');
+          showStatus(t.statusVcardError, 'error');
         });
     }
 
@@ -856,7 +968,7 @@ TEL:${phone}`;
       shareContactBtn.style.display = 'none';
       statusMessage.style.display = 'none';
       updatePreview();
-      showStatus('Formulário limpo!');
+      showStatus(translations[currentLang].statusReset);
     });
 
     phoneInput.addEventListener('keydown', (e) => { 
@@ -867,18 +979,30 @@ TEL:${phone}`;
       if(e.key === 'Enter') generateVCard(); 
     });
 
-    // --- Auto-sync between tabs ---
+    // --- Auto-sync between tabs + live preview (single listener each) ---
     nameInput.addEventListener('input', function() {
       if (!vcardNameInput.value) {
         vcardNameInput.value = this.value;
       }
       updatePreview();
+      scheduleLivePreview();
     });
 
     phoneInput.addEventListener('input', function() {
       if (!vcardPhoneInput.value) {
         vcardPhoneInput.value = this.value;
       }
+      updatePreview();
+      scheduleLivePreview();
+    });
+
+    const msgCharCounter = document.getElementById('msgCharCounter');
+    msgInput.addEventListener('input', function() {
+      updatePreview();
+      scheduleLivePreview();
+      const len = this.value.length;
+      msgCharCounter.textContent = `${len} / 300`;
+      msgCharCounter.classList.toggle('warn', len > 250);
     });
 
     // --- Update preview when persistence method changes ---
@@ -888,6 +1012,103 @@ TEL:${phone}`;
 
     // Initialize preview
     updatePreview();
+
+    // ============================================================
+    // RECENT HISTORY (last 5 generated QR / vCards, saved locally)
+    // ============================================================
+    const HISTORY_KEY = 'wa_qr_history_v1';
+    const HISTORY_LIMIT = 5;
+    const historyList = document.getElementById('historyList');
+    const historyEmpty = document.getElementById('historyEmpty');
+    const clearHistoryBtn = document.getElementById('clearHistory');
+
+    function loadHistory() {
+      try {
+        return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    function persistHistory(items) {
+      try {
+        localStorage.setItem(HISTORY_KEY, JSON.stringify(items));
+      } catch (e) {
+        // storage unavailable (private mode, quota, etc.) — fail silently
+      }
+    }
+
+    function saveToHistory(name, link, type) {
+      const items = loadHistory();
+      items.unshift({ name, link, type, ts: Date.now() });
+      persistHistory(items.slice(0, HISTORY_LIMIT));
+      renderHistory();
+    }
+
+    function formatHistoryTime(ts) {
+      const d = new Date(ts);
+      return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function renderHistory() {
+      const items = loadHistory();
+      historyList.innerHTML = '';
+      const hasItems = items.length > 0;
+      historyEmpty.style.display = hasItems ? 'none' : 'block';
+      clearHistoryBtn.style.display = hasItems ? 'inline-flex' : 'none';
+
+      items.forEach((item, idx) => {
+        const row = document.createElement('div');
+        row.className = 'history-item';
+        row.innerHTML = `
+          <span class="hist-type">${item.type === 'vcard' ? '👤' : '💬'}</span>
+          <span class="hist-name">${item.name}</span>
+          <span class="hist-time">${formatHistoryTime(item.ts)}</span>
+        `;
+        row.addEventListener('click', () => reloadFromHistory(item));
+        historyList.appendChild(row);
+      });
+    }
+
+    async function reloadFromHistory(item) {
+      try {
+        const dataUrl = await QRCode.toDataURL(item.link, { width: 520, margin: 1 });
+        qrImg.src = dataUrl;
+        pulseQr();
+        downloadBtn.href = dataUrl;
+        downloadBtn.style.display = 'inline-block';
+        contactDisplay.textContent = item.name;
+
+        if (item.type === 'vcard') {
+          linkArea.style.display = 'none';
+          openLink.style.display = 'none';
+          copyLink.style.display = 'none';
+        } else {
+          linkArea.style.display = 'block';
+          linkText.textContent = item.link;
+          openLink.style.display = 'inline-block';
+          copyLink.style.display = 'inline-block';
+          openLink.onclick = () => window.open(item.link, '_blank');
+          copyLink.onclick = async () => {
+            try {
+              await navigator.clipboard.writeText(item.link);
+              showStatus(translations[currentLang].statusLinkCopied);
+            } catch (e) {
+              prompt(translations[currentLang].statusCopyManual, item.link);
+            }
+          };
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    clearHistoryBtn.addEventListener('click', () => {
+      persistHistory([]);
+      renderHistory();
+    });
+
+    renderHistory();
 
     // ============================================================
     // LANGUAGE SWITCHER with country code per language
@@ -906,6 +1127,8 @@ TEL:${phone}`;
         phoneHelp: 'Ex: for +55 75 9192-8553 → select +55 and type 7591928553',
         msgLabel: 'Initial message (optional)',
         msgPlaceholder: 'Hello, I came through the QR... (optional)',
+        defaultGreetingTag: 'Hello! Get in touch with me through this QR Code.',
+        defaultGreetingPrefix: 'Hello! Get in touch with me.',
         persistenceTitle: '🏷️ Persistent Identification Method',
         tagLabel: 'Smart Tag (Recommended)',
         tagDesc: 'Name appears as tag: "[Name] - [Message]" in chat list',
@@ -953,6 +1176,8 @@ TEL:${phone}`;
         statusReset: 'Form cleared!',
         statusVcardMissing: 'Please fill in at least name and phone.',
         systemTitle: 'Persistent Name System',
+        historyTitle: '🕘 Recent',
+        historyEmpty: 'No QR generated yet',
         defaultCountry: '1' // US
       },
       PT: {
@@ -968,6 +1193,8 @@ TEL:${phone}`;
         phoneHelp: 'Ex: para +55 75 9192-8553 → selecione +55 e digite 7591928553',
         msgLabel: 'Mensagem inicial (opcional)',
         msgPlaceholder: 'Olá, vim pelo QR... (opcional)',
+        defaultGreetingTag: 'Olá! Entre em contato comigo através deste QR Code.',
+        defaultGreetingPrefix: 'Olá! Entre em contato comigo.',
         persistenceTitle: '🏷️ Método de Identificação Persistente',
         tagLabel: 'Etiqueta Inteligente (Recomendado)',
         tagDesc: 'Nome aparece como etiqueta: "[Nome] - [Mensagem]" na lista de conversas',
@@ -1015,6 +1242,8 @@ TEL:${phone}`;
         statusReset: 'Formulário limpo!',
         statusVcardMissing: 'Por favor preencha pelo menos o nome e telefone.',
         systemTitle: 'Sistema de Nome Persistente',
+        historyTitle: '🕘 Recentes',
+        historyEmpty: 'Nenhum QR gerado ainda',
         defaultCountry: '55' // Brazil
       },
       ES: {
@@ -1030,6 +1259,8 @@ TEL:${phone}`;
         phoneHelp: 'Ej: para +55 75 9192-8553 → seleccione +55 y escriba 7591928553',
         msgLabel: 'Mensaje inicial (opcional)',
         msgPlaceholder: 'Hola, vengo por el QR... (opcional)',
+        defaultGreetingTag: '¡Hola! Ponte en contacto conmigo a través de este código QR.',
+        defaultGreetingPrefix: '¡Hola! Ponte en contacto conmigo.',
         persistenceTitle: '🏷️ Método de Identificación Persistente',
         tagLabel: 'Etiqueta Inteligente (Recomendado)',
         tagDesc: 'El nombre aparece como etiqueta: "[Nombre] - [Mensaje]" en la lista de conversaciones',
@@ -1077,6 +1308,8 @@ TEL:${phone}`;
         statusReset: '¡Formulario limpiado!',
         statusVcardMissing: 'Por favor complete al menos el nombre y teléfono.',
         systemTitle: 'Sistema de Nombre Persistente',
+        historyTitle: '🕘 Recientes',
+        historyEmpty: 'Aún no se generó ningún QR',
         defaultCountry: '34' // Spain
       }
     };
@@ -1157,6 +1390,9 @@ TEL:${phone}`;
       document.querySelector('.qr-preview .instruction-box strong').textContent = t.whatsappList;
       
       // --- FIX: Set country code based on language using VALUE ---
+      document.getElementById('historyTitle').textContent = t.historyTitle;
+      document.getElementById('historyEmpty').textContent = t.historyEmpty;
+
       const defaultCountryCode = t.defaultCountry || '55';
       
       // Loop through options and select the one that matches the value
