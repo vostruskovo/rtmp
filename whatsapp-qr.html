@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WhatsApp QR Generator — Persistent Name in Chat</title>
+  <style>
+    /* --- CSS (Dark theme, WhatsApp green) --- */
+    :root {
+      --whatsapp-green: #25D366;
+      --whatsapp-dark: #075E54;
+      --whatsapp-light: #128C7E;
+      --bg: #0f1724;
+      --card: #0b1220;
+      color-scheme: dark;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: Inter, ui-sans-serif, system-ui, Segoe UI, Roboto, Arial;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #071028 0%, #021026 100%);
+      color: #e6eef8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 28px;
+    }
+    .wrap {
+      width: 100%;
+      max-width: 920px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius: 12px;
+      padding: 22px;
+      box-shadow: 0 8px 30px rgba(2,6,23,0.6);
+      border: 1px solid rgba(37,211,102,0.1);
+    }
+    header {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 360px;
+      gap: 18px;
+    }
+    @media (max-width: 880px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: rgba(255,255,255,0.02);
+      padding: 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    label {
+      display: block;
+      font-size: 13px;
+      color: #bcd3ff;
+      margin-bottom: 6px;
+    }
+    input[type="text"], textarea, select {
+      width: 100%;
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255,255,255,0.05);
+      background: transparent;
+      color: inherit;
+      outline: none;
+      margin-bottom: 12px;
+    }
+    textarea {
+      min-height: 84px;
+      resize: vertical;
+    }
+    button {
+      background: var(--whatsapp-green);
+      border: none;
+      padding: 10px 12px;
+      border-radius: 8px;
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    button:hover {
+      background: var(--whatsapp-light);
+      transform: translateY(-1px);
+    }
+    .copy-btn {
+      background: #182133;
+      border: 1px solid rgba(255,255,255,0.03);
+      padding: 8px;
+      border-radius: 8px;
+      color: #bcd3ff;
+    }
+    .copy-btn:hover {
+      background: #1f2a40;
+    }
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .qr-preview {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 10px;
+    }
+    .qr-preview img {
+      width: 260px;
+      height: 260px;
+      background: white;
+      border-radius: 6px;
+      border: 2px solid var(--whatsapp-green);
+    }
+    .note {
+      font-size: 13px;
+      color: #9fb7ff;
+    }
+    .small {
+      font-size: 12px;
+      color: #9fb7ff;
+    }
+    .tab-container {
+      margin-bottom: 16px;
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 8px;
+    }
+    .tab {
+      background: transparent;
+      border: none;
+      color: #9fb7ff;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tab.active {
+      background: var(--whatsapp-green);
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .contact-options {
+      display: flex;
+      gap: 8px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+    .whatsapp-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: var(--whatsapp-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      position: relative;
+    }
+    .whatsapp-logo::after {
+      content: "";
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 3px solid white;
+      border-radius: 50% 50% 0 50%;
+      transform: rotate(-45deg);
+      margin-top: -4px;
+      margin-left: -4px;
+    }
+    .whatsapp-badge {
+      background: var(--whatsapp-green);
+      color: white;
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .whatsapp-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+    .watermark {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      opacity: 0.1;
+      font-size: 120px;
+      z-index: -1;
+      color: var(--whatsapp-green);
+    }
+    .link-area {
+      word-break: break-all;
+      max-width: 320px;
+      text-align: center;
+      display: none;
+    }
+    .link-text {
+      font-size: 13px;
+      color: #dff0ff;
+    }
+    .contact-display {
+      font-size: 16px;
+      font-weight: 600;
+      color: #dff0ff;
+      text-align: center;
+    }
+    .status-message {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      margin-top: 10px;
+      display: none;
+    }
+    .status-success {
+      background: rgba(37, 211, 102, 0.1);
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      color: #25D366;
+    }
+    .status-error {
+      background: rgba(255, 59, 48, 0.1);
+      border: 1px solid rgba(255, 59, 48, 0.3);
+      color: #FF3B30;
+    }
+    .name-persistence-section {
+      background: rgba(37, 211, 102, 0.05);
+      border: 1px solid rgba(37, 211, 102, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+    }
+    .persistence-option {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 8px 0;
+    }
+    .persistence-option input[type="radio"] {
+      width: auto;
+      margin: 0;
+    }
+    .instruction-box {
+      background: rgba(255,255,255,0.03);
+      border-radius: 6px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 12px;
+    }
+    .chat-preview {
+      background: #1a2332;
+      border-radius: 8px;
+      padding: 12px;
+      margin: 12px 0;
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    .chat-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    .chat-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--whatsapp-green);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    .chat-info {
+      flex: 1;
+    }
+    .chat-name {
+      font-weight: 600;
+      color: white;
+    }
+    .chat-preview-msg {
+      font-size: 12px;
+      color: #9fb7ff;
+      margin-top: 2px;
+    }
+    .chat-time {
+      font-size: 11px;
+      color: #9fb7ff;
+    }
+    .name-tag {
+      background: var(--whatsapp-green);
+      color: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    
+    /* --- Language Switcher Styles --- */
+    .lang-switcher {
+      margin-left: auto;
+      display: flex;
+      gap: 6px;
+      background: rgba(255,255,255,0.03);
+      padding: 4px;
+      border-radius: 8px;
+    }
+    .lang-btn {
+      background: transparent;
+      border: none;
+      color: #9fb7ff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    .lang-btn:hover {
+      color: white;
+      background: rgba(255,255,255,0.05);
+    }
+    .lang-btn.active {
+      background: var(--whatsapp-green);
+      color: white;
+      box-shadow: 0 2px 8px rgba(37, 211, 102, 0.3);
+    }
+  </style>
+</head>
+<body>
+  <div class="watermark">WhatsApp</div>
+  
+  <div class="wrap" role="main">
+    <header>
+      <div class="whatsapp-logo"></div>
+      <div>
+        <div class="whatsapp-header">
+          <h1>WhatsApp QR Generator</h1>
+          <span class="whatsapp-badge">NOME PERSISTENTE</span>
+        </div>
+        <div class="small">O nome fica visível mesmo na lista de conversas!</div>
+      </div>
+      <!-- Language switcher injected here via JS -->
+    </header>
+
+    <div class="grid">
+      <section class="card" aria-labelledby="inputs">
+        <div class="tab-container">
+          <div class="tabs">
+            <button class="tab active" data-tab="whatsapp">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M8 0a8 8 0 0 0-6.8 12.2L0 16l3.8-1.2A8 8 0 1 0 8 0zm4.6 10.7c-.2.5-1 .9-1.4.9-.3 0-.7.2-2.3-.5-1.9-.8-3.2-2.8-3.3-2.9-.1-.1-.8-1.1-.8-2.1 0-1 .5-1.5.7-1.7.2-.2.4-.2.5-.2h.4c.1 0 .3 0 .4.3.2.4.6 1.4.6 1.5.1.1.1.2 0 .3-.1.1-.1.2-.2.3-.1.1-.2.2-.3.3-.1.1-.2.3-.1.4.1.2.5.8 1.1 1.3.8.6 1.4.8 1.6.9.2.1.3.1.4 0 .1-.1.5-.6.6-.8.1-.2.2-.2.3-.1l1.2.9c.2.1.3.3.4.4.1.2.1.4 0 .5z"/>
+              </svg>
+              QR WhatsApp
+            </button>
+            <button class="tab" data-tab="contact">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M12 0H4C2.9 0 2 .9 2 2v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2zM8 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H4v-1c0-1.3 2.7-2 4-2s4 .7 4 2v1z"/>
+              </svg>
+              Contato (vCard)
+            </button>
+          </div>
+        </div>
+
+        <div id="whatsapp" class="tab-content active">
+          <h2 id="inputs" style="font-size:15px;margin:0 0 10px 0;display:flex;align-items:center">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--whatsapp-green)" style="margin-right:8px">
+              <path d="M8 0a8 8 0 0 0-6.8 12.2L0 16l3.8-1.2A8 8 0 1 0 8 0zm4.6 10.7c-.2.5-1 .9-1.4.9-.3 0-.7.2-2.3-.5-1.9-.8-3.2-2.8-3.3-2.9-.1-.1-.8-1.1-.8-2.1 0-1 .5-1.5.7-1.7.2-.2.4-.2.5-.2h.4c.1 0 .3 0 .4.3.2.4.6 1.4.6 1.5.1.1.1.2 0 .3-.1.1-.1.2-.2.3-.1.1-.2.2-.3.3-.1.1-.2.3-.1.4.1.2.5.8 1.1 1.3.8.6 1.4.8 1.6.9.2.1.3.1.4 0 .1-.1.5-.6.6-.8.1-.2.2-.2.3-.1l1.2.9c.2.1.3.3.4.4.1.2.1.4 0 .5z"/>
+            </svg>
+            <span id="persistentTitle">Sistema de Nome Persistente</span>
+          </h2>
+
+          <label for="contactName">Nome do contato *</label>
+          <input id="contactName" type="text" placeholder="Ex: Maria Santos" />
+
+          <label for="country">Código do país</label>
+          <select id="country" aria-label="Código do país">
+            <option value="55">Brazil (+55)</option>
+            <option value="1">United States (+1)</option>
+            <option value="44">United Kingdom (+44)</option>
+            <option value="34">Spain (+34)</option>
+            <option value="91">India (+91)</option>
+            <option value="" disabled>— outros —</option>
+          </select>
+
+          <label for="phone">Número de telefone (sem 0, sem +, sem espaços) *</label>
+          <input id="phone" type="text" inputmode="numeric" placeholder="7591928553" aria-describedby="phoneHelp" />
+          <div id="phoneHelp" class="small">Ex: para +55 75 9192-8553 → selecione +55 e digite 7591928553</div>
+
+          <label for="message">Mensagem inicial (opcional)</label>
+          <textarea id="message" placeholder="Olá, vim pelo QR... (opcional)"></textarea>
+
+          <div class="name-persistence-section">
+            <div style="font-weight:600;color:var(--whatsapp-green);margin-bottom:8px;font-size:14px">
+              🏷️ Método de Identificação Persistente
+            </div>
+            
+            <div class="persistence-option">
+              <input type="radio" id="persistenceMethod1" name="persistenceMethod" value="tag" checked>
+              <label for="persistenceMethod1" style="margin:0;cursor:pointer">
+                <strong>Etiqueta Inteligente</strong> (Recomendado)
+              </label>
+            </div>
+            <div class="small" id="tagDescText" style="margin-left:24px;margin-bottom:8px">
+              Nome aparece como etiqueta: "[Nome] - [Mensagem]" na lista de conversas
+            </div>
+            
+            <div class="persistence-option">
+              <input type="radio" id="persistenceMethod2" name="persistenceMethod" value="prefix">
+              <label for="persistenceMethod2" style="margin:0;cursor:pointer">
+                <strong>Prefixo com Nome</strong>
+              </label>
+            </div>
+            <div class="small" id="prefixDescText" style="margin-left:24px">
+              Nome como prefixo: "👤 Nome: [Mensagem]"
+            </div>
+          </div>
+
+          <div class="chat-preview">
+            <div style="font-weight:600;margin-bottom:8px;color:var(--whatsapp-green)">Prévia na Lista de Conversas:</div>
+            
+            <div class="chat-list-item">
+              <div class="chat-avatar">M</div>
+              <div class="chat-info">
+                <div class="chat-name">
+                  +55 75 9192-8553
+                  <span class="name-tag" id="previewNameTag">Maria Santos</span>
+                </div>
+                <div class="chat-preview-msg" id="previewChatMessage">Maria Santos - Olá! Vim através do seu QR Code...</div>
+              </div>
+              <div class="chat-time">09:08</div>
+            </div>
+            
+            <div class="small" style="margin-top:8px">
+              <strong>Resultado:</strong> O nome fica visível como etiqueta mesmo quando você volta para a lista de conversas!
+            </div>
+          </div>
+
+          <div class="actions">
+            <button id="gen">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M14 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z"/>
+                <path d="M6 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6-8h-4v1h4V5zm0 4h-4v1h4V9zm0 4h-4v1h4v-1z"/>
+              </svg>
+              Gerar QR com Nome Persistente
+            </button>
+            <button id="openLink" class="copy-btn" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/>
+                <path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/>
+              </svg>
+              Abrir WhatsApp
+            </button>
+            <button id="copyLink" class="copy-btn" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/>
+                <path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/>
+              </svg>
+              Copiar Link
+            </button>
+          </div>
+          
+          <div id="statusMessage" class="status-message"></div>
+          
+          <div class="instruction-box">
+            <strong>🎯 Como funciona o Nome Persistente:</strong><br>
+            1. O nome é incluído na PRIMEIRA mensagem do chat<br>
+            2. WhatsApp mostra essa mensagem na prévia da lista de conversas<br>
+            3. Quando você voltar para a lista, verá: "[Nome] - Sua mensagem"<br>
+            4. Isso cria uma identificação PERMANENTE do contato!
+          </div>
+        </div>
+
+        <div id="contact" class="tab-content">
+          <h2 style="font-size:15px;margin:0 0 10px 0;display:flex;align-items:center">
+            <svg width="18" height="18" viewBox="0 0 16 16" fill="var(--whatsapp-green)" style="margin-right:8px">
+              <path d="M12 0H4C2.9 0 2 .9 2 2v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2zM8 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H4v-1c0-1.3 2.7-2 4-2s4 .7 4 2v1z"/>
+            </svg>
+            Informações para vCard
+          </h2>
+
+          <label for="vcardName">Nome completo</label>
+          <input id="vcardName" type="text" placeholder="Ex: Maria Santos" />
+
+          <label for="vcardPhone">Telefone</label>
+          <input id="vcardPhone" type="text" inputmode="numeric" placeholder="7591928553" />
+
+          <label for="vcardEmail">E-mail (opcional)</label>
+          <input id="vcardEmail" type="text" placeholder="exemplo@email.com" />
+
+          <label for="vcardCompany">Empresa (opcional)</label>
+          <input id="vcardCompany" type="text" placeholder="Nome da empresa" />
+
+          <label for="vcardTitle">Cargo (opcional)</label>
+          <input id="vcardTitle" type="text" placeholder="Seu cargo" />
+
+          <div class="contact-options">
+            <button id="genVcard">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M14 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z"/>
+                <path d="M6 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6-8h-4v1h4V5zm0 4h-4v1h4V9zm0 4h-4v1h4v-1z"/>
+              </svg>
+              Gerar vCard
+            </button>
+            <button id="downloadVcf" class="copy-btn" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+              </svg>
+              Baixar vCard
+            </button>
+            <button id="shareContact" class="copy-btn" style="display:none">
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/>
+              </svg>
+              Compartilhar
+            </button>
+          </div>
+        </div>
+
+        <div class="footer">
+          <div class="note">Sistema de nome persistente - Identificação visual permanente na lista de conversas</div>
+          <div style="margin-top:8px" class="small">✅ Solução inteligente: Nome aparece como referência visual mesmo sem salvar o contato</div>
+        </div>
+      </section>
+
+      <aside class="card qr-preview" aria-label="Prévia do QR code">
+        <div style="display:flex;justify-content:space-between;width:100%;align-items:center">
+          <strong>Prévia do QR</strong>
+          <div class="small">Nome persistente ✓</div>
+        </div>
+
+        <div id="contactDisplay" class="contact-display"></div>
+
+        <img id="qrImg" alt="QR code preview" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'></svg>" />
+
+        <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center;width:100%">
+          <a id="downloadBtn" class="small" style="text-decoration:none;display:none" download="whatsapp-qr.png">
+            <button>
+              <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+                <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                <path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/>
+              </svg>
+              Baixar PNG
+            </button>
+          </a>
+          <button id="reset" class="copy-btn">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor">
+              <path d="M8 3a5 5 0 1 0 4.546 2.914.5.5 0 0 1 .908-.417A6 6 0 1 1 8 2v1z"/>
+              <path d="M8 4.466V.534a.25.25 0 0 1 .41-.192l2.36 1.966c.12.1.12.284 0 .384L8.41 4.658A.25.25 0 0 1 8 4.466z"/>
+            </svg>
+            Limpar
+          </button>
+        </div>
+
+        <div id="linkArea" class="link-area">
+          <div class="small">Link gerado:</div>
+          <div id="linkText" class="link-text"></div>
+        </div>
+        
+        <div class="instruction-box" style="text-align:center;">
+          <strong>📱 Na lista do WhatsApp você verá:</strong><br>
+          <span style="color:#25D366">+55 75 9192-8553</span>
+          <span class="name-tag">Maria Santos</span><br>
+          <span style="font-size:11px;color:#9fb7ff">Maria Santos - Olá! Vim através do seu QR Code...</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+  <script>
+    // --- Main elements ---
+    const genBtn = document.getElementById('gen');
+    const phoneInput = document.getElementById('phone');
+    const ccSelect = document.getElementById('country');
+    const msgInput = document.getElementById('message');
+    const nameInput = document.getElementById('contactName');
+    const qrImg = document.getElementById('qrImg');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const linkArea = document.getElementById('linkArea');
+    const linkText = document.getElementById('linkText');
+    const openLink = document.getElementById('openLink');
+    const copyLink = document.getElementById('copyLink');
+    const resetBtn = document.getElementById('reset');
+    const contactDisplay = document.getElementById('contactDisplay');
+    const statusMessage = document.getElementById('statusMessage');
+    const previewNameTag = document.getElementById('previewNameTag');
+    const previewChatMessage = document.getElementById('previewChatMessage');
+    
+    // --- vCard elements ---
+    const vcardNameInput = document.getElementById('vcardName');
+    const vcardPhoneInput = document.getElementById('vcardPhone');
+    const vcardEmailInput = document.getElementById('vcardEmail');
+    const vcardCompanyInput = document.getElementById('vcardCompany');
+    const vcardTitleInput = document.getElementById('vcardTitle');
+    const genVcardBtn = document.getElementById('genVcard');
+    const downloadVcfBtn = document.getElementById('downloadVcf');
+    const shareContactBtn = document.getElementById('shareContact');
+
+    // --- Update preview in real-time ---
+    nameInput.addEventListener('input', updatePreview);
+    phoneInput.addEventListener('input', updatePreview);
+    msgInput.addEventListener('input', updatePreview);
+
+    function updatePreview() {
+      const name = nameInput.value || 'Maria Santos';
+      const message = msgInput.value || 'Olá! Vim através do seu QR Code...';
+      const persistenceMethod = document.querySelector('input[name="persistenceMethod"]:checked').value;
+      
+      let previewMessage = '';
+      
+      if (persistenceMethod === 'tag') {
+        previewMessage = `${name} - ${message}`;
+      } else {
+        previewMessage = `👤 ${name}: ${message}`;
+      }
+      
+      previewNameTag.textContent = name;
+      previewChatMessage.textContent = previewMessage;
+    }
+
+    // --- Tab functionality ---
+    const tabs = document.querySelectorAll('.tab');
+    const tabContents = document.querySelectorAll('.tab-content');
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const tabId = tab.getAttribute('data-tab');
+        
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        tabContents.forEach(content => {
+          content.classList.remove('active');
+          if (content.id === tabId) {
+            content.classList.add('active');
+          }
+        });
+      });
+    });
+
+    // --- WhatsApp QR code generation with PERSISTENT NAME ---
+    function sanitizeNumber(country, phone){
+      const digits = phone.replace(/\D/g,'');
+      if (digits.startsWith(country)) return digits;
+      return country + digits;
+    }
+
+    function validatePhoneDigits(s){
+      return s.length >= 8;
+    }
+
+    function showStatus(message, type = 'success') {
+      statusMessage.textContent = message;
+      statusMessage.className = 'status-message';
+      statusMessage.classList.add(type === 'success' ? 'status-success' : 'status-error');
+      statusMessage.style.display = 'block';
+      
+      setTimeout(() => {
+        statusMessage.style.display = 'none';
+      }, 5000);
+    }
+
+    async function generate(){
+      const country = ccSelect.value.trim();
+      const phone = phoneInput.value.trim();
+      const name = nameInput.value.trim();
+      const message = msgInput.value.trim();
+      const persistenceMethod = document.querySelector('input[name="persistenceMethod"]:checked').value;
+
+      if(!country){
+        showStatus('Por favor selecione o código do país.', 'error');
+        return;
+      }
+      if(!phone){
+        showStatus('Digite o número do telefone.', 'error');
+        phoneInput.focus();
+        return;
+      }
+      if(!name){
+        showStatus('Digite o nome do contato para identificação persistente.', 'error');
+        nameInput.focus();
+        return;
+      }
+
+      const full = sanitizeNumber(country, phone);
+      if(!validatePhoneDigits(full)){
+        showStatus('Número parece inválido (poucos dígitos). Verifique.', 'error');
+        return;
+      }
+
+      // --- PERSISTENT NAME SYSTEM ---
+      let finalMessage = '';
+      
+      if (persistenceMethod === 'tag') {
+        if (message) {
+          finalMessage = `${name} - ${message}`;
+        } else {
+          finalMessage = `${name} - Olá! Entre em contato comigo através deste QR Code.`;
+        }
+      } else {
+        if (message) {
+          finalMessage = `👤 ${name}: ${message}`;
+        } else {
+          finalMessage = `👤 ${name}: Olá! Entre em contato comigo.`;
+        }
+      }
+
+      const waLink = `https://wa.me/${full}?text=${encodeURIComponent(finalMessage)}`;
+
+      try {
+        const dataUrl = await QRCode.toDataURL(waLink, {width: 520, margin: 1});
+        qrImg.src = dataUrl;
+        downloadBtn.href = dataUrl;
+        downloadBtn.style.display = 'inline-block';
+        linkArea.style.display = 'block';
+        linkText.textContent = waLink;
+        openLink.style.display = 'inline-block';
+        copyLink.style.display = 'inline-block';
+
+        contactDisplay.textContent = name;
+
+        openLink.onclick = () => window.open(waLink, '_blank');
+        copyLink.onclick = async () => {
+          try {
+            await navigator.clipboard.writeText(waLink); 
+            showStatus('Link copiado para a área de transferência!');
+          } catch(e) {
+            prompt('Copie manualmente:', waLink);
+          }
+        };
+
+        showStatus(`✅ QR Code gerado! "${name}" aparecerá persistentemente no WhatsApp.`);
+      } catch(err) {
+        console.error(err);
+        showStatus('Erro inesperado ao gerar o QR.', 'error');
+      }
+    }
+
+    // --- vCard generation ---
+    function generateVCard() {
+      const name = vcardNameInput.value.trim();
+      const phone = vcardPhoneInput.value.trim();
+      const email = vcardEmailInput.value.trim();
+      const company = vcardCompanyInput.value.trim();
+      const title = vcardTitleInput.value.trim();
+      
+      if (!name || !phone) {
+        showStatus('Por favor preencha pelo menos o nome e telefone.', 'error');
+        return;
+      }
+      
+      let vcardContent = `BEGIN:VCARD
+VERSION:3.0
+FN:${name}
+TEL:${phone}`;
+      
+      if (email) vcardContent += `\nEMAIL:${email}`;
+      if (company) vcardContent += `\nORG:${company}`;
+      if (title) vcardContent += `\nTITLE:${title}`;
+      
+      vcardContent += '\nEND:VCARD';
+      
+      QRCode.toDataURL(vcardContent, {width: 520, margin: 1})
+        .then(dataUrl => {
+          qrImg.src = dataUrl;
+          downloadBtn.href = dataUrl;
+          downloadBtn.style.display = 'inline-block';
+          linkArea.style.display = 'block';
+          linkText.textContent = 'vCard - ' + name;
+          openLink.style.display = 'none';
+          copyLink.style.display = 'none';
+          
+          contactDisplay.textContent = name;
+          
+          const blob = new Blob([vcardContent], { type: 'text/vcard' });
+          const vcfUrl = URL.createObjectURL(blob);
+          downloadVcfBtn.onclick = () => {
+            const a = document.createElement('a');
+            a.href = vcfUrl;
+            a.download = `${name.replace(/\s+/g, '_')}.vcf`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            showStatus('vCard baixado com sucesso!');
+          };
+          downloadVcfBtn.style.display = 'inline-block';
+          
+          if (navigator.share) {
+            shareContactBtn.onclick = async () => {
+              try {
+                await navigator.share({
+                  title: `Contato: ${name}`,
+                  text: `Telefone: ${phone}`,
+                  files: [new File([blob], `${name}.vcf`, { type: 'text/vcard' })]
+                });
+                showStatus('Contato compartilhado com sucesso!');
+              } catch (err) {
+                console.log('Erro ao compartilhar:', err);
+                showStatus('Erro ao compartilhar contato.', 'error');
+              }
+            };
+            shareContactBtn.style.display = 'inline-block';
+          }
+          
+          showStatus('vCard gerado com sucesso!');
+        })
+        .catch(err => {
+          console.error(err);
+          showStatus('Erro ao gerar QR code do vCard.', 'error');
+        });
+    }
+
+    // --- Event listeners ---
+    genBtn.addEventListener('click', generate);
+    genVcardBtn.addEventListener('click', generateVCard);
+    
+    resetBtn.addEventListener('click', () => {
+      phoneInput.value = '';
+      msgInput.value = '';
+      nameInput.value = '';
+      contactDisplay.textContent = '';
+      qrImg.src = 'data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="260" height="260"></svg>';
+      downloadBtn.style.display = 'none';
+      linkArea.style.display = 'none';
+      openLink.style.display = 'none';
+      copyLink.style.display = 'none';
+      downloadVcfBtn.style.display = 'none';
+      shareContactBtn.style.display = 'none';
+      statusMessage.style.display = 'none';
+      updatePreview();
+      showStatus('Formulário limpo!');
+    });
+
+    phoneInput.addEventListener('keydown', (e) => { 
+      if(e.key === 'Enter') generate(); 
+    });
+    
+    vcardPhoneInput.addEventListener('keydown', (e) => { 
+      if(e.key === 'Enter') generateVCard(); 
+    });
+
+    // --- Auto-sync between tabs ---
+    nameInput.addEventListener('input', function() {
+      if (!vcardNameInput.value) {
+        vcardNameInput.value = this.value;
+      }
+      updatePreview();
+    });
+
+    phoneInput.addEventListener('input', function() {
+      if (!vcardPhoneInput.value) {
+        vcardPhoneInput.value = this.value;
+      }
+    });
+
+    // --- Update preview when persistence method changes ---
+    document.querySelectorAll('input[name="persistenceMethod"]').forEach(radio => {
+      radio.addEventListener('change', updatePreview);
+    });
+
+    // Initialize preview
+    updatePreview();
+
+    // ============================================================
+    // LANGUAGE SWITCHER with country code per language
+    // ============================================================
+    const translations = {
+      EN: {
+        title: 'WhatsApp QR Generator — Persistent Name in Chat',
+        badge: 'PERSISTENT NAME',
+        subtitle: 'The name stays visible even in the chat list!',
+        tabQR: 'QR WhatsApp',
+        tabContact: 'Contact (vCard)',
+        nameLabel: 'Contact name *',
+        namePlaceholder: 'Ex: Maria Santos',
+        countryLabel: 'Country code',
+        phoneLabel: 'Phone number (no 0, no +, no spaces) *',
+        phoneHelp: 'Ex: for +55 75 9192-8553 → select +55 and type 7591928553',
+        msgLabel: 'Initial message (optional)',
+        msgPlaceholder: 'Hello, I came through the QR... (optional)',
+        persistenceTitle: '🏷️ Persistent Identification Method',
+        tagLabel: 'Smart Tag (Recommended)',
+        tagDesc: 'Name appears as tag: "[Name] - [Message]" in chat list',
+        prefixLabel: 'Name Prefix',
+        prefixDesc: 'Name as prefix: "👤 Name: [Message]"',
+        previewTitle: 'Chat List Preview:',
+        previewResult: 'Result: The name stays visible as a tag even when you go back to the chat list!',
+        genBtn: 'Generate QR with Persistent Name',
+        openBtn: 'Open WhatsApp',
+        copyBtn: 'Copy Link',
+        howItWorks: '🎯 How Persistent Name works:',
+        step1: '1. The name is included in the FIRST message of the chat',
+        step2: '2. WhatsApp shows this message in the chat list preview',
+        step3: '3. When you go back to the list, you\'ll see: "[Name] - Your message"',
+        step4: '4. This creates a PERMANENT identification of the contact!',
+        vcardTitle: 'vCard Information',
+        vcardName: 'Full name',
+        vcardPhone: 'Phone',
+        vcardEmail: 'E-mail (optional)',
+        vcardCompany: 'Company (optional)',
+        vcardTitleLabel: 'Job title (optional)',
+        genVcard: 'Generate vCard',
+        downloadVcard: 'Download vCard',
+        shareContact: 'Share',
+        footerNote: 'Persistent name system - Permanent visual identification in chat list',
+        footerSlogan: '✅ Smart solution: Name appears as a visual reference even without saving the contact',
+        qrPreview: 'QR Preview',
+        qrPersistent: 'Persistent name ✓',
+        linkGenerated: 'Generated link:',
+        whatsappList: '📱 In WhatsApp list you\'ll see:',
+        statusSuccess: '✅ QR Code generated! "',
+        statusSuccessEnd: '" will appear persistently in WhatsApp.',
+        statusError: 'Error generating QR.',
+        statusPhoneError: 'Please select the country code.',
+        statusPhoneMissing: 'Enter the phone number.',
+        statusNameMissing: 'Enter the contact name for persistent identification.',
+        statusInvalidNumber: 'Number seems invalid (too few digits). Check.',
+        statusLinkCopied: 'Link copied to clipboard!',
+        statusCopyManual: 'Copy manually:',
+        statusVcardSuccess: 'vCard generated successfully!',
+        statusVcardError: 'Error generating vCard QR code.',
+        statusVcardDownload: 'vCard downloaded successfully!',
+        statusVcardShared: 'Contact shared successfully!',
+        statusVcardShareError: 'Error sharing contact.',
+        statusReset: 'Form cleared!',
+        statusVcardMissing: 'Please fill in at least name and phone.',
+        systemTitle: 'Persistent Name System',
+        defaultCountry: '1' // US
+      },
+      PT: {
+        title: 'WhatsApp QR Generator — Nome Persistente no Chat',
+        badge: 'NOME PERSISTENTE',
+        subtitle: 'O nome fica visível mesmo na lista de conversas!',
+        tabQR: 'QR WhatsApp',
+        tabContact: 'Contato (vCard)',
+        nameLabel: 'Nome do contato *',
+        namePlaceholder: 'Ex: Maria Santos',
+        countryLabel: 'Código do país',
+        phoneLabel: 'Número de telefone (sem 0, sem +, sem espaços) *',
+        phoneHelp: 'Ex: para +55 75 9192-8553 → selecione +55 e digite 7591928553',
+        msgLabel: 'Mensagem inicial (opcional)',
+        msgPlaceholder: 'Olá, vim pelo QR... (opcional)',
+        persistenceTitle: '🏷️ Método de Identificação Persistente',
+        tagLabel: 'Etiqueta Inteligente (Recomendado)',
+        tagDesc: 'Nome aparece como etiqueta: "[Nome] - [Mensagem]" na lista de conversas',
+        prefixLabel: 'Prefixo com Nome',
+        prefixDesc: 'Nome como prefixo: "👤 Nome: [Mensagem]"',
+        previewTitle: 'Prévia na Lista de Conversas:',
+        previewResult: 'Resultado: O nome fica visível como etiqueta mesmo quando você volta para a lista de conversas!',
+        genBtn: 'Gerar QR com Nome Persistente',
+        openBtn: 'Abrir WhatsApp',
+        copyBtn: 'Copiar Link',
+        howItWorks: '🎯 Como funciona o Nome Persistente:',
+        step1: '1. O nome é incluído na PRIMEIRA mensagem do chat',
+        step2: '2. WhatsApp mostra essa mensagem na prévia da lista de conversas',
+        step3: '3. Quando você voltar para a lista, verá: "[Nome] - Sua mensagem"',
+        step4: '4. Isso cria uma identificação PERMANENTE do contato!',
+        vcardTitle: 'Informações para vCard',
+        vcardName: 'Nome completo',
+        vcardPhone: 'Telefone',
+        vcardEmail: 'E-mail (opcional)',
+        vcardCompany: 'Empresa (opcional)',
+        vcardTitleLabel: 'Cargo (opcional)',
+        genVcard: 'Gerar vCard',
+        downloadVcard: 'Baixar vCard',
+        shareContact: 'Compartilhar',
+        footerNote: 'Sistema de nome persistente - Identificação visual permanente na lista de conversas',
+        footerSlogan: '✅ Solução inteligente: Nome aparece como referência visual mesmo sem salvar o contato',
+        qrPreview: 'Prévia do QR',
+        qrPersistent: 'Nome persistente ✓',
+        linkGenerated: 'Link gerado:',
+        whatsappList: '📱 Na lista do WhatsApp você verá:',
+        statusSuccess: '✅ QR Code gerado! "',
+        statusSuccessEnd: '" aparecerá persistentemente no WhatsApp.',
+        statusError: 'Erro inesperado ao gerar o QR.',
+        statusPhoneError: 'Por favor selecione o código do país.',
+        statusPhoneMissing: 'Digite o número do telefone.',
+        statusNameMissing: 'Digite o nome do contato para identificação persistente.',
+        statusInvalidNumber: 'Número parece inválido (poucos dígitos). Verifique.',
+        statusLinkCopied: 'Link copiado para a área de transferência!',
+        statusCopyManual: 'Copie manualmente:',
+        statusVcardSuccess: 'vCard gerado com sucesso!',
+        statusVcardError: 'Erro ao gerar QR code do vCard.',
+        statusVcardDownload: 'vCard baixado com sucesso!',
+        statusVcardShared: 'Contato compartilhado com sucesso!',
+        statusVcardShareError: 'Erro ao compartilhar contato.',
+        statusReset: 'Formulário limpo!',
+        statusVcardMissing: 'Por favor preencha pelo menos o nome e telefone.',
+        systemTitle: 'Sistema de Nome Persistente',
+        defaultCountry: '55' // Brazil
+      },
+      ES: {
+        title: 'WhatsApp QR Generator — Nombre Persistente en el Chat',
+        badge: 'NOMBRE PERSISTENTE',
+        subtitle: '¡El nombre sigue visible incluso en la lista de conversaciones!',
+        tabQR: 'QR WhatsApp',
+        tabContact: 'Contacto (vCard)',
+        nameLabel: 'Nombre del contacto *',
+        namePlaceholder: 'Ej: María Santos',
+        countryLabel: 'Código de país',
+        phoneLabel: 'Número de teléfono (sin 0, sin +, sin espacios) *',
+        phoneHelp: 'Ej: para +55 75 9192-8553 → seleccione +55 y escriba 7591928553',
+        msgLabel: 'Mensaje inicial (opcional)',
+        msgPlaceholder: 'Hola, vengo por el QR... (opcional)',
+        persistenceTitle: '🏷️ Método de Identificación Persistente',
+        tagLabel: 'Etiqueta Inteligente (Recomendado)',
+        tagDesc: 'El nombre aparece como etiqueta: "[Nombre] - [Mensaje]" en la lista de conversaciones',
+        prefixLabel: 'Prefijo con Nombre',
+        prefixDesc: 'Nombre como prefijo: "👤 Nombre: [Mensaje]"',
+        previewTitle: 'Vista previa en la lista de conversaciones:',
+        previewResult: 'Resultado: ¡El nombre sigue visible como etiqueta incluso cuando vuelves a la lista de conversaciones!',
+        genBtn: 'Generar QR con Nombre Persistente',
+        openBtn: 'Abrir WhatsApp',
+        copyBtn: 'Copiar Enlace',
+        howItWorks: '🎯 Cómo funciona el Nombre Persistente:',
+        step1: '1. El nombre se incluye en el PRIMER mensaje del chat',
+        step2: '2. WhatsApp muestra ese mensaje en la vista previa de la lista de conversaciones',
+        step3: '3. Cuando vuelves a la lista, verás: "[Nombre] - Tu mensaje"',
+        step4: '4. ¡Esto crea una identificación PERMANENTE del contacto!',
+        vcardTitle: 'Información para vCard',
+        vcardName: 'Nombre completo',
+        vcardPhone: 'Teléfono',
+        vcardEmail: 'Correo (opcional)',
+        vcardCompany: 'Empresa (opcional)',
+        vcardTitleLabel: 'Cargo (opcional)',
+        genVcard: 'Generar vCard',
+        downloadVcard: 'Descargar vCard',
+        shareContact: 'Compartir',
+        footerNote: 'Sistema de nombre persistente - Identificación visual permanente en la lista de conversaciones',
+        footerSlogan: '✅ Solución inteligente: El nombre aparece como referencia visual incluso sin guardar el contacto',
+        qrPreview: 'Vista previa del QR',
+        qrPersistent: 'Nombre persistente ✓',
+        linkGenerated: 'Enlace generado:',
+        whatsappList: '📱 En la lista de WhatsApp verás:',
+        statusSuccess: '✅ ¡QR Code generado! "',
+        statusSuccessEnd: '" aparecerá persistentemente en WhatsApp.',
+        statusError: 'Error inesperado al generar el QR.',
+        statusPhoneError: 'Por favor seleccione el código de país.',
+        statusPhoneMissing: 'Ingrese el número de teléfono.',
+        statusNameMissing: 'Ingrese el nombre del contacto para identificación persistente.',
+        statusInvalidNumber: 'El número parece inválido (pocos dígitos). Verifique.',
+        statusLinkCopied: '¡Enlace copiado al portapapeles!',
+        statusCopyManual: 'Copie manualmente:',
+        statusVcardSuccess: '¡vCard generado con éxito!',
+        statusVcardError: 'Error al generar el código QR del vCard.',
+        statusVcardDownload: '¡vCard descargado con éxito!',
+        statusVcardShared: '¡Contacto compartido con éxito!',
+        statusVcardShareError: 'Error al compartir el contacto.',
+        statusReset: '¡Formulario limpiado!',
+        statusVcardMissing: 'Por favor complete al menos el nombre y teléfono.',
+        systemTitle: 'Sistema de Nombre Persistente',
+        defaultCountry: '34' // Spain
+      }
+    };
+
+    let currentLang = 'PT';
+
+    function applyLanguage(lang) {
+      const t = translations[lang];
+      if (!t) return;
+      
+      // update title and header
+      document.querySelector('title').textContent = t.title;
+      document.querySelector('header h1').textContent = t.title.split(' — ')[0] || t.title;
+      document.querySelector('.whatsapp-badge').textContent = t.badge;
+      document.querySelector('header .small').textContent = t.subtitle;
+      
+      // tabs
+      const tabs = document.querySelectorAll('.tab');
+      tabs[0].innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0a8 8 0 0 0-6.8 12.2L0 16l3.8-1.2A8 8 0 1 0 8 0zm4.6 10.7c-.2.5-1 .9-1.4.9-.3 0-.7.2-2.3-.5-1.9-.8-3.2-2.8-3.3-2.9-.1-.1-.8-1.1-.8-2.1 0-1 .5-1.5.7-1.7.2-.2.4-.2.5-.2h.4c.1 0 .3 0 .4.3.2.4.6 1.4.6 1.5.1.1.1.2 0 .3-.1.1-.1.2-.2.3-.1.1-.2.2-.3.3-.1.1-.2.3-.1.4.1.2.5.8 1.1 1.3.8.6 1.4.8 1.6.9.2.1.3.1.4 0 .1-.1.5-.6.6-.8.1-.2.2-.2.3-.1l1.2.9c.2.1.3.3.4.4.1.2.1.4 0 .5z"/></svg> ${t.tabQR}`;
+      tabs[1].innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M12 0H4C2.9 0 2 .9 2 2v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2zM8 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H4v-1c0-1.3 2.7-2 4-2s4 .7 4 2v1z"/></svg> ${t.tabContact}`;
+      
+      // Main Header title
+      document.getElementById('persistentTitle').textContent = t.systemTitle;
+
+      // form labels
+      document.querySelector('label[for="contactName"]').textContent = t.nameLabel;
+      document.getElementById('contactName').placeholder = t.namePlaceholder;
+      document.querySelector('label[for="country"]').textContent = t.countryLabel;
+      document.querySelector('label[for="phone"]').textContent = t.phoneLabel;
+      document.getElementById('phoneHelp').textContent = t.phoneHelp;
+      document.querySelector('label[for="message"]').textContent = t.msgLabel;
+      document.getElementById('message').placeholder = t.msgPlaceholder;
+      
+      // persistence section
+      document.querySelector('.name-persistence-section > div').innerHTML = t.persistenceTitle;
+      document.querySelector('label[for="persistenceMethod1"]').innerHTML = `<strong>${t.tagLabel}</strong>`;
+      document.getElementById('tagDescText').textContent = t.tagDesc;
+      document.querySelector('label[for="persistenceMethod2"]').innerHTML = `<strong>${t.prefixLabel}</strong>`;
+      document.getElementById('prefixDescText').textContent = t.prefixDesc;
+      
+      // preview
+      document.querySelector('.chat-preview > div:first-child').textContent = t.previewTitle;
+      document.querySelector('.chat-preview .small:last-child').innerHTML = `<strong>${t.previewResult.split(':')[0]}:</strong> ${t.previewResult.split(':')[1] || ''}`;
+      
+      // buttons
+      document.querySelector('#gen').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M14 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z"/><path d="M6 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6-8h-4v1h4V5zm0 4h-4v1h4V9zm0 4h-4v1h4v-1z"/></svg> ${t.genBtn}`;
+      document.querySelector('#openLink').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M10.5 8a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z"/><path d="M0 8s3-5.5 8-5.5S16 8 16 8s-3 5.5-8 5.5S0 8 0 8zm8 3.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z"/></svg> ${t.openBtn}`;
+      document.querySelector('#copyLink').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M4 1.5H3a2 2 0 0 0-2 2V14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V3.5a2 2 0 0 0-2-2h-1v1h1a1 1 0 0 1 1 1V14a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3.5a1 1 0 0 1 1-1h1v-1z"/><path d="M9.5 1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-3a.5.5 0 0 1-.5-.5v-1a.5.5 0 0 1 .5-.5h3zm-3-1A1.5 1.5 0 0 0 5 1.5v1A1.5 1.5 0 0 0 6.5 4h3A1.5 1.5 0 0 0 11 2.5v-1A1.5 1.5 0 0 0 9.5 0h-3z"/></svg> ${t.copyBtn}`;
+      
+      // instruction box
+      const instr = document.querySelector('#whatsapp .instruction-box');
+      instr.innerHTML = `<strong>${t.howItWorks}</strong><br>${t.step1}<br>${t.step2}<br>${t.step3}<br>${t.step4}`;
+      
+      // vCard tab
+      document.querySelector('#contact h2').innerHTML = `<svg width="18" height="18" viewBox="0 0 16 16" fill="var(--whatsapp-green)" style="margin-right:8px"><path d="M12 0H4C2.9 0 2 .9 2 2v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V2c0-1.1-.9-2-2-2zM8 4c1.1 0 2 .9 2 2s-.9 2-2 2-2-.9-2-2 .9-2 2-2zm4 8H4v-1c0-1.3 2.7-2 4-2s4 .7 4 2v1z"/></svg> ${t.vcardTitle}`;
+      document.querySelector('label[for="vcardName"]').textContent = t.vcardName;
+      document.getElementById('vcardName').placeholder = t.vcardName;
+      document.querySelector('label[for="vcardPhone"]').textContent = t.vcardPhone;
+      document.getElementById('vcardPhone').placeholder = t.vcardPhone;
+      document.querySelector('label[for="vcardEmail"]').textContent = t.vcardEmail;
+      document.getElementById('vcardEmail').placeholder = t.vcardEmail;
+      document.querySelector('label[for="vcardCompany"]').textContent = t.vcardCompany;
+      document.getElementById('vcardCompany').placeholder = t.vcardCompany;
+      document.querySelector('label[for="vcardTitle"]').textContent = t.vcardTitleLabel;
+      document.getElementById('vcardTitle').placeholder = t.vcardTitleLabel;
+      document.querySelector('#genVcard').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M14 2H2a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V3a1 1 0 0 0-1-1zM2 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2H2z"/><path d="M6 5a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm0 4a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm6-8h-4v1h4V5zm0 4h-4v1h4V9zm0 4h-4v1h4v-1z"/></svg> ${t.genVcard}`;
+      document.querySelector('#downloadVcf').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/><path d="M7.646 11.854a.5.5 0 0 0 .708 0l3-3a.5.5 0 0 0-.708-.708L8.5 10.293V1.5a.5.5 0 0 0-1 0v8.793L5.354 8.146a.5.5 0 1 0-.708.708l3 3z"/></svg> ${t.downloadVcard}`;
+      document.querySelector('#shareContact').innerHTML = `<svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor"><path d="M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5z"/></svg> ${t.shareContact}`;
+      
+      // footer
+      document.querySelector('.footer .note').textContent = t.footerNote;
+      document.querySelector('.footer .small').textContent = t.footerSlogan;
+      
+      // aside
+      document.querySelector('.qr-preview > div:first-child strong').textContent = t.qrPreview;
+      document.querySelector('.qr-preview > div:first-child .small').textContent = t.qrPersistent;
+      document.querySelector('#linkArea .small').textContent = t.linkGenerated;
+      document.querySelector('.qr-preview .instruction-box strong').textContent = t.whatsappList;
+      
+      // --- FIX: Set country code based on language using VALUE ---
+      const defaultCountryCode = t.defaultCountry || '55';
+      
+      // Loop through options and select the one that matches the value
+      const options = ccSelect.querySelectorAll('option');
+      let found = false;
+      options.forEach(opt => {
+        if (opt.value === defaultCountryCode) {
+          opt.selected = true;
+          found = true;
+        }
+      });
+      
+      // If the specific country code wasn't found in the list, default to the first option
+      if (!found) {
+        ccSelect.selectedIndex = 0;
+      }
+    }
+
+    // --- Create language switcher ---
+    const header = document.querySelector('header');
+    const langDiv = document.createElement('div');
+    langDiv.className = 'lang-switcher';
+    const langs = ['EN', 'PT', 'ES'];
+    langs.forEach(lang => {
+      const btn = document.createElement('button');
+      btn.textContent = lang;
+      btn.className = 'lang-btn';
+      if (lang === currentLang) btn.classList.add('active');
+      btn.addEventListener('click', () => {
+        currentLang = lang;
+        // update button styles first, so the active state always reflects
+        // the click even if something below throws
+        langDiv.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        try {
+          applyLanguage(lang);
+          // re-run preview update to reflect language change
+          updatePreview();
+        } catch (err) {
+          console.error('Error applying language:', err);
+        }
+      });
+      langDiv.appendChild(btn);
+    });
+    header.appendChild(langDiv);
+
+    // apply default language (PT)
+    applyLanguage('PT');
+  </script>
+</body>
+</html>
