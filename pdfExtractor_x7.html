@@ -1,0 +1,2369 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+    <title>PDF Reader Pro - Calendário de Agendamentos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+        }
+        body {
+            background: #0a1620;
+            min-height: 100vh;
+            padding: 20px;
+            color: #e8edf2;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        header {
+            background: linear-gradient(135deg, #0f5c6e, #0a4654);
+            padding: 24px 28px;
+            border-radius: 20px;
+            text-align: center;
+            margin-bottom: 24px;
+            border: 2px solid rgba(255,255,255,0.08);
+            position: relative;
+        }
+        header h1 { font-size: 2rem; color: white; }
+        header .subtitle { color: rgba(255,255,255,0.8); margin-top: 4px; font-size: 0.9rem; }
+        
+        .header-actions {
+            position: absolute;
+            top: 12px;
+            right: 16px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .header-actions .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            min-height: 30px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-sm.export-btn { background: #2a9d8f; color: white; }
+        .btn-sm.export-btn:hover { background: #1f7a6f; transform: scale(1.05); }
+        .btn-sm.import-btn { background: #5b21b6; color: white; }
+        .btn-sm.import-btn:hover { background: #4c1d95; transform: scale(1.05); }
+        .btn-sm.clear-data-btn { background: #e76f51; color: white; }
+        .btn-sm.clear-data-btn:hover { background: #c95a3e; transform: scale(1.05); }
+        
+        .card {
+            background: #1a2530;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.06);
+        }
+        .card h2 {
+            color: #4fc3f7;
+            margin-bottom: 16px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .drop-zone {
+            border: 3px dashed #2a9d8f;
+            border-radius: 14px;
+            padding: 40px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(42, 157, 143, 0.04);
+        }
+        .drop-zone:hover, .drop-zone.dragover {
+            border-color: #4fc3f7;
+            background: rgba(79, 195, 247, 0.06);
+            transform: scale(1.01);
+        }
+        .drop-zone .icon { font-size: 3.5rem; display: block; margin-bottom: 8px; }
+        .drop-zone p { color: #a8b6c4; }
+        .drop-zone .hint { font-size: 0.75rem; color: #667; margin-top: 6px; }
+        
+        .file-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .file-tag {
+            background: #0f5c6e;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .file-tag .remove {
+            cursor: pointer;
+            color: #e76f51;
+            font-weight: bold;
+        }
+        
+        .btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 40px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            min-height: 42px;
+        }
+        .btn-primary { background: #0f5c6e; color: white; }
+        .btn-primary:hover { background: #0a4654; transform: translateY(-2px); }
+        .btn-success { background: #2a9d8f; color: white; }
+        .btn-success:hover { background: #1f7a6f; transform: translateY(-2px); }
+        .btn-danger { background: #e76f51; color: white; }
+        .btn-danger:hover { background: #c95a3e; transform: translateY(-2px); }
+        .btn-purple { background: #5b21b6; color: white; }
+        .btn-purple:hover { background: #4c1d95; transform: translateY(-2px); }
+        .btn-copy { background: #e9c46a; color: #1a2530; }
+        .btn-copy:hover { background: #d4a850; transform: translateY(-2px); }
+        .btn-download { background: #4fc3f7; color: #0a1620; }
+        .btn-download:hover { background: #38b0e0; transform: translateY(-2px); }
+        .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        
+        .actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+        .settings-row {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin: 12px 0;
+        }
+        .settings-row label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #a8b6c4;
+        }
+        .settings-row select {
+            background: #24303d;
+            color: #e8edf2;
+            border: 1px solid #33414f;
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+        }
+        .settings-row select:focus { border-color: #4fc3f7; outline: none; }
+        
+        .progress-container {
+            margin-top: 14px;
+            display: none;
+        }
+        .progress-container.active { display: block; }
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #24303d;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 6px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2a9d8f, #4fc3f7);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
+        .progress-text { font-size: 0.8rem; color: #a8b6c4; }
+        .progress-filename { font-size: 0.7rem; color: #667; margin-top: 2px; }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: 10px;
+            margin: 12px 0;
+        }
+        .stat-box {
+            background: #24303d;
+            padding: 12px;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .stat-box .number { font-size: 1.6rem; font-weight: 800; color: #4fc3f7; }
+        .stat-box .label { font-size: 0.65rem; color: #a8b6c4; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 24px;
+        }
+        @media (max-width: 1024px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+        
+        .search-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+        .search-container input {
+            flex: 1;
+            min-width: 150px;
+            background: #24303d;
+            color: #e8edf2;
+            border: 1px solid #33414f;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+        }
+        .search-container input:focus {
+            border-color: #4fc3f7;
+            outline: none;
+        }
+        .search-container input::placeholder {
+            color: #667;
+        }
+        .search-container .clear-search {
+            background: #e76f51;
+            border: none;
+            color: white;
+            padding: 0 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            min-height: 42px;
+        }
+        .search-container .clear-search:hover { background: #c95a3e; }
+        
+        .calendar-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .calendar-nav .month-year {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: white;
+        }
+        .calendar-nav .nav-btn {
+            background: #24303d;
+            border: none;
+            color: white;
+            padding: 6px 16px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 1.2rem;
+            transition: all 0.2s;
+            min-width: 40px;
+            min-height: 40px;
+        }
+        .calendar-nav .nav-btn:hover { background: #0f5c6e; }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 4px;
+        }
+        .calendar-grid .day-name {
+            text-align: center;
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #4fc3f7;
+            padding: 6px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .calendar-grid .day-cell {
+            aspect-ratio: 1/1;
+            background: #24303d;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+            min-height: 50px;
+        }
+        .calendar-grid .day-cell:hover {
+            border-color: #4fc3f7;
+            transform: scale(1.05);
+            z-index: 2;
+        }
+        .calendar-grid .day-cell .day-number {
+            font-weight: 700;
+            font-size: 1rem;
+            color: #e8edf2;
+        }
+        .calendar-grid .day-cell .day-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #2a9d8f;
+            margin-top: 2px;
+        }
+        .calendar-grid .day-cell.has-appointments {
+            border-color: #2a9d8f40;
+        }
+        .calendar-grid .day-cell.has-appointments .day-number {
+            color: #4fc3f7;
+        }
+        .calendar-grid .day-cell.selected {
+            border-color: #4fc3f7;
+            background: #0f5c6e40;
+        }
+        .calendar-grid .day-cell.other-month .day-number {
+            color: #445566;
+        }
+        .calendar-grid .day-cell .badge-count {
+            position: absolute;
+            top: -4px;
+            right: -4px;
+            background: #e76f51;
+            color: white;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 1px 6px;
+            border-radius: 20px;
+            min-width: 18px;
+            text-align: center;
+        }
+        .calendar-grid .day-cell.today {
+            border-color: #e9c46a;
+            background: #e9c46a15;
+        }
+        .calendar-grid .day-cell.today .day-number {
+            color: #e9c46a;
+        }
+        
+        .calendar-legend {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            font-size: 0.7rem;
+            color: #a8b6c4;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .calendar-legend span { display: flex; align-items: center; gap: 6px; }
+        .calendar-legend .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+        .calendar-legend .dot.green { background: #2a9d8f; }
+        .calendar-legend .dot.yellow { background: #e9c46a; }
+        .calendar-legend .dot.blue { background: #4fc3f7; }
+        .calendar-legend .dot.purple { background: #8b5cf6; }
+        
+        .date-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 12px 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+        .date-list::-webkit-scrollbar { width: 4px; }
+        .date-list::-webkit-scrollbar-track { background: #1a2530; }
+        .date-list::-webkit-scrollbar-thumb { background: #0f5c6e; border-radius: 4px; }
+        
+        .date-chip {
+            background: #24303d;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .date-chip:hover {
+            border-color: #4fc3f7;
+            transform: scale(1.05);
+        }
+        .date-chip.active {
+            border-color: #4fc3f7;
+            background: #0f5c6e40;
+            color: #4fc3f7;
+        }
+        .date-chip.active .chip-count {
+            background: #4fc3f7;
+            color: #0a1620;
+        }
+        .date-chip .chip-count {
+            background: #0f5c6e;
+            padding: 0 8px;
+            border-radius: 20px;
+            font-size: 0.6rem;
+            color: white;
+        }
+        .date-chip.all-chip {
+            background: #5b21b6;
+            border-color: #5b21b6;
+            color: white;
+        }
+        .date-chip.all-chip.active {
+            background: #8b5cf6;
+            border-color: #8b5cf6;
+            color: #0a1620;
+        }
+        .date-chip.all-chip .chip-count {
+            background: white;
+            color: #5b21b6;
+        }
+        .date-chip.all-chip.active .chip-count {
+            background: #0a1620;
+            color: #8b5cf6;
+        }
+        
+        .appointments-container {
+            min-height: 200px;
+        }
+        .appointments-list {
+            max-height: 550px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+        .appointments-list::-webkit-scrollbar { width: 4px; }
+        .appointments-list::-webkit-scrollbar-track { background: #1a2530; }
+        .appointments-list::-webkit-scrollbar-thumb { background: #0f5c6e; border-radius: 4px; }
+        
+        .appointment-item {
+            background: #24303d;
+            border-radius: 10px;
+            padding: 14px 18px;
+            margin-bottom: 8px;
+            border-left: 4px solid #2a9d8f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            transition: all 0.2s;
+            animation: slideIn 0.25s ease;
+            position: relative;
+            cursor: default;
+        }
+        .appointment-item:hover {
+            background: #2a3a48;
+            transform: translateX(4px);
+        }
+        .appointment-item.selected {
+            border-left-color: #4fc3f7;
+            background: #0f5c6e30;
+            border: 1px solid #4fc3f7;
+            transform: translateX(4px);
+        }
+        .appointment-item .info {
+            flex: 1;
+            min-width: 150px;
+        }
+        .appointment-item .patient {
+            font-weight: 700;
+            font-size: 1rem;
+            color: white;
+        }
+        .appointment-item .patient .date-inline {
+            font-weight: 400;
+            font-size: 0.75rem;
+            color: #4fc3f7;
+            margin-left: 8px;
+            background: #0f5c6e40;
+            padding: 1px 10px;
+            border-radius: 20px;
+        }
+        .appointment-item .details {
+            font-size: 0.8rem;
+            color: #a8b6c4;
+            margin-top: 2px;
+        }
+        .appointment-item .details span { color: #4fc3f7; }
+        .appointment-item .time-badge {
+            background: #0f5c6e;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: white;
+            white-space: nowrap;
+        }
+        .appointment-item .source-tag {
+            font-size: 0.6rem;
+            color: #667;
+            background: #1a2530;
+            padding: 1px 8px;
+            border-radius: 20px;
+        }
+        .appointment-item .copy-btn {
+            background: transparent;
+            border: 1px solid #33414f;
+            color: #a8b6c4;
+            padding: 2px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+            min-height: 28px;
+        }
+        .appointment-item .copy-btn:hover {
+            border-color: #4fc3f7;
+            color: white;
+        }
+        .appointment-item .copy-btn.copied {
+            border-color: #2a9d8f;
+            color: #2a9d8f;
+        }
+        .appointment-item .match-highlight {
+            background: #e9c46a40;
+            padding: 0 4px;
+            border-radius: 4px;
+            color: #e9c46a;
+        }
+        
+        .appointment-item .select-checkbox {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            border: 2px solid #33414f;
+            background: transparent;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+            color: transparent;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .appointment-item .select-checkbox:hover {
+            border-color: #4fc3f7;
+        }
+        .appointment-item .select-checkbox.checked {
+            background: #4fc3f7;
+            border-color: #4fc3f7;
+            color: #0a1620;
+        }
+        
+        .appointment-item .delete-btn {
+            background: transparent;
+            border: 1px solid #e76f51;
+            color: #e76f51;
+            padding: 2px 10px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.65rem;
+            transition: all 0.2s;
+            min-height: 28px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .appointment-item .delete-btn:hover {
+            background: #e76f51;
+            color: white;
+            transform: scale(1.05);
+        }
+        
+        .appointment-item .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        
+        .batch-actions {
+            display: none;
+            background: #0f5c6e;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            border: 1px solid rgba(79, 195, 247, 0.3);
+        }
+        .batch-actions.active {
+            display: flex;
+        }
+        .batch-actions .batch-info {
+            color: white;
+            font-size: 0.9rem;
+        }
+        .batch-actions .batch-info strong {
+            color: #4fc3f7;
+        }
+        .batch-actions .batch-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .batch-actions .btn-sm {
+            padding: 4px 12px;
+            font-size: 0.7rem;
+            min-height: 30px;
+            border-radius: 30px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .batch-actions .btn-sm.select-all-btn { background: #5b21b6; color: white; }
+        .batch-actions .btn-sm.select-all-btn:hover { background: #4c1d95; transform: scale(1.05); }
+        .batch-actions .btn-sm.deselect-all-btn { background: #24303d; color: #a8b6c4; }
+        .batch-actions .btn-sm.deselect-all-btn:hover { background: #33414f; transform: scale(1.05); }
+        .batch-actions .btn-sm.delete-selected-btn { background: #e76f51; color: white; }
+        .batch-actions .btn-sm.delete-selected-btn:hover { background: #c95a3e; transform: scale(1.05); }
+        .batch-actions .btn-sm.delete-selected-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #667;
+        }
+        .empty-state .icon { font-size: 2.5rem; display: block; margin-bottom: 8px; }
+        .empty-state p { font-size: 0.9rem; }
+        
+        .search-info {
+            color: #a8b6c4;
+            font-size: 0.8rem;
+            padding: 8px 12px;
+            background: #24303d;
+            border-radius: 8px;
+            margin-bottom: 12px;
+            display: none;
+        }
+        .search-info strong { color: white; }
+        .search-info .highlight { color: #e9c46a; }
+        
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .section-header .count-badge {
+            background: #24303d;
+            padding: 2px 14px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #a8b6c4;
+        }
+        .section-header .count-badge strong { color: white; }
+        
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateX(-10px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+        
+        @keyframes slideOut {
+            from { opacity: 1; transform: translateX(0); max-height: 200px; margin-bottom: 8px; }
+            to { opacity: 0; transform: translateX(30px); max-height: 0; margin-bottom: 0; padding: 0; overflow: hidden; }
+        }
+        
+        .appointment-item.removing {
+            animation: slideOut 0.3s ease forwards;
+        }
+        
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            background: #1a2530;
+            border: 1px solid rgba(255,255,255,0.08);
+            color: white;
+            z-index: 1000;
+            animation: slideInToast 0.3s ease;
+            max-width: 400px;
+        }
+        .toast.error { border-left: 4px solid #e76f51; }
+        .toast.success { border-left: 4px solid #2a9d8f; }
+        .toast.warning { border-left: 4px solid #e9c46a; }
+        .toast.info { border-left: 4px solid #4fc3f7; }
+        @keyframes slideInToast {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #1a2530;
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 650px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+        .modal-content .close {
+            float: right;
+            background: none;
+            border: none;
+            color: #a8b6c4;
+            font-size: 1.8rem;
+            cursor: pointer;
+        }
+        .modal-content .close:hover { color: white; }
+        .modal-content h2 { color: #4fc3f7; margin-bottom: 12px; }
+        .modal-content .preview-text {
+            background: #0d1620;
+            padding: 16px;
+            border-radius: 12px;
+            font-family: monospace;
+            font-size: 0.75rem;
+            white-space: pre-wrap;
+            max-height: 400px;
+            overflow-y: auto;
+            color: #a8b6c4;
+            border: 1px solid #24303d;
+            line-height: 1.6;
+        }
+        
+        .import-file-input {
+            display: none;
+        }
+        
+        @media (max-width: 600px) {
+            body { padding: 12px; }
+            header h1 { font-size: 1.4rem; }
+            .card { padding: 16px; }
+            .calendar-grid .day-cell { min-height: 40px; }
+            .calendar-grid .day-cell .day-number { font-size: 0.8rem; }
+            .appointment-item { flex-direction: column; align-items: stretch; }
+            .main-grid { grid-template-columns: 1fr; }
+            .header-actions { position: static; justify-content: center; margin-top: 8px; }
+            .appointment-item .action-buttons { justify-content: flex-end; }
+            .batch-actions { flex-direction: column; align-items: stretch; text-align: center; }
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: #1a2530; }
+        ::-webkit-scrollbar-thumb { background: #0f5c6e; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #0a4654; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h1>📅 Calendário de Agendamentos</h1>
+        <p class="subtitle">Extraia agendamentos de PDFs, visualize no calendário e pesquise por nome ou data</p>
+        <div class="header-actions">
+            <button class="btn-sm export-btn" id="exportDataBtn">📤 Exportar Dados</button>
+            <button class="btn-sm import-btn" id="importDataBtn">📥 Importar Dados</button>
+            <button class="btn-sm clear-data-btn" id="clearAllDataBtn">🗑️ Limpar Dados</button>
+        </div>
+        <input type="file" id="importFileInput" class="import-file-input" accept=".json">
+    </header>
+
+    <div class="card">
+        <h2>📎 Carregar PDFs</h2>
+        <div class="drop-zone" id="dropZone">
+            <span class="icon">📂</span>
+            <p><strong>Clique ou arraste</strong> seus arquivos PDF aqui</p>
+            <p class="hint">Múltiplos arquivos • OCR integrado • Reconhecimento de texto</p>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf" multiple style="display:none;">
+        <div class="file-list" id="fileList"></div>
+        
+        <div class="settings-row">
+            <label>
+                📐 Cartões por página:
+                <select id="layoutSelect">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="4" selected>4</option>
+                    <option value="6">6</option>
+                    <option value="8">8</option>
+                </select>
+            </label>
+            <label>
+                🔍 Precisão OCR:
+                <select id="ocrQuality">
+                    <option value="fast">Rápida</option>
+                    <option value="accurate">Alta (mais lento)</option>
+                </select>
+            </label>
+        </div>
+
+        <div class="actions">
+            <button class="btn btn-primary" id="processBtn" disabled>🔍 Processar</button>
+            <button class="btn btn-download" id="downloadBtn" disabled>📥 Baixar TXT</button>
+            <button class="btn btn-copy" id="copyAllBtn" disabled>📋 Copiar Tudo</button>
+            <button class="btn btn-danger" id="clearBtn">🗑️ Limpar</button>
+        </div>
+
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-text" id="progressText">📄 Processando...</div>
+            <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-filename" id="progressFilename"></div>
+        </div>
+
+        <div class="stats">
+            <div class="stat-box"><div class="number" id="statFiles">0</div><div class="label">PDFs</div></div>
+            <div class="stat-box"><div class="number" id="statCards">0</div><div class="label">Agendamentos</div></div>
+            <div class="stat-box"><div class="number" id="statPatients">0</div><div class="label">Pacientes</div></div>
+            <div class="stat-box"><div class="number" id="statDates">0</div><div class="label">Dias</div></div>
+        </div>
+    </div>
+
+    <div class="main-grid">
+        <div class="card">
+            <h2>📅 Calendário</h2>
+            <div class="calendar-nav">
+                <button class="nav-btn" id="prevMonth">◀</button>
+                <span class="month-year" id="monthYear">Janeiro 2025</span>
+                <button class="nav-btn" id="nextMonth">▶</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="calendar-legend">
+                <span><span class="dot green"></span> Com agendamento</span>
+                <span><span class="dot yellow"></span> Hoje</span>
+                <span><span class="dot blue"></span> Selecionado</span>
+                <span><span class="dot purple"></span> Todos</span>
+            </div>
+            
+            <div style="margin-top: 16px;">
+                <div class="section-header">
+                    <span style="font-size:0.9rem; color:#a8b6c4;">📋 Dias com agendamentos</span>
+                    <span class="count-badge"><strong id="dateListCount">0</strong> dias</span>
+                </div>
+                <div class="date-list" id="dateList"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>📋 Agendamentos</h2>
+            
+            <div class="search-container">
+                <input type="text" id="searchInput" placeholder="🔎 Buscar por nome, data, especialidade ou hospital...">
+                <button class="clear-search" id="clearSearchBtn">✕</button>
+            </div>
+            <div class="search-info" id="searchInfo">
+                🔍 <strong id="searchResultCount">0</strong> resultado(s) para "<span class="highlight" id="searchQueryDisplay"></span>"
+            </div>
+            
+            <div class="batch-actions" id="batchActions">
+                <div class="batch-info">
+                    <strong id="selectedCount">0</strong> agendamento(s) selecionado(s)
+                </div>
+                <div class="batch-buttons">
+                    <button class="btn-sm select-all-btn" id="selectAllBtn">✅ Selecionar Todos</button>
+                    <button class="btn-sm deselect-all-btn" id="deselectAllBtn">⬜ Desmarcar Todos</button>
+                    <button class="btn-sm delete-selected-btn" id="deleteSelectedBtn" disabled>🗑️ Remover Selecionados</button>
+                </div>
+            </div>
+            
+            <div class="appointments-container">
+                <div class="section-header">
+                    <span style="font-size:0.9rem; color:#a8b6c4;" id="selectedDateDisplay">📋 Todos os agendamentos</span>
+                    <span class="count-badge" id="appointmentCount"><strong>0</strong> agendamentos</span>
+                </div>
+                <div class="appointments-list" id="appointmentsList">
+                    <div class="empty-state">
+                        <span class="icon">📭</span>
+                        <p>Nenhum agendamento encontrado</p>
+                        <p style="font-size:0.8rem; margin-top:4px;">Carregue alguns PDFs e clique em "Processar"</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="previewModal">
+    <div class="modal-content">
+        <button class="close" id="modalClose">&times;</button>
+        <h2>📝 Pré-visualização do TXT</h2>
+        <div class="preview-text" id="previewText"></div>
+        <div class="actions" style="margin-top:16px;">
+            <button class="btn btn-download" id="modalDownloadBtn">📥 Baixar TXT</button>
+            <button class="btn btn-copy" id="modalCopyBtn">📋 Copiar Texto</button>
+            <button class="btn btn-danger" id="modalCloseBtn">Fechar</button>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script>
+// ============================================================
+// PDF READER PRO - CALENDAR VIEW WITH BATCH SELECTION & DELETE
+// FIXED: file.arrayBuffer is not a function
+// ============================================================
+
+// ==================== STATE ====================
+let state = {
+    files: [],          // Stores actual File objects
+    fileMetadata: [],   // Stores metadata for persistence
+    extractedCards: [],
+    filteredCards: [],
+    isProcessing: false,
+    searchQuery: '',
+    layoutCount: 4,
+    selectedDate: null,
+    currentMonth: new Date().getMonth(),
+    currentYear: new Date().getFullYear(),
+    isAllMode: true,
+    dataVersion: '1.2',
+    selectedCardIndices: new Set()
+};
+
+// ==================== PERSISTENCE KEYS ====================
+const STORAGE_KEY = 'pdfReader_appointments_data_v3';
+const STORAGE_META_KEY = 'pdfReader_appointments_meta_v3';
+
+// ==================== DOM REFS ====================
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const importFileInput = document.getElementById('importFileInput');
+const fileList = document.getElementById('fileList');
+const processBtn = document.getElementById('processBtn');
+const downloadBtn = document.getElementById('downloadBtn');
+const copyAllBtn = document.getElementById('copyAllBtn');
+const clearBtn = document.getElementById('clearBtn');
+const exportDataBtn = document.getElementById('exportDataBtn');
+const importDataBtn = document.getElementById('importDataBtn');
+const clearAllDataBtn = document.getElementById('clearAllDataBtn');
+const progressContainer = document.getElementById('progressContainer');
+const progressFill = document.getElementById('progressFill');
+const progressText = document.getElementById('progressText');
+const progressFilename = document.getElementById('progressFilename');
+const statFiles = document.getElementById('statFiles');
+const statCards = document.getElementById('statCards');
+const statPatients = document.getElementById('statPatients');
+const statDates = document.getElementById('statDates');
+const calendarGrid = document.getElementById('calendarGrid');
+const monthYear = document.getElementById('monthYear');
+const prevMonthBtn = document.getElementById('prevMonth');
+const nextMonthBtn = document.getElementById('nextMonth');
+const dateList = document.getElementById('dateList');
+const dateListCount = document.getElementById('dateListCount');
+const appointmentsList = document.getElementById('appointmentsList');
+const selectedDateDisplay = document.getElementById('selectedDateDisplay');
+const appointmentCount = document.getElementById('appointmentCount');
+const searchInput = document.getElementById('searchInput');
+const clearSearchBtn = document.getElementById('clearSearchBtn');
+const searchInfo = document.getElementById('searchInfo');
+const searchResultCount = document.getElementById('searchResultCount');
+const searchQueryDisplay = document.getElementById('searchQueryDisplay');
+const layoutSelect = document.getElementById('layoutSelect');
+const ocrQuality = document.getElementById('ocrQuality');
+const previewModal = document.getElementById('previewModal');
+const previewText = document.getElementById('previewText');
+const modalClose = document.getElementById('modalClose');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const modalDownloadBtn = document.getElementById('modalDownloadBtn');
+const modalCopyBtn = document.getElementById('modalCopyBtn');
+const batchActions = document.getElementById('batchActions');
+const selectedCount = document.getElementById('selectedCount');
+const selectAllBtn = document.getElementById('selectAllBtn');
+const deselectAllBtn = document.getElementById('deselectAllBtn');
+const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+
+// ==================== TOAST ====================
+function showToast(msg, type = 'success') {
+    const existing = document.querySelector('.toast');
+    if (existing) existing.remove();
+    const div = document.createElement('div');
+    div.className = `toast ${type}`;
+    div.textContent = msg;
+    document.body.appendChild(div);
+    setTimeout(() => div.remove(), 4000);
+}
+
+// ==================== DEDUPLICATION ====================
+function generateCardHash(card) {
+    const patient = (card.pacient || '').trim().toLowerCase();
+    const date = (card.date || '').trim();
+    const hour = (card.hour || '').trim();
+    const specialty = (card.speciality || '').trim().toLowerCase();
+    const hospital = (card.hospitalName || '').trim().toLowerCase();
+    return `${patient}|${date}|${hour}|${specialty}|${hospital}`;
+}
+
+function deduplicateCards(cards) {
+    const seen = new Map();
+    const unique = [];
+    
+    for (const card of cards) {
+        if (!card.pacient && !card.date && !card.speciality && !card.hour) {
+            continue;
+        }
+        
+        const hash = generateCardHash(card);
+        if (!seen.has(hash)) {
+            seen.set(hash, true);
+            unique.push(card);
+        }
+    }
+    
+    return unique;
+}
+
+// ==================== PERSISTENCE FUNCTIONS ====================
+function saveDataToStorage() {
+    try {
+        const uniqueCards = deduplicateCards(state.extractedCards);
+        
+        // Only store file metadata (name, size, type) not the actual File objects
+        const fileMetadata = state.files.map(f => ({
+            name: f.name,
+            size: f.size,
+            type: f.type || 'application/pdf'
+        }));
+        
+        const data = {
+            version: state.dataVersion,
+            cards: uniqueCards,
+            layoutCount: state.layoutCount,
+            fileMetadata: fileMetadata,
+            timestamp: new Date().toISOString()
+        };
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+        
+        const meta = {
+            totalCards: uniqueCards.length,
+            totalFiles: state.files.length,
+            lastUpdated: new Date().toISOString(),
+            patients: new Set(uniqueCards.map(c => c.pacient).filter(Boolean)).size,
+            dates: new Set(uniqueCards.map(c => c.date).filter(Boolean)).size
+        };
+        localStorage.setItem(STORAGE_META_KEY, JSON.stringify(meta));
+    } catch (e) {
+        console.warn('Error saving to localStorage:', e);
+    }
+}
+
+function loadDataFromStorage() {
+    try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (!stored) return false;
+        
+        const data = JSON.parse(stored);
+        if (!data.cards || !Array.isArray(data.cards)) return false;
+        
+        const uniqueCards = deduplicateCards(data.cards);
+        state.extractedCards = uniqueCards;
+        state.filteredCards = [...uniqueCards];
+        
+        if (data.layoutCount) {
+            state.layoutCount = data.layoutCount;
+            layoutSelect.value = data.layoutCount;
+        }
+        
+        // Load file metadata - but NOT actual File objects (they can't be restored)
+        // Files will need to be re-uploaded to process again
+        if (data.fileMetadata && Array.isArray(data.fileMetadata)) {
+            state.fileMetadata = data.fileMetadata;
+            // Display file names but they are not actual File objects
+            // We'll show them as "restored" files
+            renderFileListFromMetadata();
+        }
+        
+        return true;
+    } catch (e) {
+        console.warn('Error loading from localStorage:', e);
+        return false;
+    }
+}
+
+function clearStorage() {
+    localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_META_KEY);
+}
+
+function renderFileListFromMetadata() {
+    if (!state.fileMetadata.length) { fileList.innerHTML = ''; return; }
+    fileList.innerHTML = state.fileMetadata.map((f, i) => `
+        <div class="file-tag" style="opacity:0.7;">
+            📄 ${f.name} (${(f.size/1024).toFixed(0)}KB) 💾 restaurado
+            <span class="remove" data-index="${i}">✕</span>
+        </div>
+    `).join('');
+    fileList.querySelectorAll('.remove').forEach(el => {
+        el.onclick = () => {
+            state.fileMetadata.splice(parseInt(el.dataset.index), 1);
+            // Also remove from files if exists
+            if (state.files[parseInt(el.dataset.index)]) {
+                state.files.splice(parseInt(el.dataset.index), 1);
+            }
+            renderFileList();
+            updateButtons();
+            updateStats();
+            saveDataToStorage();
+        };
+    });
+}
+
+// ==================== EXPORT DATA ====================
+function exportAllData() {
+    const uniqueCards = deduplicateCards(state.extractedCards);
+    const cardsWithData = uniqueCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    
+    if (!cardsWithData.length && !state.files.length && !state.fileMetadata.length) {
+        showToast('⚠️ Nenhum dado para exportar', 'warning');
+        return;
+    }
+    
+    const fileInfo = state.files.length > 0 ? 
+        state.files.map(f => ({ name: f.name, size: f.size, type: f.type })) :
+        state.fileMetadata;
+    
+    const exportData = {
+        version: state.dataVersion,
+        exportedAt: new Date().toISOString(),
+        totalAppointments: cardsWithData.length,
+        totalFiles: state.files.length || state.fileMetadata.length,
+        appointments: cardsWithData,
+        files: fileInfo,
+        layoutCount: state.layoutCount,
+        metadata: {
+            totalCards: cardsWithData.length,
+            patients: new Set(cardsWithData.map(c => c.pacient).filter(Boolean)).size,
+            dates: new Set(cardsWithData.map(c => c.date).filter(Boolean)).size
+        }
+    };
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `agendamentos_backup_${new Date().toISOString().slice(0,10)}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    
+    showToast(`📤 ${cardsWithData.length} agendamentos exportados!`, 'success');
+}
+
+// ==================== IMPORT DATA ====================
+function importAllData(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            if (!data.appointments || !Array.isArray(data.appointments)) {
+                showToast('❌ Arquivo inválido!', 'error');
+                return;
+            }
+            
+            const uniqueImported = deduplicateCards(data.appointments);
+            
+            if (!confirm(`Importar ${uniqueImported.length} agendamentos únicos?\n\nIsso substituirá todos os dados atuais!`)) {
+                return;
+            }
+            
+            state.extractedCards = uniqueImported;
+            state.filteredCards = [...uniqueImported];
+            
+            if (data.layoutCount) {
+                state.layoutCount = data.layoutCount;
+                layoutSelect.value = data.layoutCount;
+            }
+            
+            // Restore file metadata
+            if (data.files && Array.isArray(data.files)) {
+                state.fileMetadata = data.files;
+                state.files = []; // Clear actual files since we can't restore them
+                renderFileListFromMetadata();
+            }
+            
+            state.selectedDate = null;
+            state.isAllMode = true;
+            state.selectedCardIndices = new Set();
+            
+            renderCalendar();
+            renderDateList();
+            renderAppointments(null);
+            updateStats();
+            updateButtons();
+            saveDataToStorage();
+            updateBatchActions();
+            
+            showToast(`✅ ${uniqueImported.length} agendamentos importados!`, 'success');
+            
+        } catch (err) {
+            showToast('❌ Erro ao importar: ' + err.message, 'error');
+        }
+    };
+    reader.readAsText(file);
+}
+
+// ==================== CLEAR ALL DATA ====================
+function clearAllData() {
+    if (!confirm('⚠️ TEM CERTEZA?\n\nIsso apagará TODOS os agendamentos e arquivos carregados permanentemente!')) return;
+    if (!confirm('Última chance! Todos os dados serão perdidos.')) return;
+    
+    state.extractedCards = [];
+    state.filteredCards = [];
+    state.files = [];
+    state.fileMetadata = [];
+    state.selectedDate = null;
+    state.isAllMode = true;
+    state.searchQuery = '';
+    state.selectedCardIndices = new Set();
+    searchInput.value = '';
+    searchInfo.style.display = 'none';
+    
+    clearStorage();
+    renderFileList();
+    renderCalendar();
+    renderDateList();
+    renderAppointments(null);
+    updateStats();
+    updateButtons();
+    progressContainer.classList.remove('active');
+    updateBatchActions();
+    
+    showToast('🧹 Todos os dados foram removidos!', 'success');
+}
+
+// ==================== BATCH SELECTION ====================
+function toggleSelection(index) {
+    if (state.selectedCardIndices.has(index)) {
+        state.selectedCardIndices.delete(index);
+    } else {
+        state.selectedCardIndices.add(index);
+    }
+    updateBatchActions();
+    renderAppointments(state.selectedDate);
+}
+
+function selectAllVisible() {
+    const items = appointmentsList.querySelectorAll('.appointment-item');
+    const visibleCards = getVisibleCards();
+    
+    visibleCards.forEach((card, idx) => {
+        for (let i = 0; i < state.extractedCards.length; i++) {
+            const fullCard = state.extractedCards[i];
+            if (fullCard.pacient === card.pacient && 
+                fullCard.date === card.date && 
+                fullCard.hour === card.hour) {
+                state.selectedCardIndices.add(i);
+                break;
+            }
+        }
+    });
+    
+    updateBatchActions();
+    renderAppointments(state.selectedDate);
+}
+
+function deselectAll() {
+    state.selectedCardIndices = new Set();
+    updateBatchActions();
+    renderAppointments(state.selectedDate);
+}
+
+function deleteSelected() {
+    const count = state.selectedCardIndices.size;
+    if (count === 0) {
+        showToast('⚠️ Nenhum agendamento selecionado', 'warning');
+        return;
+    }
+    
+    if (!confirm(`Remover ${count} agendamento(s) selecionado(s)?`)) {
+        return;
+    }
+    
+    const indices = Array.from(state.selectedCardIndices).sort((a, b) => b - a);
+    
+    for (const idx of indices) {
+        state.extractedCards.splice(idx, 1);
+    }
+    
+    state.filteredCards = [...state.extractedCards];
+    state.selectedCardIndices = new Set();
+    
+    renderCalendar();
+    renderDateList();
+    renderAppointments(state.selectedDate);
+    updateStats();
+    updateButtons();
+    saveDataToStorage();
+    updateBatchActions();
+    
+    showToast(`🗑️ ${count} agendamento(s) removido(s)!`, 'success');
+}
+
+function getVisibleCards() {
+    const items = appointmentsList.querySelectorAll('.appointment-item');
+    const cards = [];
+    items.forEach(item => {
+        const patientEl = item.querySelector('.patient');
+        const dateEl = item.querySelector('.date-inline');
+        const timeEl = item.querySelector('.time-badge');
+        
+        let patient = '';
+        let date = '';
+        let hour = '';
+        
+        if (patientEl) {
+            const text = patientEl.textContent || '';
+            const dateMatch = text.match(/📅\s*([\d/]+)/);
+            if (dateMatch) date = dateMatch[1];
+            patient = text.replace(/📅\s*[\d/]+\s*/, '').trim();
+        }
+        
+        if (timeEl) {
+            hour = timeEl.textContent || '';
+        }
+        
+        cards.push({ pacient: patient, date, hour });
+    });
+    return cards;
+}
+
+function updateBatchActions() {
+    const count = state.selectedCardIndices.size;
+    selectedCount.textContent = count;
+    deleteSelectedBtn.disabled = count === 0;
+    
+    const hasAppointments = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour).length > 0;
+    if (hasAppointments) {
+        batchActions.classList.add('active');
+    } else {
+        batchActions.classList.remove('active');
+    }
+}
+
+// ==================== FILE HANDLING ====================
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', (e) => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length) addFiles(e.target.files);
+    fileInput.value = '';
+});
+
+importDataBtn.addEventListener('click', () => importFileInput.click());
+importFileInput.addEventListener('change', (e) => {
+    if (e.target.files && e.target.files[0]) {
+        importAllData(e.target.files[0]);
+        importFileInput.value = '';
+    }
+});
+
+exportDataBtn.addEventListener('click', exportAllData);
+clearAllDataBtn.addEventListener('click', clearAllData);
+
+selectAllBtn.addEventListener('click', selectAllVisible);
+deselectAllBtn.addEventListener('click', deselectAll);
+deleteSelectedBtn.addEventListener('click', deleteSelected);
+
+function addFiles(fileList) {
+    const existingNames = new Set(state.files.map(f => f.name));
+    for (const file of fileList) {
+        if (file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf')) {
+            if (!existingNames.has(file.name)) {
+                state.files.push(file);
+                existingNames.add(file.name);
+            }
+        }
+    }
+    renderFileList();
+    updateButtons();
+    updateStats();
+    saveDataToStorage();
+    showToast(`📎 ${state.files.length} arquivo(s) carregado(s)`);
+}
+
+function removeFile(index) {
+    if (state.files[index]) {
+        state.files.splice(index, 1);
+    }
+    if (state.fileMetadata[index]) {
+        state.fileMetadata.splice(index, 1);
+    }
+    renderFileList();
+    updateButtons();
+    updateStats();
+    saveDataToStorage();
+}
+
+function renderFileList() {
+    const filesToShow = state.files.length > 0 ? state.files : state.fileMetadata;
+    if (!filesToShow.length) { fileList.innerHTML = ''; return; }
+    
+    fileList.innerHTML = filesToShow.map((f, i) => {
+        const isRestored = state.files.length === 0 && state.fileMetadata.length > 0;
+        return `
+            <div class="file-tag" ${isRestored ? 'style="opacity:0.7;"' : ''}>
+                📄 ${f.name} (${(f.size/1024).toFixed(0)}KB)
+                ${isRestored ? '💾 restaurado' : ''}
+                <span class="remove" data-index="${i}">✕</span>
+            </div>
+        `;
+    }).join('');
+    
+    fileList.querySelectorAll('.remove').forEach(el => {
+        el.onclick = () => removeFile(parseInt(el.dataset.index));
+    });
+}
+
+function updateButtons() {
+    const hasFiles = state.files.length > 0;
+    processBtn.disabled = !hasFiles || state.isProcessing;
+    const hasResults = state.extractedCards.filter(c => c.pacient || c.date || c.speciality).length > 0;
+    downloadBtn.disabled = !hasResults;
+    copyAllBtn.disabled = !hasResults;
+}
+
+function updateStats() {
+    const fileCount = state.files.length || state.fileMetadata.length;
+    statFiles.textContent = fileCount;
+    const cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    statCards.textContent = cardsWithData.length;
+    const patients = new Set(cardsWithData.map(c => c.pacient).filter(Boolean));
+    statPatients.textContent = patients.size;
+    const dates = new Set(cardsWithData.map(c => c.date).filter(Boolean));
+    statDates.textContent = dates.size;
+}
+
+// ==================== OCR ENGINE ====================
+function stripAccents(s) {
+    return s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+}
+
+function cleanValue(v) {
+    return v.replace(/^[\s:\-–—|_.]+/, '').replace(/[\s_]+$/, '').trim();
+}
+
+function capitalize(s) {
+    if (!s) return '';
+    return s.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+}
+
+function parseOcrText(rawText) {
+    const text = rawText.replace(/\r/g, '');
+    const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+
+    function grabAfterLabel(label) {
+        const normLabel = stripAccents(label.toLowerCase());
+        for (let i = 0; i < lines.length; i++) {
+            const normLine = stripAccents(lines[i].toLowerCase());
+            const idx = normLine.indexOf(normLabel);
+            if (idx !== -1) {
+                const rest = cleanValue(lines[i].slice(idx + label.length));
+                if (rest) return rest;
+                if (lines[i + 1]) return cleanValue(lines[i + 1]);
+            }
+        }
+        return '';
+    }
+
+    const pacient = grabAfterLabel('Paciente');
+    const speciality = grabAfterLabel('Especialidade');
+    let date = grabAfterLabel('Data');
+    let hour = grabAfterLabel('Horário') || grabAfterLabel('Horario');
+    const hospitalAddress = grabAfterLabel('Local');
+
+    const dateMatch = date.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+    date = dateMatch ? `${dateMatch[1].padStart(2,'0')}/${dateMatch[2].padStart(2,'0')}/${dateMatch[3].length===2?'20'+dateMatch[3]:dateMatch[3]}` : '';
+    
+    const hourMatch = hour.match(/(\d{1,2}):(\d{2})/);
+    hour = hourMatch ? `${hourMatch[1].padStart(2,'0')}:${hourMatch[2]}` : '';
+
+    let hospitalName = '';
+    for (const line of lines) {
+        if (/agendamento|consulta|médico/i.test(line)) break;
+        const cleanedLine = cleanValue(line);
+        if (cleanedLine.length >= 3 && !/^_+$/.test(cleanedLine)) {
+            hospitalName = cleanedLine;
+            break;
+        }
+    }
+
+    return {
+        pacient: pacient && !/^_+$/.test(pacient) ? capitalize(pacient) : '',
+        speciality: speciality && !/^_+$/.test(speciality) ? speciality : '',
+        date,
+        hour,
+        hospitalName: hospitalName && hospitalName.length < 60 ? hospitalName : '',
+        hospitalAddress: hospitalAddress && !/^_+$/.test(hospitalAddress) ? hospitalAddress : ''
+    };
+}
+
+function preprocessCanvas(canvas) {
+    const ctx = canvas.getContext('2d');
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = imgData.data;
+    let min = 255, max = 0;
+    const gray = new Uint8ClampedArray(d.length / 4);
+    for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+        const g = 0.299 * d[i] + 0.587 * d[i + 1] + 0.114 * d[i + 2];
+        gray[j] = g;
+        if (g < min) min = g;
+        if (g > max) max = g;
+    }
+    const range = Math.max(max - min, 1);
+    for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+        const stretched = ((gray[j] - min) / range) * 255;
+        d[i] = d[i + 1] = d[i + 2] = stretched;
+    }
+    ctx.putImageData(imgData, 0, 0);
+    return canvas;
+}
+
+function gridDims(n) {
+    if (n === 1) return { cols: 1, rows: 1 };
+    if (n === 2) return { cols: 1, rows: 2 };
+    if (n === 4) return { cols: 2, rows: 2 };
+    if (n === 6) return { cols: 2, rows: 3 };
+    if (n === 8) return { cols: 2, rows: 4 };
+    return { cols: 2, rows: 2 };
+}
+
+function describeError(e) {
+    if (!e) return 'motivo desconhecido';
+    if (typeof e === 'string') return e;
+    if (e.message) return e.message;
+    if (e.error?.message) return e.error.message;
+    try { return JSON.stringify(e); } catch (_) { return String(e); }
+}
+
+// ==================== DATE HELPERS ====================
+function parseDate(dateStr) {
+    if (!dateStr) return null;
+    const parts = dateStr.split('/');
+    if (parts.length !== 3) return null;
+    const [dd, mm, yyyy] = parts.map(Number);
+    if (isNaN(dd) || isNaN(mm) || isNaN(yyyy)) return null;
+    const d = new Date(yyyy, mm - 1, dd);
+    return isNaN(d.getTime()) ? null : d;
+}
+
+function formatDateKey(dateStr) {
+    const dt = parseDate(dateStr);
+    if (!dt) return null;
+    const dd = String(dt.getDate()).padStart(2, '0');
+    const mm = String(dt.getMonth() + 1).padStart(2, '0');
+    const yyyy = dt.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+}
+
+function getTodayKey() {
+    const today = new Date();
+    const dd = String(today.getDate()).padStart(2, '0');
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const yyyy = today.getFullYear();
+    return `${dd}/${mm}/${yyyy}`;
+}
+
+function formatDisplayDate(dateKey) {
+    if (!dateKey) return '';
+    const parts = dateKey.split('/');
+    if (parts.length !== 3) return dateKey;
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    return `${parseInt(parts[0])} de ${monthNames[parseInt(parts[1]) - 1]} de ${parts[2]}`;
+}
+
+// ==================== CORE PROCESSING ====================
+async function processPdfs() {
+    if (state.isProcessing || !state.files.length) {
+        if (!state.files.length) {
+            showToast('⚠️ Nenhum arquivo PDF carregado. Arraste e solte arquivos primeiro.', 'warning');
+        }
+        return;
+    }
+    
+    state.isProcessing = true;
+    state.extractedCards = [];
+    state.filteredCards = [];
+    state.isAllMode = true;
+    state.selectedDate = null;
+    state.selectedCardIndices = new Set();
+    processBtn.disabled = true;
+    progressContainer.classList.add('active');
+    
+    const layoutCount = parseInt(layoutSelect.value);
+    const quality = ocrQuality.value;
+    const scale = quality === 'accurate' ? 4 : 3;
+    
+    try {
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+        
+        if (typeof Tesseract === 'undefined') {
+            throw new Error('Tesseract.js não carregou.');
+        }
+        
+        let worker;
+        try {
+            worker = await Tesseract.createWorker('por', 1, {
+                workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+                corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5',
+                langPath: 'https://tessdata.projectnaptha.com/4.0.0'
+            });
+        } catch (workerErr) {
+            throw new Error('Erro ao iniciar OCR: ' + describeError(workerErr));
+        }
+        
+        try {
+            await worker.setParameters({ tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK });
+        } catch (_) { /* ignore */ }
+        
+        let totalCards = 0;
+        const allCards = [];
+        
+        for (let fileIdx = 0; fileIdx < state.files.length; fileIdx++) {
+            const file = state.files[fileIdx];
+            const total = state.files.length;
+            
+            progressText.textContent = `📄 Processando ${fileIdx + 1} de ${total}: ${file.name}`;
+            progressFilename.textContent = file.name;
+            progressFill.style.width = `${(fileIdx / total) * 100}%`;
+            
+            // file is a File object, use arrayBuffer() method
+            const buffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: buffer }).promise;
+            
+            for (let pageNum = 1; pageNum <= Math.min(pdf.numPages, 1); pageNum++) {
+                const page = await pdf.getPage(pageNum);
+                const viewport = page.getViewport({ scale: scale });
+                const canvas = document.createElement('canvas');
+                canvas.width = viewport.width;
+                canvas.height = viewport.height;
+                await page.render({ canvasContext: canvas.getContext('2d'), viewport }).promise;
+                
+                const { cols, rows } = gridDims(layoutCount);
+                const cellW = canvas.width / cols;
+                const cellH = canvas.height / rows;
+                
+                for (let i = 0; i < layoutCount; i++) {
+                    const col = i % cols;
+                    const row = Math.floor(i / cols);
+                    const cellCanvas = document.createElement('canvas');
+                    cellCanvas.width = Math.floor(cellW);
+                    cellCanvas.height = Math.floor(cellH);
+                    const ctx = cellCanvas.getContext('2d');
+                    ctx.drawImage(canvas, col * cellW, row * cellH, cellW, cellH, 0, 0, cellW, cellH);
+                    preprocessCanvas(cellCanvas);
+                    
+                    let text = '';
+                    try {
+                        const { data } = await worker.recognize(cellCanvas);
+                        text = data?.text || '';
+                    } catch (ocrErr) {
+                        console.warn('OCR error:', ocrErr);
+                    }
+                    
+                    const parsed = parseOcrText(text);
+                    parsed._source = file.name;
+                    parsed._cardIndex = i + 1;
+                    parsed._totalCards = layoutCount;
+                    allCards.push(parsed);
+                    totalCards++;
+                }
+            }
+            
+            const percent = ((fileIdx + 1) / total) * 100;
+            progressFill.style.width = `${percent}%`;
+            progressText.textContent = `📄 ${fileIdx + 1} de ${total} PDFs • ${totalCards} cartões extraídos`;
+        }
+        
+        await worker.terminate();
+        worker = null;
+        
+        const uniqueCards = deduplicateCards(allCards);
+        const cardsWithData = uniqueCards.filter(c => c.pacient || c.date || c.speciality || c.hour || c.hospitalName);
+        const emptyCards = uniqueCards.filter(c => !c.pacient && !c.date && !c.speciality && !c.hour && !c.hospitalName);
+        
+        cardsWithData.sort((a, b) => {
+            const dateA = parseDate(a.date);
+            const dateB = parseDate(b.date);
+            const timeA = dateA ? dateA.getTime() : Infinity;
+            const timeB = dateB ? dateB.getTime() : Infinity;
+            if (timeA !== timeB) return timeA - timeB;
+            return (a.hour || '00:00').localeCompare(b.hour || '00:00');
+        });
+        
+        state.extractedCards = [...cardsWithData, ...emptyCards];
+        state.filteredCards = [...state.extractedCards];
+        
+        // Store file metadata for persistence
+        state.fileMetadata = state.files.map(f => ({
+            name: f.name,
+            size: f.size,
+            type: f.type || 'application/pdf'
+        }));
+        
+        progressFill.style.width = '100%';
+        progressText.textContent = `✅ ${state.files.length} PDF(s) • ${cardsWithData.length} agendamentos únicos`;
+        
+        renderCalendar();
+        renderDateList();
+        renderAppointments(null);
+        updateStats();
+        updateButtons();
+        saveDataToStorage();
+        updateBatchActions();
+        
+        showToast(`✅ ${cardsWithData.length} agendamentos únicos extraídos!`, 'success');
+        
+    } catch (e) {
+        console.error('Processing error:', e);
+        showToast('❌ Erro: ' + describeError(e), 'error');
+    } finally {
+        state.isProcessing = false;
+        processBtn.disabled = false;
+        setTimeout(() => {
+            progressContainer.classList.remove('active');
+        }, 3000);
+    }
+}
+
+// ==================== CALENDAR ====================
+function renderCalendar() {
+    const year = state.currentYear;
+    const month = state.currentMonth;
+    
+    const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+    monthYear.textContent = `${monthNames[month]} ${year}`;
+    
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+    
+    const appMap = {};
+    const cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    for (const card of cardsWithData) {
+        const key = formatDateKey(card.date);
+        if (key) {
+            if (!appMap[key]) appMap[key] = [];
+            appMap[key].push(card);
+        }
+    }
+    
+    let html = '';
+    const dayNames = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
+    for (const name of dayNames) {
+        html += `<div class="day-name">${name}</div>`;
+    }
+    
+    const startOffset = firstDay === 0 ? 6 : firstDay - 1;
+    for (let i = startOffset - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        html += `<div class="day-cell other-month"><span class="day-number">${day}</span></div>`;
+    }
+    
+    const todayKey = getTodayKey();
+    const isAllMode = state.selectedDate === null;
+    
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateKey = `${String(day).padStart(2, '0')}/${String(month + 1).padStart(2, '0')}/${year}`;
+        const hasApp = appMap[dateKey] && appMap[dateKey].length > 0;
+        const isToday = dateKey === todayKey;
+        const isSelected = dateKey === state.selectedDate;
+        const isAllSelected = isAllMode && hasApp;
+        const count = hasApp ? appMap[dateKey].length : 0;
+        
+        let classes = 'day-cell';
+        if (hasApp) classes += ' has-appointments';
+        if (isSelected) classes += ' selected';
+        if (isToday) classes += ' today';
+        if (isAllSelected && !isSelected) classes += ' selected';
+        
+        html += `<div class="${classes}" data-date="${dateKey}" onclick="selectDate('${dateKey}')">
+            <span class="day-number">${day}</span>
+            ${hasApp ? `<div class="day-dot"></div>` : ''}
+            ${count > 1 ? `<span class="badge-count">${count}</span>` : ''}
+        </div>`;
+    }
+    
+    const totalCells = startOffset + daysInMonth;
+    const remaining = (7 - (totalCells % 7)) % 7;
+    for (let day = 1; day <= remaining; day++) {
+        html += `<div class="day-cell other-month"><span class="day-number">${day}</span></div>`;
+    }
+    
+    calendarGrid.innerHTML = html;
+}
+
+// ==================== DATE LIST ====================
+function renderDateList() {
+    const cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    const dateMap = {};
+    for (const card of cardsWithData) {
+        const key = formatDateKey(card.date);
+        if (key) {
+            if (!dateMap[key]) dateMap[key] = [];
+            dateMap[key].push(card);
+        }
+    }
+    
+    const sortedDates = Object.keys(dateMap).sort((a, b) => {
+        const da = parseDate(a);
+        const db = parseDate(b);
+        return (da && db) ? da.getTime() - db.getTime() : 0;
+    });
+    
+    const totalDays = sortedDates.length;
+    dateListCount.textContent = totalDays;
+    
+    let html = '';
+    
+    const isAllActive = state.selectedDate === null;
+    html += `
+        <div class="date-chip all-chip ${isAllActive ? 'active' : ''}" onclick="selectDate(null)">
+            📋 Todos os agendamentos
+            <span class="chip-count">${cardsWithData.length}</span>
+        </div>
+    `;
+    
+    if (!sortedDates.length) {
+        dateList.innerHTML = html + `<div style="color:#667;font-size:0.8rem;padding:8px 0;width:100%;">Nenhum agendamento encontrado</div>`;
+        return;
+    }
+    
+    html += sortedDates.map(dateKey => {
+        const count = dateMap[dateKey].length;
+        const isActive = dateKey === state.selectedDate;
+        const displayDate = formatDisplayDate(dateKey);
+        return `
+            <div class="date-chip ${isActive ? 'active' : ''}" onclick="selectDate('${dateKey}')">
+                📅 ${displayDate}
+                <span class="chip-count">${count}</span>
+            </div>
+        `;
+    }).join('');
+    
+    dateList.innerHTML = html;
+}
+
+// ==================== SELECT DATE ====================
+function selectDate(dateKey) {
+    state.selectedDate = dateKey;
+    state.isAllMode = dateKey === null;
+    state.selectedCardIndices = new Set();
+    
+    renderCalendar();
+    renderDateList();
+    renderAppointments(dateKey);
+    updateBatchActions();
+}
+
+// ==================== RENDER APPOINTMENTS ====================
+function renderAppointments(dateKey) {
+    const searchQuery = state.searchQuery;
+    
+    let cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    
+    if (dateKey !== null) {
+        cardsWithData = cardsWithData.filter(c => formatDateKey(c.date) === dateKey);
+    }
+    
+    if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        cardsWithData = cardsWithData.filter(c => {
+            const patientMatch = (c.pacient || '').toLowerCase().includes(query);
+            const dateMatch = (c.date || '').includes(query);
+            const specialtyMatch = (c.speciality || '').toLowerCase().includes(query);
+            const hospitalMatch = (c.hospitalName || '').toLowerCase().includes(query);
+            const addressMatch = (c.hospitalAddress || '').toLowerCase().includes(query);
+            const sourceMatch = (c._source || '').toLowerCase().includes(query);
+            return patientMatch || dateMatch || specialtyMatch || hospitalMatch || addressMatch || sourceMatch;
+        });
+    }
+    
+    cardsWithData.sort((a, b) => {
+        const dateA = parseDate(a.date);
+        const dateB = parseDate(b.date);
+        const timeA = dateA ? dateA.getTime() : Infinity;
+        const timeB = dateB ? dateB.getTime() : Infinity;
+        if (timeA !== timeB) return timeA - timeB;
+        return (a.hour || '99:99').localeCompare(b.hour || '99:99');
+    });
+    
+    if (dateKey === null) {
+        selectedDateDisplay.textContent = '📋 Todos os agendamentos';
+    } else if (searchQuery) {
+        selectedDateDisplay.textContent = `🔍 Resultados da busca • ${formatDisplayDate(dateKey)}`;
+    } else {
+        selectedDateDisplay.textContent = `📅 ${formatDisplayDate(dateKey)}`;
+    }
+    appointmentCount.innerHTML = `<strong>${cardsWithData.length}</strong> agendamentos`;
+    
+    if (!cardsWithData.length) {
+        appointmentsList.innerHTML = `
+            <div class="empty-state">
+                <span class="icon">${searchQuery ? '🔍' : '📭'}</span>
+                <p>${searchQuery ? `Nenhum resultado para "<strong>${escapeHtml(searchQuery)}</strong>"` : 'Nenhum agendamento para este dia'}</p>
+                ${!searchQuery && dateKey !== null ? '<p style="font-size:0.8rem; margin-top:4px;">Clique em "Todos os agendamentos" para ver todos</p>' : ''}
+            </div>
+        `;
+        return;
+    }
+    
+    const selectedSet = state.selectedCardIndices;
+    
+    appointmentsList.innerHTML = cardsWithData.map((app, displayIndex) => {
+        let fullIndex = -1;
+        for (let i = 0; i < state.extractedCards.length; i++) {
+            const card = state.extractedCards[i];
+            if (card.pacient === app.pacient && 
+                card.date === app.date && 
+                card.hour === app.hour) {
+                fullIndex = i;
+                break;
+            }
+        }
+        
+        const isSelected = fullIndex !== -1 && selectedSet.has(fullIndex);
+        
+        const patient = searchQuery ? highlightText(app.pacient || '_________________', searchQuery) : (app.pacient || '_________________');
+        const specialty = searchQuery ? highlightText(app.speciality || '_________________', searchQuery) : (app.speciality || '_________________');
+        const hospital = searchQuery ? highlightText(app.hospitalName || '', searchQuery) : (app.hospitalName || '');
+        const address = searchQuery ? highlightText(app.hospitalAddress || '', searchQuery) : (app.hospitalAddress || '');
+        const dateDisplay = app.date || '__/__/____';
+        const hourDisplay = app.hour || '__:__';
+        const source = app._source || 'PDF';
+        const cardPos = app._cardIndex || '?';
+        const totalCards = app._totalCards || 4;
+        
+        const safePatient = escapeHtml(app.pacient || '');
+        const safeDate = escapeHtml(app.date || '');
+        const safeHour = escapeHtml(app.hour || '');
+        const safeSpecialty = escapeHtml(app.speciality || '');
+        const safeHospital = escapeHtml(app.hospitalName || '');
+        const safeAddress = escapeHtml(app.hospitalAddress || '');
+        
+        const cardData = JSON.stringify({
+            pacient: app.pacient || '',
+            date: app.date || '',
+            hour: app.hour || '',
+            specialty: app.speciality || '',
+            hospitalName: app.hospitalName || '',
+            hospitalAddress: app.hospitalAddress || ''
+        });
+        
+        return `
+            <div class="appointment-item ${isSelected ? 'selected' : ''}" data-card-data='${cardData}' style="animation-delay: ${displayIndex * 0.03}s;">
+                <div class="info">
+                    <div class="patient">
+                        ${patient}
+                        <span class="date-inline">📅 ${dateDisplay}</span>
+                    </div>
+                    <div class="details">
+                        🕐 <span>${hourDisplay}</span> • 🔬 <span>${specialty}</span>
+                        ${hospital ? `• 🏥 <span>${hospital}</span>` : ''}
+                        ${address && address !== hospital ? `• 📍 <span>${address}</span>` : ''}
+                        <span class="source-tag">📄 ${source} (#${cardPos}/${totalCards})</span>
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <div class="select-checkbox ${isSelected ? 'checked' : ''}" 
+                         onclick="toggleSelection(${fullIndex})" 
+                         title="${isSelected ? 'Desmarcar' : 'Selecionar'}">
+                        ${isSelected ? '✓' : ''}
+                    </div>
+                    <div class="time-badge">${hourDisplay}</div>
+                    <button class="copy-btn" onclick="copyAppointment(this, '${safePatient}', '${safeDate}', '${safeHour}', '${safeSpecialty}', '${safeHospital}', '${safeAddress}')">📋</button>
+                    <button class="delete-btn" onclick="deleteSingleAppointment(${fullIndex})" title="Remover agendamento">🗑️</button>
+                </div>
+            </div>
+        `;
+    }).join('');
+    
+    const hasAppointments = cardsWithData.length > 0;
+    if (hasAppointments) {
+        batchActions.classList.add('active');
+    } else {
+        batchActions.classList.remove('active');
+    }
+    updateBatchActions();
+}
+
+function highlightText(text, query) {
+    if (!query || !text) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    const before = text.substring(0, idx);
+    const match = text.substring(idx, idx + query.length);
+    const after = text.substring(idx + query.length);
+    return `${before}<span class="match-highlight">${match}</span>${after}`;
+}
+
+function escapeHtml(str) {
+    if (!str) return '';
+    return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+// ==================== SINGLE DELETE ====================
+function deleteSingleAppointment(index) {
+    if (index === -1 || index >= state.extractedCards.length) {
+        showToast('❌ Agendamento não encontrado', 'error');
+        return;
+    }
+    
+    const card = state.extractedCards[index];
+    if (!confirm(`Remover agendamento de ${card.pacient || 'paciente'} em ${card.date || 'data indefinida'}?`)) {
+        return;
+    }
+    
+    state.extractedCards.splice(index, 1);
+    state.filteredCards = [...state.extractedCards];
+    state.selectedCardIndices = new Set();
+    
+    renderCalendar();
+    renderDateList();
+    renderAppointments(state.selectedDate);
+    updateStats();
+    updateButtons();
+    saveDataToStorage();
+    updateBatchActions();
+    
+    showToast(`🗑️ Agendamento removido!`, 'success');
+}
+
+// ==================== COPY APPOINTMENT ====================
+function copyAppointment(btn, patient, date, hour, specialty, hospital, address) {
+    let text = `👤 ${patient}\n`;
+    text += `📅 ${date} • 🕐 ${hour}\n`;
+    text += `🔬 ${specialty}\n`;
+    if (hospital) text += `🏥 ${hospital}\n`;
+    if (address && address !== hospital) text += `📍 ${address}\n`;
+    
+    copyToClipboard(text);
+    btn.textContent = '✅';
+    btn.classList.add('copied');
+    setTimeout(() => {
+        btn.textContent = '📋';
+        btn.classList.remove('copied');
+    }, 1500);
+}
+
+// ==================== COPY TO CLIPBOARD ====================
+function copyToClipboard(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(() => {
+            showToast('📋 Copiado!', 'success');
+        }).catch(() => fallbackCopy(text));
+    } else {
+        fallbackCopy(text);
+    }
+}
+
+function fallbackCopy(text) {
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    try {
+        document.execCommand('copy');
+        showToast('📋 Copiado!', 'success');
+    } catch (e) {
+        showToast('❌ Erro ao copiar', 'error');
+    }
+    document.body.removeChild(textarea);
+}
+
+// ==================== SEARCH ====================
+function applySearch() {
+    const query = searchInput.value.trim();
+    state.searchQuery = query;
+    state.selectedCardIndices = new Set();
+    
+    if (!query) {
+        searchInfo.style.display = 'none';
+    } else {
+        searchInfo.style.display = 'block';
+        const cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+        const results = cardsWithData.filter(c => {
+            const q = query.toLowerCase();
+            return (c.pacient || '').toLowerCase().includes(q) ||
+                   (c.date || '').includes(q) ||
+                   (c.speciality || '').toLowerCase().includes(q) ||
+                   (c.hospitalName || '').toLowerCase().includes(q) ||
+                   (c.hospitalAddress || '').toLowerCase().includes(q) ||
+                   (c._source || '').toLowerCase().includes(q);
+        });
+        searchResultCount.textContent = results.length;
+        searchQueryDisplay.textContent = query;
+    }
+    
+    renderAppointments(state.selectedDate);
+    updateBatchActions();
+}
+
+// ==================== GENERATE TXT ====================
+function generateFormattedText() {
+    const uniqueCards = deduplicateCards(state.extractedCards);
+    const cardsWithData = uniqueCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    
+    if (!cardsWithData.length) {
+        showToast('⚠️ Nenhum agendamento para exportar', 'warning');
+        return null;
+    }
+    
+    const total = cardsWithData.length;
+    const fileCount = state.files.length || state.fileMetadata.length;
+    const layoutCount = state.layoutCount;
+    
+    const grouped = {};
+    cardsWithData.forEach(c => {
+        const key = c.date || 'Sem Data';
+        if (!grouped[key]) grouped[key] = [];
+        grouped[key].push(c);
+    });
+    
+    const sortedDates = Object.keys(grouped).sort((a, b) => {
+        if (a === 'Sem Data') return 1;
+        if (b === 'Sem Data') return -1;
+        const da = parseDate(a);
+        const db = parseDate(b);
+        return (da && db) ? da.getTime() - db.getTime() : 0;
+    });
+    
+    let lines = [];
+    const separator = '═'.repeat(70);
+    const subSeparator = '─'.repeat(60);
+    
+    lines.push(separator);
+    lines.push(`📋 RELATÓRIO DE AGENDAMENTOS - ${new Date().toLocaleDateString('pt-BR')}`);
+    lines.push(`📄 ${fileCount} PDF(s) processados • ${total} agendamento${total > 1 ? 's' : ''}`);
+    lines.push(`📐 ${layoutCount} cartão(ões) por página`);
+    if (state.searchQuery) {
+        lines.push(`🔍 Filtrado por: "${state.searchQuery}"`);
+    }
+    lines.push(separator);
+    lines.push('');
+    
+    let count = 1;
+    for (const date of sortedDates) {
+        const dayCards = grouped[date];
+        lines.push(`📅 ${date} (${dayCards.length} agendamento${dayCards.length > 1 ? 's' : ''})`);
+        lines.push(subSeparator);
+        
+        dayCards.sort((a, b) => (a.hour || '00:00').localeCompare(b.hour || '00:00'));
+        
+        for (const card of dayCards) {
+            const patient = card.pacient || '_________________';
+            const hour = card.hour || '__:__';
+            const specialty = card.speciality || '_________________';
+            const hospital = card.hospitalName || '';
+            const address = card.hospitalAddress || '';
+            const cardPos = card._cardIndex || '?';
+            
+            lines.push(`${count}. ${patient}`);
+            lines.push(`   📅 ${date} • 🕐 ${hour}  |  🔬 ${specialty}`);
+            if (hospital) lines.push(`   🏥 ${hospital}`);
+            if (address && address !== hospital) lines.push(`   📍 ${address}`);
+            lines.push(`   📄 Posição: #${cardPos} de ${layoutCount} • Fonte: ${card._source || 'PDF'}`);
+            count++;
+        }
+        lines.push('');
+    }
+    
+    lines.push(separator);
+    lines.push(`📊 TOTAL: ${total} agendamento${total > 1 ? 's' : ''}`);
+    lines.push(`📅 ${sortedDates.length} data(s) diferentes`);
+    lines.push(`🏥 ${new Set(cardsWithData.map(c => c.hospitalName).filter(Boolean)).size} hospital(is)`);
+    lines.push(`👤 ${new Set(cardsWithData.map(c => c.pacient).filter(Boolean)).size} paciente(s)`);
+    lines.push(separator);
+    lines.push(`📄 Gerado por PDF Reader Pro em ${new Date().toLocaleString('pt-BR')}`);
+    
+    return lines.join('\r\n');
+}
+
+function downloadTxt() {
+    const text = generateFormattedText();
+    if (!text) return;
+    
+    const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `agendamentos_${new Date().toISOString().slice(0,10)}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    showToast('📥 TXT baixado!', 'success');
+}
+
+function copyAllFormatted() {
+    const text = generateFormattedText();
+    if (!text) return;
+    copyToClipboard(text);
+}
+
+// ==================== MODAL ====================
+function showPreview() {
+    const text = generateFormattedText();
+    if (!text) return;
+    previewText.textContent = text;
+    previewModal.classList.add('active');
+}
+
+function closeModal() {
+    previewModal.classList.remove('active');
+}
+
+// ==================== NAVIGATION ====================
+prevMonthBtn.onclick = () => {
+    state.currentMonth--;
+    if (state.currentMonth < 0) { state.currentMonth = 11; state.currentYear--; }
+    renderCalendar();
+};
+
+nextMonthBtn.onclick = () => {
+    state.currentMonth++;
+    if (state.currentMonth > 11) { state.currentMonth = 0; state.currentYear++; }
+    renderCalendar();
+};
+
+// ==================== EVENT BINDINGS ====================
+processBtn.onclick = processPdfs;
+downloadBtn.onclick = downloadTxt;
+copyAllBtn.onclick = copyAllFormatted;
+
+clearBtn.onclick = () => {
+    if (state.isProcessing) return;
+    if (state.extractedCards.length === 0 && state.files.length === 0 && state.fileMetadata.length === 0) {
+        showToast('⚠️ Nada para limpar', 'warning');
+        return;
+    }
+    if (!confirm('Limpar todos os arquivos e resultados da tela? (Os dados salvos permanecem)')) return;
+    state.files = [];
+    state.fileMetadata = [];
+    state.extractedCards = [];
+    state.filteredCards = [];
+    state.selectedDate = null;
+    state.isAllMode = true;
+    state.searchQuery = '';
+    state.selectedCardIndices = new Set();
+    searchInput.value = '';
+    searchInfo.style.display = 'none';
+    renderFileList();
+    renderCalendar();
+    renderDateList();
+    renderAppointments(null);
+    updateStats();
+    updateButtons();
+    progressContainer.classList.remove('active');
+    saveDataToStorage();
+    updateBatchActions();
+    showToast('🧹 Tudo limpo da tela!');
+};
+
+searchInput.addEventListener('input', applySearch);
+clearSearchBtn.addEventListener('click', () => {
+    searchInput.value = '';
+    applySearch();
+});
+
+modalClose.onclick = closeModal;
+modalCloseBtn.onclick = closeModal;
+modalDownloadBtn.onclick = () => { downloadTxt(); closeModal(); };
+modalCopyBtn.onclick = () => {
+    const text = previewText.textContent;
+    if (text) copyToClipboard(text);
+};
+previewModal.addEventListener('click', (e) => {
+    if (e.target === previewModal) closeModal();
+});
+
+// ==================== KEYBOARD SHORTCUTS ====================
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && previewModal.classList.contains('active')) closeModal();
+    if (e.ctrlKey && e.key === 'Enter' && !processBtn.disabled) processPdfs();
+    if (e.key === 'ArrowLeft') prevMonthBtn.click();
+    if (e.key === 'ArrowRight') nextMonthBtn.click();
+    if (e.ctrlKey && e.key === 'd' && state.extractedCards.length > 0) {
+        e.preventDefault();
+        downloadTxt();
+    }
+    if (e.ctrlKey && e.key === 'f') {
+        e.preventDefault();
+        searchInput.focus();
+        searchInput.select();
+    }
+    if (e.ctrlKey && e.key === 'a' && document.activeElement !== searchInput) {
+        e.preventDefault();
+        selectAllVisible();
+    }
+});
+
+// ==================== INIT ====================
+const hasSavedData = loadDataFromStorage();
+
+state.selectedDate = null;
+state.isAllMode = true;
+state.selectedCardIndices = new Set();
+
+renderCalendar();
+renderDateList();
+renderAppointments(null);
+updateStats();
+updateButtons();
+updateBatchActions();
+
+if (hasSavedData) {
+    const cardsWithData = state.extractedCards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+    if (cardsWithData.length > 0) {
+        showToast(`📅 ${cardsWithData.length} agendamentos únicos restaurados do salvamento`, 'success');
+    }
+    if (state.fileMetadata.length > 0) {
+        showToast(`📎 ${state.fileMetadata.length} arquivos restaurados (carregue novamente para processar)`, 'info');
+    }
+} else {
+    showToast('🚀 Carregue PDFs e processe (Ctrl+Enter)', 'info');
+}
+
+showToast('📋 Todos os agendamentos são exibidos por padrão', 'info');
+showToast('📤 Exporte/Importe dados com os botões no header', 'info');
+showToast('✅ Selecione múltiplos agendamentos com os checkboxes', 'info');
+
+console.log('📅 PDF Reader Pro - Fix: file.arrayBuffer error resolved!');
+console.log(`📚 ${state.files.length} arquivos carregados, ${state.extractedCards.filter(c => c.pacient || c.date).length} agendamentos únicos`);
+</script>
+</body>
+</html>
