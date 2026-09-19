@@ -1,0 +1,3224 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>Agenda — PDF Reader Pro</title>
+<style>
+:root {
+  --bg: #0a1620;
+  --bg-soft: #0f1c28;
+  --surface: #16212c;
+  --surface-2: #1e2b38;
+  --surface-3: #253443;
+  --border: rgba(255,255,255,0.06);
+  --border-strong: rgba(255,255,255,0.12);
+
+  --primary: #22b8cf;
+  --primary-dim: #1a93a8;
+  --primary-soft: rgba(34,184,207,0.12);
+  --primary-glow: rgba(34,184,207,0.25);
+
+  --accent: #ffd43b;
+  --accent-soft: rgba(255,212,59,0.12);
+
+  --warning: #ff922b;
+  --warning-soft: rgba(255,146,43,0.12);
+
+  --danger: #ff6b6b;
+  --danger-soft: rgba(255,107,107,0.12);
+
+  --success: #51cf66;
+  --success-soft: rgba(81,207,102,0.12);
+
+  --text: #e6edf3;
+  --text-dim: #8b98a5;
+  --text-mute: #56616d;
+
+  --radius-sm: 8px;
+  --radius: 12px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(0,0,0,0.3);
+  --shadow: 0 4px 16px rgba(0,0,0,0.35);
+  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+html, body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+button { cursor: pointer; border: none; background: none; }
+input, select { outline: none; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--surface-3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #33475c; }
+
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+
+.app { max-width: 1600px; margin: 0 auto; padding: 20px; }
+
+@media (max-width: 640px) {
+  .app { padding: 10px; }
+  html, body { font-size: 13px; }
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding: 2px 4px;
+  flex-wrap: wrap;
+}
+
+.brand { display: flex; align-items: center; gap: 10px; flex-shrink: 0; }
+
+.brand-mark {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--primary), #1a93a8);
+  display: grid;
+  place-items: center;
+  font-size: 18px;
+  box-shadow: 0 4px 16px var(--primary-glow);
+}
+
+.brand-text h1 { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
+.brand-text p { font-size: 0.7rem; color: var(--text-mute); }
+
+.header-stats { display: flex; gap: 6px; flex: 1; flex-wrap: wrap; }
+
+.stat-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  transition: border-color 0.2s var(--ease);
+}
+
+.stat-pill:hover { border-color: var(--border-strong); }
+.stat-pill .icon { font-size: 0.85rem; opacity: 0.7; }
+.stat-pill strong { color: var(--text); font-weight: 600; }
+.stat-pill.wait { border-color: rgba(255,146,43,0.3); }
+.stat-pill.wait strong { color: var(--warning); }
+
+.header-menu { position: relative; flex-shrink: 0; display: flex; gap: 6px; align-items: center; }
+
+.lang-selector {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 2px;
+}
+
+.lang-btn {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-mute);
+  transition: all 0.2s var(--ease);
+  letter-spacing: 0.03em;
+}
+
+.lang-btn:hover { color: var(--text-dim); }
+.lang-btn.active { background: var(--primary); color: #06222a; }
+
+.menu-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: grid;
+  place-items: center;
+  font-size: 16px;
+  transition: all 0.2s var(--ease);
+}
+
+.menu-btn:hover { border-color: var(--border-strong); color: var(--text); background: var(--surface-2); }
+
+.menu-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 240px;
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.18s var(--ease);
+}
+
+.menu-dropdown.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: var(--radius-sm);
+  color: var(--text-dim);
+  font-size: 0.82rem;
+  text-align: left;
+  transition: all 0.15s var(--ease);
+}
+
+.menu-item:hover { background: var(--surface-2); color: var(--text); }
+.menu-item.danger:hover { background: var(--danger-soft); color: var(--danger); }
+.menu-item .icon { font-size: 0.95rem; width: 18px; text-align: center; opacity: 0.8; }
+.menu-divider { height: 1px; background: var(--border); margin: 4px 6px; }
+
+/* WORKSPACE */
+.workspace {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  margin-bottom: 14px;
+  overflow: hidden;
+}
+
+.workspace-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s var(--ease);
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.workspace-header:hover { background: var(--surface-2); }
+
+.workspace-header h2 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--text);
+}
+
+.workspace-header h2 .icon { opacity: 0.7; }
+.workspace-header .toggle { color: var(--text-mute); font-size: 0.9rem; transition: transform 0.2s var(--ease); }
+.workspace.collapsed .toggle { transform: rotate(-90deg); }
+
+.workspace-body { padding: 0 14px 14px; }
+.workspace.collapsed .workspace-body { display: none; }
+
+/* CAPACITY ROW */
+.capacity-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 14px;
+  background: var(--bg-soft);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+
+.capacity-bar .cap-icon { font-size: 1.1rem; opacity: 0.7; }
+
+.capacity-bar .cap-text {
+  flex: 1;
+  min-width: 160px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+}
+
+.capacity-bar .cap-text strong { color: var(--text); }
+
+.capacity-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  padding: 3px;
+}
+
+.capacity-input-wrap button {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--surface-3);
+  color: var(--text-dim);
+  display: grid;
+  place-items: center;
+  font-size: 0.95rem;
+  font-weight: 700;
+  transition: all 0.15s var(--ease);
+}
+
+.capacity-input-wrap button:hover { background: var(--primary); color: #06222a; }
+
+.capacity-input-wrap input {
+  width: 42px;
+  text-align: center;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.capacity-input-wrap input::-webkit-outer-spin-button,
+.capacity-input-wrap input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+
+/* TABS */
+.tabs { display: flex; border-bottom: 1px solid var(--border); padding: 0 8px; gap: 2px; }
+
+.tab {
+  padding: 10px 14px;
+  color: var(--text-mute);
+  font-size: 0.8rem;
+  font-weight: 500;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: all 0.2s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tab:hover { color: var(--text-dim); }
+.tab.active { color: var(--primary); border-bottom-color: var(--primary); }
+.tab .icon { font-size: 0.9rem; }
+
+.tab-panel { display: none; padding: 14px; }
+.tab-panel.active { display: block; animation: fadeIn 0.25s var(--ease); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.dropzone {
+  border: 2px dashed var(--surface-3);
+  border-radius: var(--radius);
+  padding: 24px 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.25s var(--ease);
+  background: var(--bg-soft);
+}
+
+.dropzone:hover, .dropzone.dragover {
+  border-color: var(--primary);
+  background: var(--primary-soft);
+}
+
+.dropzone .dz-icon { font-size: 1.8rem; display: block; margin-bottom: 6px; opacity: 0.85; }
+.dropzone h3 { font-size: 0.85rem; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+.dropzone p { font-size: 0.72rem; color: var(--text-mute); }
+
+.file-chips { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+
+.file-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+}
+
+.file-chip .remove { color: var(--text-mute); cursor: pointer; font-size: 0.85rem; line-height: 1; transition: color 0.15s var(--ease); }
+.file-chip .remove:hover { color: var(--danger); }
+
+.options-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.field { display: flex; flex-direction: column; gap: 4px; flex: 1; min-width: 120px; }
+
+.field label {
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.field select, .field input {
+  padding: 7px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-size: 0.8rem;
+  transition: border-color 0.15s var(--ease);
+  width: 100%;
+}
+
+.field select:focus, .field input:focus { border-color: var(--primary); }
+.field input::placeholder { color: var(--text-mute); }
+
+.manual-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+/* BUTTONS */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 100px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  transition: all 0.2s var(--ease);
+  white-space: nowrap;
+  min-height: 34px;
+}
+
+.btn:disabled { opacity: 0.35; cursor: not-allowed; transform: none !important; }
+
+.btn-primary { background: var(--primary); color: #06222a; }
+.btn-primary:not(:disabled):hover { background: #3bc4d8; transform: translateY(-1px); box-shadow: 0 6px 20px var(--primary-glow); }
+
+.btn-ghost { background: var(--surface-2); border: 1px solid var(--border); color: var(--text-dim); }
+.btn-ghost:not(:disabled):hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+
+.btn-icon {
+  width: 30px;
+  height: 30px;
+  padding: 0;
+  border-radius: 8px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  display: grid;
+  place-items: center;
+  font-size: 0.85rem;
+  transition: all 0.15s var(--ease);
+}
+
+.btn-icon:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+
+.btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+
+/* PROGRESS */
+.progress-wrap {
+  display: none;
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--bg-soft);
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+.progress-wrap.active { display: block; animation: fadeIn 0.25s var(--ease); }
+
+.progress-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.72rem; }
+.progress-label { color: var(--text-dim); font-weight: 500; }
+.progress-file { color: var(--text-mute); font-size: 0.68rem; max-width: 60%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.progress-track { height: 3px; background: var(--surface-3); border-radius: 100px; overflow: hidden; }
+.progress-fill { height: 100%; width: 0%; background: linear-gradient(90deg, var(--primary), #3bc4d8); border-radius: 100px; transition: width 0.4s var(--ease); }
+
+/* MAIN GRID */
+.main-grid {
+  display: grid;
+  grid-template-columns: 340px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+
+@media (max-width: 1100px) { .main-grid { grid-template-columns: 1fr; } }
+
+.panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+}
+
+.panel-head {
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.panel-head h2 {
+  font-size: 0.85rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text);
+}
+
+.panel-head h2 .icon { opacity: 0.7; }
+.panel-head .head-actions { display: flex; gap: 4px; align-items: center; }
+
+.panel-body { padding: 14px; }
+
+/* CALENDAR */
+.cal-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+.cal-nav .month-label { font-size: 0.9rem; font-weight: 700; color: var(--text); letter-spacing: -0.01em; }
+
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+
+.cal-head {
+  text-align: center;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: var(--text-mute);
+  padding: 6px 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  position: relative;
+  transition: all 0.15s var(--ease);
+  border: 1.5px solid transparent;
+  user-select: none;
+  min-height: 38px;
+  padding: 2px;
+}
+
+.cal-day:hover { background: var(--surface-2); color: var(--text); }
+
+.cal-day.out { color: var(--text-mute); opacity: 0.4; cursor: default; }
+.cal-day.out:hover { background: transparent; }
+
+.cal-day.has-appt { color: var(--primary); font-weight: 700; background: var(--primary-soft); }
+
+.cal-day.today { border-color: var(--accent); color: var(--accent); }
+
+.cal-day.selected {
+  background: var(--primary);
+  color: #06222a;
+  font-weight: 700;
+  box-shadow: 0 4px 14px var(--primary-glow);
+}
+
+.cal-day .day-num { font-size: 0.78rem; line-height: 1; }
+
+.cal-day .cap-badge {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-top: 2px;
+  font-size: 0.52rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+}
+
+.cal-day .cap-badge .fill {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--surface-3);
+  overflow: hidden;
+  position: relative;
+}
+
+.cal-day .cap-badge .fill::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  width: var(--pct, 0%);
+  border-radius: 2px;
+  background: var(--success);
+  transition: width 0.3s var(--ease);
+}
+
+.cal-day .cap-badge.warn .fill::after { background: var(--warning); }
+.cal-day .cap-badge.full .fill::after { background: var(--danger); }
+
+.cal-day.selected .cap-badge { color: #06222a; opacity: 0.85; }
+.cal-day.selected .cap-badge .fill { background: rgba(6,34,42,0.3); }
+.cal-day.selected .cap-badge .fill::after { background: #06222a; }
+
+.cal-day .wait-dot {
+  position: absolute;
+  top: 1px;
+  right: 1px;
+  background: var(--warning);
+  color: #1a0e00;
+  font-size: 0.45rem;
+  font-weight: 800;
+  padding: 0 3px;
+  border-radius: 100px;
+  min-width: 11px;
+  height: 11px;
+  display: grid;
+  place-items: center;
+  line-height: 1;
+}
+
+.cal-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 0.65rem;
+  color: var(--text-mute);
+}
+
+.cal-legend span { display: flex; align-items: center; gap: 5px; }
+.cal-legend .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+.day-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin-top: 10px;
+  max-height: 140px;
+  overflow-y: auto;
+}
+
+.day-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 9px;
+  border-radius: 100px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.15s var(--ease);
+}
+
+.day-chip:hover { border-color: var(--primary); color: var(--text); }
+.day-chip.active { background: var(--primary-soft); border-color: var(--primary); color: var(--primary); }
+
+.day-chip .n {
+  background: var(--surface-3);
+  color: var(--text-mute);
+  padding: 0 6px;
+  border-radius: 100px;
+  font-size: 0.6rem;
+  font-weight: 700;
+  min-width: 18px;
+  text-align: center;
+}
+
+.day-chip.active .n { background: var(--primary); color: #06222a; }
+.day-chip.over .n { background: var(--warning-soft); color: var(--warning); }
+
+.day-chip.all { background: var(--accent-soft); border-color: rgba(255,212,59,0.3); color: var(--accent); }
+.day-chip.all.active { background: var(--accent); color: #1a1300; }
+.day-chip.all.active .n { background: #1a1300; color: var(--accent); }
+
+.empty-chips { font-size: 0.72rem; color: var(--text-mute); padding: 6px 0; }
+
+/* TOOLBAR */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  flex-wrap: wrap;
+}
+
+.search-wrap { flex: 1; min-width: 160px; position: relative; }
+
+.search-wrap .icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-mute);
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.search-input {
+  width: 100%;
+  padding: 8px 12px 8px 34px;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 100px;
+  color: var(--text);
+  font-size: 0.8rem;
+  transition: all 0.15s var(--ease);
+}
+
+.search-input:focus { border-color: var(--primary); background: var(--surface-3); box-shadow: 0 0 0 3px var(--primary-soft); }
+.search-input::placeholder { color: var(--text-mute); }
+
+.search-clear {
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  color: var(--text-mute);
+  display: none;
+  place-items: center;
+  font-size: 0.75rem;
+  transition: all 0.15s var(--ease);
+}
+
+.search-clear.visible { display: grid; }
+.search-clear:hover { background: var(--surface-3); color: var(--text); }
+
+.dl-menu-wrap { position: relative; }
+
+.dl-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  min-width: 260px;
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 6px;
+  box-shadow: var(--shadow-lg);
+  z-index: 90;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-6px);
+  transition: all 0.18s var(--ease);
+}
+
+.dl-menu.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.dl-menu .menu-label {
+  padding: 6px 12px 4px;
+  font-size: 0.62rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-mute);
+  font-weight: 700;
+}
+
+.search-info {
+  padding: 6px 14px;
+  background: var(--surface-2);
+  border-bottom: 1px solid var(--border);
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  display: none;
+  align-items: center;
+  gap: 8px;
+}
+
+.search-info.visible { display: flex; }
+.search-info strong { color: var(--primary); }
+.search-info .highlight { color: var(--accent); }
+
+.selection-bar {
+  display: none;
+  padding: 8px 14px;
+  background: var(--primary-soft);
+  border-bottom: 1px solid rgba(34,184,207,0.2);
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.75rem;
+}
+
+.selection-bar.visible { display: flex; }
+.selection-bar .info { color: var(--primary); font-weight: 600; }
+.selection-bar .actions { display: flex; gap: 5px; }
+
+.btn-micro {
+  padding: 4px 10px;
+  border-radius: 100px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  transition: all 0.15s var(--ease);
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.btn-micro:hover { background: var(--surface-3); color: var(--text); border-color: var(--border-strong); }
+.btn-micro.danger { background: var(--danger-soft); border-color: rgba(255,107,107,0.25); color: var(--danger); }
+.btn-micro.danger:hover { background: var(--danger); color: white; }
+
+/* LIST HEAD */
+.list-head {
+  padding: 10px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--border);
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.list-head .title {
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.list-head .badge {
+  background: var(--surface-2);
+  padding: 2px 10px;
+  border-radius: 100px;
+  font-size: 0.68rem;
+  color: var(--text-mute);
+  font-weight: 600;
+}
+
+.list-head .badge strong { color: var(--primary); }
+.list-head .badge.wait strong { color: var(--warning); }
+
+/* SPLIT LAYOUT */
+.split-lists {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 0;
+  min-height: 400px;
+}
+
+.split-lists.no-waiting { grid-template-columns: 1fr; }
+
+@media (max-width: 900px) {
+  .split-lists { grid-template-columns: 1fr; }
+  .split-lists .waiting-col { border-left: none !important; border-top: 1px solid var(--border); }
+}
+
+.split-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  min-width: 0;
+}
+
+.split-col.confirmed-col { border-right: 1px solid var(--border); }
+.split-lists.no-waiting .split-col.confirmed-col { border-right: none; }
+
+.split-col.waiting-col { background: rgba(255,146,43,0.03); }
+
+.col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--border);
+  background: var(--surface-2);
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.col-head.confirmed { color: var(--primary); background: var(--primary-soft); }
+.col-head.waiting { color: var(--warning); background: var(--warning-soft); }
+.col-head .count {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  background: var(--surface-3);
+  padding: 1px 8px;
+  border-radius: 100px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.col-head.confirmed .count { background: rgba(34,184,207,0.2); color: var(--primary); }
+.col-head.waiting .count { background: rgba(255,146,43,0.2); color: var(--warning); }
+
+.col-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 6px;
+  max-height: 600px;
+  min-height: 300px;
+}
+
+.col-empty {
+  text-align: center;
+  padding: 30px 16px;
+  color: var(--text-mute);
+  font-size: 0.72rem;
+}
+
+.col-empty .emoji { font-size: 1.6rem; display: block; margin-bottom: 6px; opacity: 0.5; }
+
+/* ===== APPOINTMENT ITEM (FIXED LAYOUT) ===== */
+.appt {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  transition: background 0.15s var(--ease);
+  position: relative;
+  cursor: default;
+  border-left: 3px solid transparent;
+  animation: apptIn 0.25s var(--ease) backwards;
+  margin-bottom: 3px;
+  min-height: 42px;
+}
+
+@keyframes apptIn {
+  from { opacity: 0; transform: translateY(-3px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.appt:hover { background: var(--surface-2); }
+.appt.selected { background: var(--primary-soft); border-left-color: var(--primary); }
+.appt.waiting { border-left-color: var(--warning); background: rgba(255,146,43,0.05); }
+.appt.waiting.selected { background: rgba(255,146,43,0.15); border-left-color: var(--warning); }
+
+.appt-time {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--primary);
+  font-variant-numeric: tabular-nums;
+  min-width: 44px;
+  flex-shrink: 0;
+  letter-spacing: -0.01em;
+}
+
+.appt.waiting .appt-time { color: var(--warning); }
+
+.appt-main {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.appt-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.appt-meta {
+  font-size: 0.68rem;
+  color: var(--text-mute);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 1px;
+}
+
+.appt-meta .sep { width: 2px; height: 2px; border-radius: 50%; background: var(--text-mute); opacity: 0.5; }
+
+.appt-date-inline {
+  display: none;
+  font-size: 0.6rem;
+  color: var(--primary);
+  background: var(--primary-soft);
+  padding: 1px 6px;
+  border-radius: 100px;
+  font-weight: 700;
+}
+
+.list.show-date .appt-date-inline { display: inline-block; }
+
+.appt-check {
+  width: 16px;
+  height: 16px;
+  min-width: 16px;
+  border-radius: 4px;
+  border: 1.5px solid var(--surface-3);
+  background: transparent;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: all 0.15s var(--ease);
+  flex-shrink: 0;
+  color: transparent;
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.appt-check:hover { border-color: var(--primary); }
+.appt-check.checked { background: var(--primary); border-color: var(--primary); color: #06222a; }
+
+/* ===== APPOINTMENT ACTION BUTTONS (FIXED — SVG icons) ===== */
+.appt-actions {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+  align-items: center;
+  opacity: 0.55;
+  transition: opacity 0.15s var(--ease);
+}
+
+.appt:hover .appt-actions,
+.appt.selected .appt-actions {
+  opacity: 1;
+}
+
+@media (hover: none) {
+  .appt-actions { opacity: 1; }
+}
+
+.appt-action {
+  width: 26px;
+  height: 26px;
+  min-width: 26px;
+  min-height: 26px;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-dim);
+  background: var(--surface-3);
+  border: 1px solid var(--border);
+  font-size: 0.8rem;
+  line-height: 1;
+  transition: all 0.15s var(--ease);
+  padding: 0;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.appt-action:hover {
+  background: var(--surface-2);
+  color: var(--text);
+  border-color: var(--border-strong);
+  transform: translateY(-1px);
+}
+
+.appt-action.danger {
+  color: var(--danger);
+  background: var(--danger-soft);
+  border-color: rgba(255,107,107,0.2);
+}
+
+.appt-action.danger:hover {
+  background: var(--danger);
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.appt-action.promote {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: rgba(81,207,102,0.2);
+}
+
+.appt-action.promote:hover {
+  background: var(--success);
+  color: #06222a;
+  border-color: var(--success);
+}
+
+.appt-action.copied {
+  color: var(--success);
+  background: var(--success-soft);
+  border-color: var(--success);
+}
+
+.appt-action svg {
+  display: block;
+  pointer-events: none;
+}
+
+/* DAY GROUP */
+.day-group { border-bottom: 1px solid var(--border); }
+.day-group:last-child { border-bottom: none; }
+
+.day-group-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: var(--surface-2);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-dim);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+}
+
+.day-group-head:hover { background: var(--surface-3); }
+
+.day-group-head .date-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.day-group-head .metrics {
+  display: flex;
+  gap: 5px;
+  font-size: 0.62rem;
+}
+
+.day-group-head .metric {
+  padding: 1px 6px;
+  border-radius: 100px;
+  background: var(--surface-3);
+  color: var(--text-mute);
+  font-weight: 700;
+}
+
+.day-group-head .metric.conf { background: rgba(34,184,207,0.15); color: var(--primary); }
+.day-group-head .metric.wait { background: rgba(255,146,43,0.15); color: var(--warning); }
+
+/* EMPTY */
+.empty { text-align: center; padding: 40px 20px; color: var(--text-mute); }
+.empty .emoji { font-size: 2rem; display: block; margin-bottom: 8px; opacity: 0.5; }
+.empty h3 { font-size: 0.85rem; color: var(--text-dim); font-weight: 600; margin-bottom: 4px; }
+.empty p { font-size: 0.72rem; color: var(--text-mute); max-width: 300px; margin: 0 auto; }
+
+/* TOASTS */
+.toast-container {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 9999;
+  pointer-events: none;
+}
+
+.toast {
+  background: var(--surface-2);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--primary);
+  border-radius: var(--radius);
+  padding: 10px 14px;
+  font-size: 0.78rem;
+  color: var(--text);
+  box-shadow: var(--shadow-lg);
+  max-width: 340px;
+  animation: toastIn 0.25s var(--ease);
+  pointer-events: auto;
+}
+
+.toast.success { border-left-color: var(--success); }
+.toast.error { border-left-color: var(--danger); }
+.toast.info { border-left-color: var(--primary); }
+.toast.warning { border-left-color: var(--warning); }
+
+@keyframes toastIn {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+/* MODAL */
+.modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(5, 12, 18, 0.85);
+  backdrop-filter: blur(6px);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+  padding: 20px;
+}
+
+.modal-bg.open { display: flex; animation: fadeIn 0.2s var(--ease); }
+
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  max-width: 640px;
+  width: 100%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal h2 { font-size: 0.9rem; font-weight: 700; color: var(--text); margin-bottom: 10px; }
+
+.modal pre {
+  background: var(--bg);
+  padding: 12px;
+  border-radius: var(--radius);
+  font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+  font-size: 0.68rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  overflow: auto;
+  flex: 1;
+  white-space: pre-wrap;
+  word-break: break-word;
+  border: 1px solid var(--border);
+  margin-bottom: 12px;
+}
+
+.modal-actions { display: flex; gap: 8px; justify-content: flex-end; flex-wrap: wrap; }
+
+/* RESPONSIVE */
+@media (max-width: 640px) {
+  .header { gap: 10px; }
+  .header-stats { order: 3; width: 100%; }
+  .tabs { overflow-x: auto; }
+  .tab { padding: 10px 12px; font-size: 0.75rem; white-space: nowrap; }
+  .appt-time { font-size: 0.75rem; min-width: 40px; }
+  .appt-actions { opacity: 1; }
+  .toast-container { bottom: 10px; right: 10px; left: 10px; }
+  .toast { max-width: none; }
+  .capacity-bar { flex-direction: column; align-items: stretch; }
+  .col-body { max-height: 400px; min-height: 200px; }
+  .lang-btn { padding: 4px 8px; font-size: 0.65rem; }
+  .appt-action { width: 28px; height: 28px; min-width: 28px; min-height: 28px; }
+}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <header class="header">
+    <div class="brand">
+      <div class="brand-mark">📅</div>
+      <div class="brand-text">
+        <h1 data-i18n="app.title">Agenda</h1>
+        <p data-i18n="app.subtitle">PDF Reader Pro</p>
+      </div>
+    </div>
+
+    <div class="header-stats">
+      <div class="stat-pill"><span class="icon">📄</span><strong id="statFiles">0</strong> <span data-i18n="stats.pdfs">PDFs</span></div>
+      <div class="stat-pill"><span class="icon">✅</span><strong id="statConfirmed">0</strong> <span data-i18n="stats.confirmed">confirmados</span></div>
+      <div class="stat-pill wait"><span class="icon">⏳</span><strong id="statWaiting">0</strong> <span data-i18n="stats.waiting">em espera</span></div>
+      <div class="stat-pill"><span class="icon">👥</span><strong id="statPatients">0</strong> <span data-i18n="stats.patients">pacientes</span></div>
+    </div>
+
+    <div class="header-menu">
+      <div class="lang-selector" id="langSelector">
+        <button class="lang-btn" data-lang="pt">PT</button>
+        <button class="lang-btn" data-lang="en">EN</button>
+        <button class="lang-btn" data-lang="es">ES</button>
+      </div>
+
+      <button class="menu-btn" id="menuBtn" title="Menu">⋮</button>
+      <div class="menu-dropdown" id="menuDropdown">
+        <button class="menu-item" id="exportDataBtn"><span class="icon">📤</span> <span data-i18n="menu.export">Exportar dados (.json)</span></button>
+        <button class="menu-item" id="importDataBtn"><span class="icon">📥</span> <span data-i18n="menu.import">Importar dados</span></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item" id="previewBtn"><span class="icon">📝</span> <span data-i18n="menu.preview">Pré-visualizar relatório</span></button>
+        <div class="menu-divider"></div>
+        <button class="menu-item danger" id="clearAllDataBtn"><span class="icon">🗑️</span> <span data-i18n="menu.clearAll">Apagar tudo</span></button>
+      </div>
+    </div>
+    <input type="file" id="importFileInput" accept=".json" hidden>
+  </header>
+
+  <div class="capacity-bar">
+    <span class="cap-icon">⚙️</span>
+    <div class="cap-text">
+      <strong data-i18n="capacity.label">Capacidade diária:</strong> <span data-i18n="capacity.desc">limite de pacientes confirmados. Excedente vai automaticamente para a Lista de Espera.</span>
+    </div>
+    <div class="capacity-input-wrap">
+      <button id="capMinus" type="button" aria-label="−">−</button>
+      <input type="number" id="capacityInput" value="8" min="1" max="99" aria-label="Capacity">
+      <button id="capPlus" type="button" aria-label="+">+</button>
+    </div>
+  </div>
+
+  <section class="workspace" id="workspace">
+    <div class="workspace-header" id="workspaceHeader">
+      <h2><span class="icon">➕</span> <span data-i18n="workspace.title">Adicionar agendamentos</span></h2>
+      <span class="toggle">▼</span>
+    </div>
+    <div class="workspace-body">
+      <div class="tabs">
+        <button class="tab active" data-tab="upload"><span class="icon">📄</span> <span data-i18n="tabs.upload">Importar PDF</span></button>
+        <button class="tab" data-tab="manual"><span class="icon">✏️</span> <span data-i18n="tabs.manual">Criar manualmente</span></button>
+      </div>
+
+      <div class="tab-panel active" id="tab-upload">
+        <div class="dropzone" id="dropZone">
+          <span class="dz-icon">📂</span>
+          <h3 data-i18n="dropzone.title">Arraste PDFs ou clique para selecionar</h3>
+          <p data-i18n="dropzone.subtitle">OCR integrado · Múltiplos arquivos</p>
+        </div>
+        <input type="file" id="fileInput" accept=".pdf" multiple hidden>
+        <div class="file-chips" id="fileList"></div>
+
+        <div class="options-row">
+          <div class="field">
+            <label data-i18n="options.cardsPerPage">Cartões por página</label>
+            <select id="layoutSelect">
+              <option value="1">1</option>
+              <option value="2">2</option>
+              <option value="4" selected>4</option>
+              <option value="6">6</option>
+              <option value="8">8</option>
+            </select>
+          </div>
+          <div class="field">
+            <label data-i18n="options.ocrQuality">Precisão OCR</label>
+            <select id="ocrQuality">
+              <option value="fast" data-i18n="options.fast">Rápida</option>
+              <option value="accurate" data-i18n="options.accurate">Alta</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-row">
+          <button class="btn btn-primary" id="processBtn" disabled><span>⚡</span> <span data-i18n="buttons.process">Processar PDFs</span></button>
+          <button class="btn btn-ghost" id="clearBtn"><span>🧹</span> <span data-i18n="buttons.clear">Limpar</span></button>
+        </div>
+
+        <div class="progress-wrap" id="progressWrap">
+          <div class="progress-header">
+            <span class="progress-label" id="progressLabel" data-i18n="progress.label">Processando…</span>
+            <span class="progress-file" id="progressFile"></span>
+          </div>
+          <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+        </div>
+      </div>
+
+      <div class="tab-panel" id="tab-manual">
+        <div class="manual-grid">
+          <div class="field"><label data-i18n="form.patient">Paciente *</label><input type="text" id="manualPatient" data-i18n-placeholder="form.patientPh" placeholder="Nome do paciente" maxlength="80"></div>
+          <div class="field"><label data-i18n="form.date">Data *</label><input type="text" id="manualDate" data-i18n-placeholder="form.datePh" placeholder="DD/MM/AAAA" maxlength="10"></div>
+          <div class="field"><label data-i18n="form.hour">Horário</label><input type="text" id="manualHour" data-i18n-placeholder="form.hourPh" placeholder="HH:MM" maxlength="5"></div>
+          <div class="field"><label data-i18n="form.specialty">Especialidade</label><input type="text" id="manualSpecialty" data-i18n-placeholder="form.specialtyPh" placeholder="Ex: Cardiologia" maxlength="60"></div>
+          <div class="field"><label data-i18n="form.hospital">Hospital / Clínica</label><input type="text" id="manualHospital" data-i18n-placeholder="form.hospitalPh" placeholder="Nome do local" maxlength="80"></div>
+          <div class="field"><label data-i18n="form.address">Endereço</label><input type="text" id="manualAddress" data-i18n-placeholder="form.addressPh" placeholder="Endereço do local" maxlength="100"></div>
+        </div>
+        <div class="btn-row">
+          <button class="btn btn-primary" id="addManualBtn"><span>➕</span> <span data-i18n="buttons.add">Adicionar</span></button>
+          <button class="btn btn-ghost" id="addAndNewBtn"><span>➕</span> <span data-i18n="buttons.addNew">Adicionar e novo</span></button>
+          <button class="btn btn-ghost" id="clearManualBtn" data-i18n="buttons.clearForm">Limpar</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="main-grid">
+
+    <section class="panel">
+      <div class="panel-head">
+        <h2><span class="icon">📅</span> <span data-i18n="panel.calendar">Calendário</span></h2>
+      </div>
+      <div class="panel-body">
+        <div class="cal-nav">
+          <button class="btn-icon" id="prevMonth" title="‹">‹</button>
+          <span class="month-label" id="monthLabel">—</span>
+          <button class="btn-icon" id="nextMonth" title="›">›</button>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-legend">
+          <span><span class="dot" style="background:var(--primary)"></span> <span data-i18n="legend.confirmed">Confirmado</span></span>
+          <span><span class="dot" style="background:var(--warning)"></span> <span data-i18n="legend.waiting">Em espera</span></span>
+          <span><span class="dot" style="background:var(--accent)"></span> <span data-i18n="legend.today">Hoje</span></span>
+        </div>
+
+        <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+            <span style="font-size:0.65rem;color:var(--text-mute);text-transform:uppercase;letter-spacing:0.06em;font-weight:700" data-i18n="daysWithAppts">Dias com agendamentos</span>
+            <span style="font-size:0.65rem;color:var(--text-mute)"><strong id="dateListCount" style="color:var(--text)">0</strong> <span data-i18n="days">dias</span></span>
+          </div>
+          <div class="day-chips" id="dateList"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="toolbar">
+        <div class="search-wrap">
+          <span class="icon">🔎</span>
+          <input type="text" class="search-input" id="searchInput" data-i18n-placeholder="search.placeholder" placeholder="Buscar paciente, data, especialidade…">
+          <button class="search-clear" id="searchClear" title="✕">✕</button>
+        </div>
+
+        <div class="dl-menu-wrap">
+          <button class="btn btn-primary" id="downloadBtn" disabled>
+            <span>⬇</span> <span data-i18n="buttons.download">Baixar</span>
+          </button>
+          <div class="dl-menu" id="dlMenu">
+            <div class="menu-label" id="dlMenuLabel" data-i18n="dl.completeList">Lista completa</div>
+            <button class="menu-item" data-dl="pdf"><span class="icon">📄</span> <span data-i18n="dl.pdf">PDF</span> <span style="margin-left:auto;font-size:0.65rem;color:var(--text-mute)" data-i18n="dl.pdfNote">só confirmados</span></button>
+            <button class="menu-item" data-dl="txt"><span class="icon">📝</span> <span data-i18n="dl.txt">TXT</span> <span style="margin-left:auto;font-size:0.65rem;color:var(--text-mute)" data-i18n="dl.txtNote">+ espera</span></button>
+            <button class="menu-item" data-dl="copy"><span class="icon">📋</span> <span data-i18n="dl.copy">Copiar</span> <span style="margin-left:auto;font-size:0.65rem;color:var(--text-mute)" data-i18n="dl.txtNote">+ espera</span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="search-info" id="searchInfo">
+        <strong id="searchCount">0</strong> <span data-i18n="search.results">resultado(s) para</span> "<span class="highlight" id="searchQueryDisplay"></span>"
+      </div>
+
+      <div class="selection-bar" id="selectionBar">
+        <span class="info" id="selectionInfo">0 <span data-i18n="selection.selected">selecionados</span></span>
+        <div class="actions">
+          <button class="btn-micro" id="selectAllBtn" data-i18n="selection.selectAll">Selecionar todos</button>
+          <button class="btn-micro" id="deselectAllBtn" data-i18n="selection.deselectAll">Desmarcar</button>
+          <button class="btn-micro danger" id="deleteSelectedBtn" disabled>🗑️ <span data-i18n="selection.remove">Remover</span></button>
+        </div>
+      </div>
+
+      <div class="list-head">
+        <span class="title" id="listTitle">📋 <span data-i18n="list.allAppts">Todos os agendamentos</span></span>
+        <span class="badge"><strong id="listCount">0</strong> <span data-i18n="list.total">total</span></span>
+      </div>
+
+      <div class="split-lists" id="splitLists">
+        <div class="split-col confirmed-col">
+          <div class="col-head confirmed">
+            <span>✅ <span data-i18n="columns.confirmed">Confirmados</span></span>
+            <span class="count" id="confirmedCount">0</span>
+          </div>
+          <div class="col-body list" id="confirmedList"></div>
+        </div>
+
+        <div class="split-col waiting-col" id="waitingCol">
+          <div class="col-head waiting">
+            <span>⏳ <span data-i18n="columns.waiting">Lista de Espera</span></span>
+            <span class="count" id="waitingCount">0</span>
+          </div>
+          <div class="col-body list" id="waitingList"></div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<div class="toast-container" id="toastContainer"></div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h2 data-i18n="modal.title">📝 Pré-visualização do relatório</h2>
+    <pre id="modalPreview"></pre>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" id="modalCloseBtn" data-i18n="buttons.close">Fechar</button>
+      <button class="btn btn-ghost" id="modalCopyBtn" data-i18n="buttons.copy">📋 Copiar</button>
+      <button class="btn btn-primary" id="modalDownloadBtn" data-i18n="buttons.downloadTxt">⬇ Baixar TXT</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* ============================================================
+   I18N
+   ============================================================ */
+const TRANSLATIONS = {
+  pt: {
+    'app.title': 'Agenda', 'app.subtitle': 'PDF Reader Pro',
+    'stats.pdfs': 'PDFs', 'stats.confirmed': 'confirmados', 'stats.waiting': 'em espera', 'stats.patients': 'pacientes',
+    'menu.export': 'Exportar dados (.json)', 'menu.import': 'Importar dados', 'menu.preview': 'Pré-visualizar relatório', 'menu.clearAll': 'Apagar tudo',
+    'capacity.label': 'Capacidade diária:', 'capacity.desc': 'limite de pacientes confirmados. Excedente vai automaticamente para a Lista de Espera.',
+    'workspace.title': 'Adicionar agendamentos',
+    'tabs.upload': 'Importar PDF', 'tabs.manual': 'Criar manualmente',
+    'dropzone.title': 'Arraste PDFs ou clique para selecionar', 'dropzone.subtitle': 'OCR integrado · Múltiplos arquivos',
+    'options.cardsPerPage': 'Cartões por página', 'options.ocrQuality': 'Precisão OCR', 'options.fast': 'Rápida', 'options.accurate': 'Alta',
+    'buttons.process': 'Processar PDFs', 'buttons.clear': 'Limpar', 'buttons.add': 'Adicionar', 'buttons.addNew': 'Adicionar e novo',
+    'buttons.clearForm': 'Limpar', 'buttons.download': 'Baixar', 'buttons.close': 'Fechar', 'buttons.copy': '📋 Copiar', 'buttons.downloadTxt': '⬇ Baixar TXT',
+    'progress.label': 'Processando…',
+    'form.patient': 'Paciente *', 'form.patientPh': 'Nome do paciente', 'form.date': 'Data *', 'form.datePh': 'DD/MM/AAAA',
+    'form.hour': 'Horário', 'form.hourPh': 'HH:MM', 'form.specialty': 'Especialidade', 'form.specialtyPh': 'Ex: Cardiologia',
+    'form.hospital': 'Hospital / Clínica', 'form.hospitalPh': 'Nome do local', 'form.address': 'Endereço', 'form.addressPh': 'Endereço do local',
+    'panel.calendar': 'Calendário', 'legend.confirmed': 'Confirmado', 'legend.waiting': 'Em espera', 'legend.today': 'Hoje',
+    'daysWithAppts': 'Dias com agendamentos', 'days': 'dias',
+    'search.placeholder': 'Buscar paciente, data, especialidade…', 'search.results': 'resultado(s) para',
+    'selection.selected': 'selecionados', 'selection.selectAll': 'Selecionar todos', 'selection.deselectAll': 'Desmarcar', 'selection.remove': 'Remover',
+    'list.allAppts': 'Todos os agendamentos', 'list.total': 'total',
+    'columns.confirmed': 'Confirmados', 'columns.waiting': 'Lista de Espera',
+    'dl.completeList': 'Lista completa', 'dl.pdf': 'PDF', 'dl.pdfNote': 'só confirmados', 'dl.txt': 'TXT', 'dl.txtNote': '+ espera', 'dl.copy': 'Copiar',
+    'modal.title': '📝 Pré-visualização do relatório',
+    'day.all': 'Todos', 'day.none': 'Nenhum agendamento em',
+    'list.today': 'Hoje', 'list.date': 'Data',
+    'toast.welcome': 'Bem-vindo! Capacidade padrão: 8/dia', 'toast.restored': 'agendamentos restaurados',
+    'toast.cleared': 'Tela limpa', 'toast.nothingClear': 'Nada para limpar',
+    'toast.confirmClear': 'Limpar arquivos e resultados da tela? (Dados salvos permanecem)',
+    'toast.apptAdded': 'agendamento adicionado', 'toast.apptConfirmed': 'confirmado',
+    'toast.apptWaiting': 'adicionado à Lista de Espera (dia cheio)',
+    'toast.fillPatient': 'Preencha o nome do paciente', 'toast.fillDate': 'Preencha a data',
+    'toast.invalidDate': 'Data inválida. Use DD/MM/AAAA', 'toast.dateRange': 'Data fora do intervalo',
+    'toast.invalidHour': 'Horário inválido', 'toast.hourFormat': 'Horário inválido. Use HH:MM',
+    'toast.pdfProcessed': 'agendamentos extraídos', 'toast.pdfError': 'Erro:',
+    'toast.copied': 'Copiado!', 'toast.copyError': 'Erro ao copiar',
+    'toast.pdfDownloaded': 'PDF baixado', 'toast.pdfConfirmed': 'PDF baixado (apenas confirmados)',
+    'toast.txtDownloaded': 'TXT baixado', 'toast.noAppt': 'Nenhum agendamento',
+    'toast.noApptPdf': 'Nenhum paciente confirmado para exportar em PDF',
+    'toast.removed': 'removido(s)', 'toast.promoted': 'promovido', 'toast.promotedFromWait': 'promovido da Lista de Espera',
+    'toast.alreadyConfirmed': 'Já está confirmado', 'toast.dataExported': 'Dados exportados',
+    'toast.dataImported': 'agendamentos importados', 'toast.allDeleted': 'Tudo apagado',
+    'toast.confirmDelete': 'Remover', 'toast.confirmDeleteAll': 'Apagar TODOS os dados permanentemente?',
+    'toast.confirmDeleteAll2': 'Confirma? Esta ação é irreversível.',
+    'toast.confirmImport': 'Importar', 'toast.confirmImport2': 'agendamentos? Isso substitui os dados atuais.',
+    'toast.invalidFile': 'Arquivo inválido', 'toast.capacity': 'Capacidade:', 'toast.perDay': '/dia',
+    'pdf.title': 'LISTA DE AGENDAMENTOS', 'pdf.total': 'Total:', 'pdf.appointments': 'agendamentos', 'pdf.appointment': 'agendamento',
+    'pdf.confirmedOnly': 'Pacientes confirmados', 'pdf.generatedBy': 'Gerado por PDF Reader Pro em',
+    'pdf.hour': 'Horario:', 'pdf.specialty': 'Especialidade:', 'pdf.local': 'Local:',
+    'report.title': 'RELATÓRIO DE AGENDAMENTOS', 'report.generated': 'Gerado em',
+    'report.total': 'Total:', 'report.capacity': 'Capacidade:', 'report.confirmed': 'CONFIRMADOS', 'report.waiting': 'LISTA DE ESPERA',
+    'report.grandTotal': 'TOTAL:', 'report.confirmedTotal': 'Confirmados:', 'report.waitingTotal': 'Em espera:',
+    'report.locations': 'local(is)', 'report.patients': 'paciente(s)', 'report.generatedBy': 'Gerado por Agenda · PDF Reader Pro',
+    'months.0': 'Janeiro', 'months.1': 'Fevereiro', 'months.2': 'Março', 'months.3': 'Abril',
+    'months.4': 'Maio', 'months.5': 'Junho', 'months.6': 'Julho', 'months.7': 'Agosto',
+    'months.8': 'Setembro', 'months.9': 'Outubro', 'months.10': 'Novembro', 'months.11': 'Dezembro',
+    'weekdays.0': 'D', 'weekdays.1': 'S', 'weekdays.2': 'T', 'weekdays.3': 'Q',
+    'weekdays.4': 'Q', 'weekdays.5': 'S', 'weekdays.6': 'S', 'fmt.de': 'de'
+  },
+  en: {
+    'app.title': 'Agenda', 'app.subtitle': 'PDF Reader Pro',
+    'stats.pdfs': 'PDFs', 'stats.confirmed': 'confirmed', 'stats.waiting': 'waiting', 'stats.patients': 'patients',
+    'menu.export': 'Export data (.json)', 'menu.import': 'Import data', 'menu.preview': 'Preview report', 'menu.clearAll': 'Clear all',
+    'capacity.label': 'Daily capacity:', 'capacity.desc': 'limit of confirmed patients. Overflow goes automatically to the Waiting List.',
+    'workspace.title': 'Add appointments',
+    'tabs.upload': 'Import PDF', 'tabs.manual': 'Create manually',
+    'dropzone.title': 'Drag PDFs or click to select', 'dropzone.subtitle': 'Built-in OCR · Multiple files',
+    'options.cardsPerPage': 'Cards per page', 'options.ocrQuality': 'OCR accuracy', 'options.fast': 'Fast', 'options.accurate': 'High',
+    'buttons.process': 'Process PDFs', 'buttons.clear': 'Clear', 'buttons.add': 'Add', 'buttons.addNew': 'Add and new',
+    'buttons.clearForm': 'Clear', 'buttons.download': 'Download', 'buttons.close': 'Close', 'buttons.copy': '📋 Copy', 'buttons.downloadTxt': '⬇ Download TXT',
+    'progress.label': 'Processing…',
+    'form.patient': 'Patient *', 'form.patientPh': 'Patient name', 'form.date': 'Date *', 'form.datePh': 'DD/MM/YYYY',
+    'form.hour': 'Time', 'form.hourPh': 'HH:MM', 'form.specialty': 'Specialty', 'form.specialtyPh': 'e.g. Cardiology',
+    'form.hospital': 'Hospital / Clinic', 'form.hospitalPh': 'Location name', 'form.address': 'Address', 'form.addressPh': 'Location address',
+    'panel.calendar': 'Calendar', 'legend.confirmed': 'Confirmed', 'legend.waiting': 'Waiting', 'legend.today': 'Today',
+    'daysWithAppts': 'Days with appointments', 'days': 'days',
+    'search.placeholder': 'Search patient, date, specialty…', 'search.results': 'result(s) for',
+    'selection.selected': 'selected', 'selection.selectAll': 'Select all', 'selection.deselectAll': 'Deselect all', 'selection.remove': 'Remove',
+    'list.allAppts': 'All appointments', 'list.total': 'total',
+    'columns.confirmed': 'Confirmed', 'columns.waiting': 'Waiting List',
+    'dl.completeList': 'Complete list', 'dl.pdf': 'PDF', 'dl.pdfNote': 'confirmed only', 'dl.txt': 'TXT', 'dl.txtNote': '+ waiting', 'dl.copy': 'Copy',
+    'modal.title': '📝 Report preview',
+    'day.all': 'All', 'day.none': 'No appointments in',
+    'list.today': 'Today', 'list.date': 'Date',
+    'toast.welcome': 'Welcome! Default capacity: 8/day', 'toast.restored': 'appointments restored',
+    'toast.cleared': 'Screen cleared', 'toast.nothingClear': 'Nothing to clear',
+    'toast.confirmClear': 'Clear files and screen results? (Saved data remains)',
+    'toast.apptAdded': 'appointment added', 'toast.apptConfirmed': 'confirmed',
+    'toast.apptWaiting': 'added to Waiting List (day full)',
+    'toast.fillPatient': 'Enter patient name', 'toast.fillDate': 'Enter date',
+    'toast.invalidDate': 'Invalid date. Use DD/MM/YYYY', 'toast.dateRange': 'Date out of range',
+    'toast.invalidHour': 'Invalid time', 'toast.hourFormat': 'Invalid time. Use HH:MM',
+    'toast.pdfProcessed': 'appointments extracted', 'toast.pdfError': 'Error:',
+    'toast.copied': 'Copied!', 'toast.copyError': 'Copy error',
+    'toast.pdfDownloaded': 'PDF downloaded', 'toast.pdfConfirmed': 'PDF downloaded (confirmed only)',
+    'toast.txtDownloaded': 'TXT downloaded', 'toast.noAppt': 'No appointments',
+    'toast.noApptPdf': 'No confirmed patients to export as PDF',
+    'toast.removed': 'removed', 'toast.promoted': 'promoted', 'toast.promotedFromWait': 'promoted from Waiting List',
+    'toast.alreadyConfirmed': 'Already confirmed', 'toast.dataExported': 'Data exported',
+    'toast.dataImported': 'appointments imported', 'toast.allDeleted': 'All deleted',
+    'toast.confirmDelete': 'Remove', 'toast.confirmDeleteAll': 'Delete ALL data permanently?',
+    'toast.confirmDeleteAll2': 'Confirm? This action is irreversible.',
+    'toast.confirmImport': 'Import', 'toast.confirmImport2': 'appointments? This replaces current data.',
+    'toast.invalidFile': 'Invalid file', 'toast.capacity': 'Capacity:', 'toast.perDay': '/day',
+    'pdf.title': 'APPOINTMENT LIST', 'pdf.total': 'Total:', 'pdf.appointments': 'appointments', 'pdf.appointment': 'appointment',
+    'pdf.confirmedOnly': 'Confirmed patients', 'pdf.generatedBy': 'Generated by PDF Reader Pro on',
+    'pdf.hour': 'Time:', 'pdf.specialty': 'Specialty:', 'pdf.local': 'Location:',
+    'report.title': 'APPOINTMENT REPORT', 'report.generated': 'Generated on',
+    'report.total': 'Total:', 'report.capacity': 'Capacity:', 'report.confirmed': 'CONFIRMED', 'report.waiting': 'WAITING LIST',
+    'report.grandTotal': 'TOTAL:', 'report.confirmedTotal': 'Confirmed:', 'report.waitingTotal': 'Waiting:',
+    'report.locations': 'location(s)', 'report.patients': 'patient(s)', 'report.generatedBy': 'Generated by Agenda · PDF Reader Pro',
+    'months.0': 'January', 'months.1': 'February', 'months.2': 'March', 'months.3': 'April',
+    'months.4': 'May', 'months.5': 'June', 'months.6': 'July', 'months.7': 'August',
+    'months.8': 'September', 'months.9': 'October', 'months.10': 'November', 'months.11': 'December',
+    'weekdays.0': 'S', 'weekdays.1': 'M', 'weekdays.2': 'T', 'weekdays.3': 'W',
+    'weekdays.4': 'T', 'weekdays.5': 'F', 'weekdays.6': 'S', 'fmt.de': ''
+  },
+  es: {
+    'app.title': 'Agenda', 'app.subtitle': 'PDF Reader Pro',
+    'stats.pdfs': 'PDFs', 'stats.confirmed': 'confirmados', 'stats.waiting': 'en espera', 'stats.patients': 'pacientes',
+    'menu.export': 'Exportar datos (.json)', 'menu.import': 'Importar datos', 'menu.preview': 'Vista previa del informe', 'menu.clearAll': 'Borrar todo',
+    'capacity.label': 'Capacidad diaria:', 'capacity.desc': 'límite de pacientes confirmados. El excedente va automáticamente a la Lista de Espera.',
+    'workspace.title': 'Añadir citas',
+    'tabs.upload': 'Importar PDF', 'tabs.manual': 'Crear manualmente',
+    'dropzone.title': 'Arrastra PDFs o haz clic para seleccionar', 'dropzone.subtitle': 'OCR integrado · Múltiples archivos',
+    'options.cardsPerPage': 'Tarjetas por página', 'options.ocrQuality': 'Precisión OCR', 'options.fast': 'Rápida', 'options.accurate': 'Alta',
+    'buttons.process': 'Procesar PDFs', 'buttons.clear': 'Limpiar', 'buttons.add': 'Añadir', 'buttons.addNew': 'Añadir y nuevo',
+    'buttons.clearForm': 'Limpiar', 'buttons.download': 'Descargar', 'buttons.close': 'Cerrar', 'buttons.copy': '📋 Copiar', 'buttons.downloadTxt': '⬇ Descargar TXT',
+    'progress.label': 'Procesando…',
+    'form.patient': 'Paciente *', 'form.patientPh': 'Nombre del paciente', 'form.date': 'Fecha *', 'form.datePh': 'DD/MM/AAAA',
+    'form.hour': 'Hora', 'form.hourPh': 'HH:MM', 'form.specialty': 'Especialidad', 'form.specialtyPh': 'Ej: Cardiología',
+    'form.hospital': 'Hospital / Clínica', 'form.hospitalPh': 'Nombre del lugar', 'form.address': 'Dirección', 'form.addressPh': 'Dirección del lugar',
+    'panel.calendar': 'Calendario', 'legend.confirmed': 'Confirmado', 'legend.waiting': 'En espera', 'legend.today': 'Hoy',
+    'daysWithAppts': 'Días con citas', 'days': 'días',
+    'search.placeholder': 'Buscar paciente, fecha, especialidad…', 'search.results': 'resultado(s) para',
+    'selection.selected': 'seleccionados', 'selection.selectAll': 'Seleccionar todos', 'selection.deselectAll': 'Deseleccionar', 'selection.remove': 'Eliminar',
+    'list.allAppts': 'Todas las citas', 'list.total': 'total',
+    'columns.confirmed': 'Confirmados', 'columns.waiting': 'Lista de Espera',
+    'dl.completeList': 'Lista completa', 'dl.pdf': 'PDF', 'dl.pdfNote': 'solo confirmados', 'dl.txt': 'TXT', 'dl.txtNote': '+ espera', 'dl.copy': 'Copiar',
+    'modal.title': '📝 Vista previa del informe',
+    'day.all': 'Todos', 'day.none': 'Sin citas en',
+    'list.today': 'Hoy', 'list.date': 'Fecha',
+    'toast.welcome': '¡Bienvenido! Capacidad por defecto: 8/día', 'toast.restored': 'citas restauradas',
+    'toast.cleared': 'Pantalla limpia', 'toast.nothingClear': 'Nada que limpiar',
+    'toast.confirmClear': '¿Limpiar archivos y resultados? (Los datos guardados permanecen)',
+    'toast.apptAdded': 'cita añadida', 'toast.apptConfirmed': 'confirmado',
+    'toast.apptWaiting': 'añadido a la Lista de Espera (día lleno)',
+    'toast.fillPatient': 'Ingresa el nombre del paciente', 'toast.fillDate': 'Ingresa la fecha',
+    'toast.invalidDate': 'Fecha inválida. Usa DD/MM/AAAA', 'toast.dateRange': 'Fecha fuera de rango',
+    'toast.invalidHour': 'Hora inválida', 'toast.hourFormat': 'Hora inválida. Usa HH:MM',
+    'toast.pdfProcessed': 'citas extraídas', 'toast.pdfError': 'Error:',
+    'toast.copied': '¡Copiado!', 'toast.copyError': 'Error al copiar',
+    'toast.pdfDownloaded': 'PDF descargado', 'toast.pdfConfirmed': 'PDF descargado (solo confirmados)',
+    'toast.txtDownloaded': 'TXT descargado', 'toast.noAppt': 'Sin citas',
+    'toast.noApptPdf': 'Sin pacientes confirmados para exportar en PDF',
+    'toast.removed': 'eliminado(s)', 'toast.promoted': 'promovido', 'toast.promotedFromWait': 'promovido de la Lista de Espera',
+    'toast.alreadyConfirmed': 'Ya está confirmado', 'toast.dataExported': 'Datos exportados',
+    'toast.dataImported': 'citas importadas', 'toast.allDeleted': 'Todo borrado',
+    'toast.confirmDelete': 'Eliminar', 'toast.confirmDeleteAll': '¿Borrar TODOS los datos permanentemente?',
+    'toast.confirmDeleteAll2': '¿Confirmas? Esta acción es irreversible.',
+    'toast.confirmImport': 'Importar', 'toast.confirmImport2': 'citas? Esto reemplaza los datos actuales.',
+    'toast.invalidFile': 'Archivo inválido', 'toast.capacity': 'Capacidad:', 'toast.perDay': '/día',
+    'pdf.title': 'LISTA DE CITAS', 'pdf.total': 'Total:', 'pdf.appointments': 'citas', 'pdf.appointment': 'cita',
+    'pdf.confirmedOnly': 'Pacientes confirmados', 'pdf.generatedBy': 'Generado por PDF Reader Pro el',
+    'pdf.hour': 'Hora:', 'pdf.specialty': 'Especialidad:', 'pdf.local': 'Lugar:',
+    'report.title': 'INFORME DE CITAS', 'report.generated': 'Generado el',
+    'report.total': 'Total:', 'report.capacity': 'Capacidad:', 'report.confirmed': 'CONFIRMADOS', 'report.waiting': 'LISTA DE ESPERA',
+    'report.grandTotal': 'TOTAL:', 'report.confirmedTotal': 'Confirmados:', 'report.waitingTotal': 'En espera:',
+    'report.locations': 'lugar(es)', 'report.patients': 'paciente(s)', 'report.generatedBy': 'Generado por Agenda · PDF Reader Pro',
+    'months.0': 'Enero', 'months.1': 'Febrero', 'months.2': 'Marzo', 'months.3': 'Abril',
+    'months.4': 'Mayo', 'months.5': 'Junio', 'months.6': 'Julio', 'months.7': 'Agosto',
+    'months.8': 'Septiembre', 'months.9': 'Octubre', 'months.10': 'Noviembre', 'months.11': 'Diciembre',
+    'weekdays.0': 'D', 'weekdays.1': 'L', 'weekdays.2': 'M', 'weekdays.3': 'M',
+    'weekdays.4': 'J', 'weekdays.5': 'V', 'weekdays.6': 'S', 'fmt.de': 'de'
+  }
+};
+
+let currentLang = 'pt';
+function t(key) {
+  return (TRANSLATIONS[currentLang] && TRANSLATIONS[currentLang][key]) || TRANSLATIONS.pt[key] || key;
+}
+
+function setLanguage(lang) {
+  currentLang = lang;
+  try { localStorage.setItem('agenda_lang', lang); } catch(e) {}
+  document.documentElement.lang = lang === 'pt' ? 'pt-BR' : lang === 'es' ? 'es' : 'en';
+
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    el.textContent = t(el.getAttribute('data-i18n'));
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    el.placeholder = t(el.getAttribute('data-i18n-placeholder'));
+  });
+  document.querySelectorAll('.lang-btn').forEach(b => {
+    b.classList.toggle('active', b.dataset.lang === lang);
+  });
+  renderAll();
+}
+
+/* ============================================================
+   STATE
+   ============================================================ */
+const state = {
+  files: [], fileMetadata: [], cards: [],
+  isProcessing: false, searchQuery: '', layoutCount: 4,
+  selectedDate: null,
+  currentMonth: new Date().getMonth(), currentYear: new Date().getFullYear(),
+  selected: new Set(), capacity: 8,
+  dataVersion: '5.1', workspaceCollapsed: false
+};
+
+const STORAGE_KEY = 'agenda_pro_data_v5';
+
+const $ = id => document.getElementById(id);
+const dropZone = $('dropZone'), fileInput = $('fileInput'), fileList = $('fileList');
+const processBtn = $('processBtn'), clearBtn = $('clearBtn');
+const progressWrap = $('progressWrap'), progressFill = $('progressFill');
+const progressLabel = $('progressLabel'), progressFile = $('progressFile');
+const statFiles = $('statFiles'), statConfirmed = $('statConfirmed');
+const statWaiting = $('statWaiting'), statPatients = $('statPatients');
+const calGrid = $('calGrid'), monthLabel = $('monthLabel');
+const prevMonthBtn = $('prevMonth'), nextMonthBtn = $('nextMonth');
+const dateList = $('dateList'), dateListCount = $('dateListCount');
+const confirmedList = $('confirmedList'), waitingList = $('waitingList');
+const confirmedCount = $('confirmedCount'), waitingCount = $('waitingCount');
+const waitingCol = $('waitingCol'), splitLists = $('splitLists');
+const listTitle = $('listTitle'), listCount = $('listCount');
+const searchInput = $('searchInput'), searchClear = $('searchClear');
+const searchInfo = $('searchInfo'), searchCount = $('searchCount');
+const searchQueryDisplay = $('searchQueryDisplay');
+const layoutSelect = $('layoutSelect'), ocrQuality = $('ocrQuality');
+const downloadBtn = $('downloadBtn'), dlMenu = $('dlMenu'), dlMenuLabel = $('dlMenuLabel');
+const selectionBar = $('selectionBar'), selectionInfo = $('selectionInfo');
+const selectAllBtn = $('selectAllBtn'), deselectAllBtn = $('deselectAllBtn');
+const deleteSelectedBtn = $('deleteSelectedBtn');
+const menuBtn = $('menuBtn'), menuDropdown = $('menuDropdown');
+const modalBg = $('modalBg'), modalPreview = $('modalPreview');
+const capacityInput = $('capacityInput');
+
+/* ============================================================
+   TOASTS
+   ============================================================ */
+function toast(msg, type = 'info') {
+  const container = $('toastContainer');
+  const el = document.createElement('div');
+  el.className = `toast ${type}`;
+  el.textContent = msg;
+  container.appendChild(el);
+  setTimeout(() => {
+    el.style.opacity = '0';
+    el.style.transform = 'translateX(20px)';
+    el.style.transition = 'all 0.2s ease';
+    setTimeout(() => el.remove(), 200);
+  }, 3000);
+}
+
+/* ============================================================
+   UTIL
+   ============================================================ */
+const stripAccents = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+const cleanValue = v => v.replace(/^[\s:\-–—|_.]+/, '').replace(/[\s_]+$/, '').trim();
+const capitalize = s => !s ? '' : s.split(' ').map(w => w[0]?.toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+const escapeHtml = s => !s ? '' : String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+
+function parseDate(str) {
+  if (!str) return null;
+  const p = str.split('/');
+  if (p.length !== 3) return null;
+  const [dd, mm, yy] = p.map(Number);
+  if (isNaN(dd) || isNaN(mm) || isNaN(yy)) return null;
+  const d = new Date(yy, mm - 1, dd);
+  return isNaN(d.getTime()) ? null : d;
+}
+
+function dateKey(str) {
+  const d = parseDate(str);
+  if (!d) return null;
+  return `${String(d.getDate()).padStart(2,'0')}/${String(d.getMonth()+1).padStart(2,'0')}/${d.getFullYear()}`;
+}
+
+function todayKey() {
+  const t = new Date();
+  return `${String(t.getDate()).padStart(2,'0')}/${String(t.getMonth()+1).padStart(2,'0')}/${t.getFullYear()}`;
+}
+
+function displayDate(key) {
+  if (!key) return '';
+  const p = key.split('/');
+  if (p.length !== 3) return key;
+  const months = [];
+  for (let i = 0; i < 12; i++) months.push(t(`months.${i}`));
+  const de = t('fmt.de');
+  const m = months[parseInt(p[1])-1];
+  return de ? `${parseInt(p[0])} ${de} ${m} ${de} ${p[2]}` : `${m} ${parseInt(p[0])}, ${p[2]}`;
+}
+
+function shortDate(key) { return key || ''; }
+
+function cardHash(c) {
+  return `${(c.pacient||'').toLowerCase()}|${c.date||''}|${c.hour||''}|${(c.speciality||'').toLowerCase()}|${(c.hospitalName||'').toLowerCase()}`;
+}
+
+function dedupe(cards) {
+  const seen = new Set();
+  return cards.filter(c => {
+    if (!c.pacient && !c.date && !c.speciality && !c.hour) return false;
+    const h = cardHash(c);
+    if (seen.has(h)) return false;
+    seen.add(h);
+    return true;
+  });
+}
+
+function cardsWithData() {
+  return state.cards.filter(c => c.pacient || c.date || c.speciality || c.hour);
+}
+
+function sortCards(a, b) {
+  const da = parseDate(a.date), db = parseDate(b.date);
+  const ta = da ? da.getTime() : Infinity;
+  const tb = db ? db.getTime() : Infinity;
+  if (ta !== tb) return ta - tb;
+  return (a.hour || '99:99').localeCompare(b.hour || '99:99');
+}
+
+/* ============================================================
+   CAPACITY LOGIC
+   ============================================================ */
+function splitByCapacity(list) {
+  const sorted = [...list].sort(sortCards);
+  const cap = Math.max(1, state.capacity);
+  return { confirmed: sorted.slice(0, cap), waiting: sorted.slice(cap) };
+}
+
+function getStatusForCard(card) {
+  const key = dateKey(card.date);
+  if (!key) return 'confirmed';
+  const dayList = cardsWithData().filter(c => dateKey(c.date) === key).sort(sortCards);
+  const idx = dayList.indexOf(card);
+  if (idx < 0) return 'confirmed';
+  return idx < state.capacity ? 'confirmed' : 'waiting';
+}
+
+/* ============================================================
+   PERSISTENCE
+   ============================================================ */
+function save() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      version: state.dataVersion,
+      cards: dedupe(state.cards),
+      layoutCount: state.layoutCount,
+      capacity: state.capacity,
+      workspaceCollapsed: state.workspaceCollapsed,
+      fileMetadata: state.files.map(f => ({ name: f.name, size: f.size, type: f.type }))
+    }));
+  } catch(e) {}
+}
+
+function load() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (!data.cards || !Array.isArray(data.cards)) return false;
+    state.cards = dedupe(data.cards);
+    if (data.layoutCount) { state.layoutCount = data.layoutCount; layoutSelect.value = data.layoutCount; }
+    if (typeof data.capacity === 'number' && data.capacity > 0) {
+      state.capacity = data.capacity;
+      capacityInput.value = data.capacity;
+    }
+    if (typeof data.workspaceCollapsed === 'boolean') state.workspaceCollapsed = data.workspaceCollapsed;
+    if (data.fileMetadata) { state.fileMetadata = data.fileMetadata; renderFileChips(); }
+    return true;
+  } catch(e) { return false; }
+}
+
+/* ============================================================
+   WORKSPACE COLLAPSE
+   ============================================================ */
+function applyWorkspaceCollapse() {
+  $('workspace').classList.toggle('collapsed', state.workspaceCollapsed);
+}
+$('workspaceHeader').onclick = () => {
+  state.workspaceCollapsed = !state.workspaceCollapsed;
+  applyWorkspaceCollapse();
+  save();
+};
+
+/* ============================================================
+   CAPACITY CONTROLS
+   ============================================================ */
+$('capMinus').onclick = () => {
+  const v = Math.max(1, state.capacity - 1);
+  state.capacity = v; capacityInput.value = v; save(); renderAll();
+  toast(`${t('toast.capacity')} ${v}${t('toast.perDay')}`, 'info');
+};
+$('capPlus').onclick = () => {
+  const v = Math.min(99, state.capacity + 1);
+  state.capacity = v; capacityInput.value = v; save(); renderAll();
+  toast(`${t('toast.capacity')} ${v}${t('toast.perDay')}`, 'info');
+};
+capacityInput.addEventListener('change', () => {
+  let v = parseInt(capacityInput.value, 10);
+  if (isNaN(v) || v < 1) v = 1;
+  if (v > 99) v = 99;
+  state.capacity = v; capacityInput.value = v; save(); renderAll();
+});
+capacityInput.addEventListener('keydown', e => { if (e.key === 'Enter') capacityInput.blur(); });
+
+/* ============================================================
+   FILE UPLOAD
+   ============================================================ */
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('dragover'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('dragover'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.classList.remove('dragover');
+  if (e.dataTransfer.files.length) addFiles(e.dataTransfer.files);
+});
+fileInput.addEventListener('change', e => {
+  if (e.target.files.length) addFiles(e.target.files);
+  fileInput.value = '';
+});
+
+function addFiles(list) {
+  const existing = new Set(state.files.map(f => f.name));
+  for (const f of list) {
+    if ((f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf')) && !existing.has(f.name)) {
+      state.files.push(f); existing.add(f.name);
+    }
+  }
+  renderFileChips(); updateButtons(); updateStats(); save();
+  toast(`${state.files.length} ${t('stats.pdfs')}`, 'success');
+}
+
+function renderFileChips() {
+  const items = state.files.length ? state.files : state.fileMetadata;
+  if (!items.length) { fileList.innerHTML = ''; return; }
+  const restored = state.files.length === 0 && state.fileMetadata.length > 0;
+  fileList.innerHTML = items.map((f, i) => `
+    <div class="file-chip" ${restored ? 'style="opacity:0.6"' : ''}>
+      📄 ${escapeHtml(f.name)}
+      <span class="remove" data-idx="${i}">✕</span>
+    </div>
+  `).join('');
+  fileList.querySelectorAll('.remove').forEach(el => {
+    el.onclick = () => {
+      const i = parseInt(el.dataset.idx);
+      state.files.splice(i, 1); state.fileMetadata.splice(i, 1);
+      renderFileChips(); updateButtons(); updateStats(); save();
+    };
+  });
+}
+
+function updateButtons() {
+  processBtn.disabled = state.files.length === 0 || state.isProcessing;
+  downloadBtn.disabled = cardsWithData().length === 0;
+}
+
+function updateStats() {
+  statFiles.textContent = state.files.length || state.fileMetadata.length;
+  const cards = cardsWithData();
+  statPatients.textContent = new Set(cards.map(c => c.pacient).filter(Boolean)).size;
+
+  let conf = 0, wait = 0;
+  const byDay = {};
+  cards.forEach(c => {
+    const k = dateKey(c.date) || 'no-date';
+    (byDay[k] = byDay[k] || []).push(c);
+  });
+  Object.values(byDay).forEach(list => {
+    const sorted = list.sort(sortCards);
+    conf += Math.min(sorted.length, state.capacity);
+    wait += Math.max(0, sorted.length - state.capacity);
+  });
+  statConfirmed.textContent = conf;
+  statWaiting.textContent = wait;
+}
+
+/* ============================================================
+   TABS
+   ============================================================ */
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    $(`tab-${tab.dataset.tab}`).classList.add('active');
+  });
+});
+
+/* ============================================================
+   MANUAL ENTRY
+   ============================================================ */
+function validateManual() {
+  const patient = $('manualPatient').value.trim();
+  const date = $('manualDate').value.trim();
+  if (!patient) { toast(t('toast.fillPatient'), 'warning'); $('manualPatient').focus(); return null; }
+  if (!date) { toast(t('toast.fillDate'), 'warning'); $('manualDate').focus(); return null; }
+  const dm = date.match(/^(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})$/);
+  if (!dm) { toast(t('toast.invalidDate'), 'warning'); return null; }
+  const dd = +dm[1], mm = +dm[2], yy = +dm[3];
+  if (dd < 1 || dd > 31 || mm < 1 || mm > 12 || yy < 1900 || yy > 2100) {
+    toast(t('toast.dateRange'), 'warning'); return null;
+  }
+  let hour = $('manualHour').value.trim();
+  if (hour) {
+    const hm = hour.match(/^(\d{1,2}):?(\d{2})?$/);
+    if (!hm) { toast(t('toast.hourFormat'), 'warning'); return null; }
+    const h = +hm[1], m = hm[2] ? +hm[2] : 0;
+    if (h > 23 || m > 59) { toast(t('toast.invalidHour'), 'warning'); return null; }
+    hour = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+  }
+  return {
+    pacient: patient,
+    date: `${String(dd).padStart(2,'0')}/${String(mm).padStart(2,'0')}/${yy}`,
+    hour,
+    speciality: $('manualSpecialty').value.trim(),
+    hospitalName: $('manualHospital').value.trim(),
+    hospitalAddress: $('manualAddress').value.trim(),
+    _source: 'Manual', _cardIndex: '—', _totalCards: '—'
+  };
+}
+
+function addManual(clearAfter) {
+  const card = validateManual();
+  if (!card) return;
+  state.cards.push(card);
+  state.cards.sort(sortCards);
+  const d = parseDate(card.date);
+  if (d) { state.currentMonth = d.getMonth(); state.currentYear = d.getFullYear(); }
+  state.selectedDate = card.date;
+  state.selected.clear();
+  renderAll(); save();
+
+  if (getStatusForCard(card) === 'waiting') {
+    toast(`⏳ ${card.pacient} ${t('toast.apptWaiting')}`, 'warning');
+  } else {
+    toast(`✅ ${card.pacient} ${t('toast.apptConfirmed')}`, 'success');
+  }
+
+  if (clearAfter) {
+    ['manualPatient','manualDate','manualHour','manualSpecialty','manualHospital','manualAddress'].forEach(id => $(id).value = '');
+    $('manualPatient').focus();
+  }
+}
+
+$('addManualBtn').onclick = () => addManual(false);
+$('addAndNewBtn').onclick = () => addManual(true);
+$('clearManualBtn').onclick = () => {
+  ['manualPatient','manualDate','manualHour','manualSpecialty','manualHospital','manualAddress'].forEach(id => $(id).value = '');
+  $('manualPatient').focus();
+};
+
+['manualPatient','manualDate','manualHour','manualSpecialty','manualHospital','manualAddress'].forEach(id => {
+  $(id).addEventListener('keydown', e => { if (e.key === 'Enter') addManual(true); });
+});
+
+$('manualDate').addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length >= 3 && v.length <= 4) v = v.slice(0,2) + '/' + v.slice(2);
+  else if (v.length >= 5) v = v.slice(0,2) + '/' + v.slice(2,4) + '/' + v.slice(4,8);
+  e.target.value = v;
+});
+
+$('manualHour').addEventListener('input', e => {
+  let v = e.target.value.replace(/\D/g, '');
+  if (v.length >= 3) v = v.slice(0,2) + ':' + v.slice(2,4);
+  e.target.value = v;
+});
+
+/* ============================================================
+   OCR PARSING
+   ============================================================ */
+function parseOcr(raw) {
+  const lines = raw.replace(/\r/g, '').split('\n').map(l => l.trim()).filter(Boolean);
+  const grab = label => {
+    const target = stripAccents(label.toLowerCase());
+    for (let i = 0; i < lines.length; i++) {
+      const idx = stripAccents(lines[i].toLowerCase()).indexOf(target);
+      if (idx !== -1) {
+        const rest = cleanValue(lines[i].slice(idx + label.length));
+        if (rest) return rest;
+        if (lines[i+1]) return cleanValue(lines[i+1]);
+      }
+    }
+    return '';
+  };
+
+  const pacient = grab('Paciente') || grab('Patient');
+  const speciality = grab('Especialidade') || grab('Especialidad') || grab('Specialty');
+  let date = grab('Data') || grab('Fecha') || grab('Date');
+  let hour = grab('Horário') || grab('Horario') || grab('Hora') || grab('Time');
+  const hospitalAddress = grab('Local') || grab('Location') || grab('Dirección');
+
+  const dm = date.match(/(\d{1,2})[\/\.\-](\d{1,2})[\/\.\-](\d{2,4})/);
+  date = dm ? `${dm[1].padStart(2,'0')}/${dm[2].padStart(2,'0')}/${dm[3].length===2?'20'+dm[3]:dm[3]}` : '';
+
+  const hm = hour.match(/(\d{1,2}):(\d{2})/);
+  hour = hm ? `${hm[1].padStart(2,'0')}:${hm[2]}` : '';
+
+  let hospitalName = '';
+  for (const line of lines) {
+    if (/agendamento|consulta|médico|appointment|medical|cita/i.test(line)) break;
+    const c = cleanValue(line);
+    if (c.length >= 3 && !/^_+$/.test(c)) { hospitalName = c; break; }
+  }
+
+  return {
+    pacient: pacient && !/^_+$/.test(pacient) ? capitalize(pacient) : '',
+    speciality: speciality && !/^_+$/.test(speciality) ? speciality : '',
+    date, hour,
+    hospitalName: hospitalName && hospitalName.length < 60 ? hospitalName : '',
+    hospitalAddress: hospitalAddress && !/^_+$/.test(hospitalAddress) ? hospitalAddress : ''
+  };
+}
+
+function preprocess(canvas) {
+  const ctx = canvas.getContext('2d');
+  const img = ctx.getImageData(0, 0, canvas.width, canvas.height);
+  const d = img.data;
+  let min = 255, max = 0;
+  const gray = new Uint8ClampedArray(d.length / 4);
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    const g = 0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2];
+    gray[j] = g;
+    if (g < min) min = g;
+    if (g > max) max = g;
+  }
+  const range = Math.max(max - min, 1);
+  for (let i = 0, j = 0; i < d.length; i += 4, j++) {
+    d[i] = d[i+1] = d[i+2] = ((gray[j] - min) / range) * 255;
+  }
+  ctx.putImageData(img, 0, 0);
+  return canvas;
+}
+
+function gridDims(n) {
+  return { 1:{c:1,r:1}, 2:{c:1,r:2}, 4:{c:2,r:2}, 6:{c:2,r:3}, 8:{c:2,r:4} }[n] || {c:2,r:2};
+}
+
+function describeError(e) {
+  if (!e) return 'desconhecido';
+  if (typeof e === 'string') return e;
+  if (e.message) return e.message;
+  if (e.error?.message) return e.error.message;
+  try { return JSON.stringify(e); } catch { return String(e); }
+}
+
+/* ============================================================
+   PROCESS PDFs
+   ============================================================ */
+async function processPdfs() {
+  if (state.isProcessing || !state.files.length) return;
+  state.isProcessing = true;
+  state.cards = []; state.selected.clear(); state.selectedDate = null;
+  processBtn.disabled = true;
+  progressWrap.classList.add('active');
+
+  const layout = parseInt(layoutSelect.value);
+  const scale = ocrQuality.value === 'accurate' ? 4 : 3;
+
+  try {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const worker = await Tesseract.createWorker(currentLang === 'en' ? 'eng' : currentLang === 'es' ? 'spa' : 'por', 1, {
+      workerPath: 'https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/worker.min.js',
+      corePath: 'https://cdn.jsdelivr.net/npm/tesseract.js-core@5',
+      langPath: 'https://tessdata.projectnaptha.com/4.0.0'
+    });
+    try { await worker.setParameters({ tessedit_pageseg_mode: Tesseract.PSM.SINGLE_BLOCK }); } catch {}
+
+    const all = [];
+
+    for (let fi = 0; fi < state.files.length; fi++) {
+      const file = state.files[fi];
+      progressLabel.textContent = `${t('progress.label')} ${fi+1}/${state.files.length}`;
+      progressFile.textContent = file.name;
+      progressFill.style.width = `${(fi / state.files.length) * 100}%`;
+
+      const buf = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: buf }).promise;
+
+      for (let pn = 1; pn <= Math.min(pdf.numPages, 1); pn++) {
+        const page = await pdf.getPage(pn);
+        const vp = page.getViewport({ scale });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width;
+        canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+
+        const { c: cols, r: rows } = gridDims(layout);
+        const cw = canvas.width / cols, ch = canvas.height / rows;
+
+        for (let i = 0; i < layout; i++) {
+          const col = i % cols, row = Math.floor(i / cols);
+          const cell = document.createElement('canvas');
+          cell.width = Math.floor(cw);
+          cell.height = Math.floor(ch);
+          cell.getContext('2d').drawImage(canvas, col*cw, row*ch, cw, ch, 0, 0, cw, ch);
+          preprocess(cell);
+          let text = '';
+          try { const { data } = await worker.recognize(cell); text = data?.text || ''; } catch {}
+          const parsed = parseOcr(text);
+          parsed._source = file.name;
+          parsed._cardIndex = i + 1;
+          parsed._totalCards = layout;
+          all.push(parsed);
+        }
+      }
+      progressFill.style.width = `${((fi+1) / state.files.length) * 100}%`;
+    }
+
+    await worker.terminate();
+
+    const unique = dedupe(all);
+    const withData = unique.filter(c => c.pacient || c.date || c.speciality || c.hour || c.hospitalName);
+    const empty = unique.filter(c => !c.pacient && !c.date && !c.speciality && !c.hour && !c.hospitalName);
+    withData.sort(sortCards);
+
+    state.cards = [...withData, ...empty];
+
+    if (withData.length) {
+      const first = withData.find(c => c.date);
+      if (first) {
+        const d = parseDate(first.date);
+        if (d) { state.currentMonth = d.getMonth(); state.currentYear = d.getFullYear(); }
+      }
+    }
+
+    progressFill.style.width = '100%';
+    progressLabel.textContent = `✓ ${withData.length} ${t('toast.pdfProcessed')}`;
+
+    renderAll(); save();
+    toast(`${withData.length} ${t('toast.pdfProcessed')}`, 'success');
+  } catch (e) {
+    console.error(e);
+    toast(t('toast.pdfError') + ' ' + describeError(e), 'error');
+  } finally {
+    state.isProcessing = false;
+    processBtn.disabled = false;
+    setTimeout(() => progressWrap.classList.remove('active'), 2500);
+  }
+}
+
+processBtn.onclick = processPdfs;
+
+clearBtn.onclick = () => {
+  if (!state.files.length && !state.cards.length && !state.fileMetadata.length) {
+    toast(t('toast.nothingClear'), 'warning'); return;
+  }
+  if (!confirm(t('toast.confirmClear'))) return;
+  state.files = []; state.fileMetadata = []; state.cards = [];
+  state.selected.clear(); state.selectedDate = null; state.searchQuery = '';
+  searchInput.value = '';
+  renderAll();
+  toast(t('toast.cleared'), 'success');
+};
+
+/* ============================================================
+   CALENDAR
+   ============================================================ */
+function renderCalendar() {
+  const y = state.currentYear, m = state.currentMonth;
+  const months = [];
+  for (let i = 0; i < 12; i++) months.push(t(`months.${i}`));
+  monthLabel.textContent = `${months[m]} ${y}`;
+
+  const first = new Date(y, m, 1).getDay();
+  const days = new Date(y, m + 1, 0).getDate();
+  const prevDays = new Date(y, m, 0).getDate();
+
+  const appMap = {};
+  cardsWithData().forEach(c => {
+    const k = dateKey(c.date);
+    if (!k) return;
+    const [dd, mm, yy] = k.split('/').map(Number);
+    if (mm - 1 !== m || yy !== y) return;
+    (appMap[k] = appMap[k] || []).push(c);
+  });
+
+  let html = '';
+  for (let i = 0; i < 7; i++) html += `<div class="cal-head">${t(`weekdays.${i}`)}</div>`;
+
+  for (let i = 0; i < first; i++) {
+    html += `<div class="cal-day out">${prevDays - first + i + 1}</div>`;
+  }
+
+  const tk = todayKey();
+
+  for (let d = 1; d <= days; d++) {
+    const k = `${String(d).padStart(2,'0')}/${String(m+1).padStart(2,'0')}/${y}`;
+    const dayList = appMap[k] || [];
+    const count = dayList.length;
+    const cap = state.capacity;
+    const confirmed = Math.min(count, cap);
+    const waiting = Math.max(0, count - cap);
+    const pct = count > 0 ? Math.min(100, (confirmed / cap) * 100) : 0;
+
+    const cls = ['cal-day'];
+    if (count > 0) cls.push('has-appt');
+    if (k === tk) cls.push('today');
+    if (k === state.selectedDate) cls.push('selected');
+
+    let capCls = '';
+    if (count > 0) {
+      if (waiting > 0) capCls = 'full';
+      else if (confirmed >= cap) capCls = 'full';
+      else if (confirmed / cap >= 0.75) capCls = 'warn';
+    }
+
+    let badge = '';
+    if (count > 0) {
+      badge = `<div class="cap-badge ${capCls}">
+        <span>${confirmed}/${cap}</span>
+        <span class="fill" style="--pct:${pct}%"></span>
+      </div>`;
+    }
+
+    let waitBadge = '';
+    if (waiting > 0) waitBadge = `<span class="wait-dot">+${waiting}</span>`;
+
+    html += `<div class="${cls.join(' ')}" data-date="${k}">
+      <span class="day-num">${d}</span>
+      ${badge}
+      ${waitBadge}
+    </div>`;
+  }
+
+  const total = first + days;
+  const rem = (7 - (total % 7)) % 7;
+  for (let i = 1; i <= rem; i++) html += `<div class="cal-day out">${i}</div>`;
+
+  calGrid.innerHTML = html;
+  calGrid.querySelectorAll('.cal-day:not(.out)').forEach(el => {
+    el.onclick = () => selectDate(el.dataset.date);
+  });
+}
+
+function renderDateChips() {
+  const y = state.currentYear, m = state.currentMonth;
+  const appMap = {};
+  cardsWithData().forEach(c => {
+    const k = dateKey(c.date);
+    if (!k) return;
+    const [dd, mm, yy] = k.split('/').map(Number);
+    if (mm - 1 !== m || yy !== y) return;
+    (appMap[k] = appMap[k] || []).push(c);
+  });
+
+  const keys = Object.keys(appMap).sort((a, b) => {
+    const da = parseDate(a), db = parseDate(b);
+    return da && db ? da - db : 0;
+  });
+
+  dateListCount.textContent = keys.length;
+
+  const months = [];
+  for (let i = 0; i < 12; i++) months.push(t(`months.${i}`));
+  const monthTotal = keys.reduce((s, k) => s + appMap[k].length, 0);
+
+  let html = `<div class="day-chip all ${state.selectedDate === null ? 'active' : ''}" data-date="__ALL__">
+    📋 ${t('day.all')} (${months[m].slice(0, 3)})
+    <span class="n">${monthTotal}</span>
+  </div>`;
+
+  if (!keys.length) {
+    html += `<div class="empty-chips">${t('day.none')} ${months[m]} ${y}</div>`;
+    dateList.innerHTML = html;
+    return;
+  }
+
+  html += keys.map(k => {
+    const active = k === state.selectedDate;
+    const count = appMap[k].length;
+    const waiting = Math.max(0, count - state.capacity);
+    const cls = ['day-chip'];
+    if (active) cls.push('active');
+    if (waiting > 0) cls.push('over');
+    return `<div class="${cls.join(' ')}" data-date="${k}">
+      ${shortDate(k)}
+      <span class="n">${count}</span>
+    </div>`;
+  }).join('');
+
+  dateList.innerHTML = html;
+  dateList.querySelectorAll('.day-chip').forEach(el => {
+    el.onclick = () => {
+      const d = el.dataset.date;
+      selectDate(d === '__ALL__' ? null : d);
+    };
+  });
+}
+
+function selectDate(key) {
+  state.selectedDate = key;
+  state.selected.clear();
+  if (key) {
+    const p = key.split('/');
+    if (p.length === 3) {
+      const mm = parseInt(p[1]) - 1, yy = parseInt(p[2]);
+      if (mm !== state.currentMonth || yy !== state.currentYear) {
+        state.currentMonth = mm; state.currentYear = yy;
+      }
+    }
+  }
+  renderCalendar(); renderDateChips(); renderAppointments();
+  updateSelectionBar(); updateDlMenuLabel();
+}
+
+prevMonthBtn.onclick = () => {
+  let m = state.currentMonth - 1, y = state.currentYear;
+  if (m < 0) { m = 11; y--; }
+  state.currentMonth = m; state.currentYear = y;
+  renderCalendar(); renderDateChips();
+};
+nextMonthBtn.onclick = () => {
+  let m = state.currentMonth + 1, y = state.currentYear;
+  if (m > 11) { m = 0; y++; }
+  state.currentMonth = m; state.currentYear = y;
+  renderCalendar(); renderDateChips();
+};
+
+/* ============================================================
+   APPOINTMENTS LISTS
+   ============================================================ */
+function getFiltered() {
+  let list = cardsWithData();
+  const q = state.searchQuery.toLowerCase();
+
+  if (q) {
+    list = list.filter(c =>
+      (c.pacient||'').toLowerCase().includes(q) ||
+      (c.date||'').includes(q) ||
+      (c.speciality||'').toLowerCase().includes(q) ||
+      (c.hospitalName||'').toLowerCase().includes(q) ||
+      (c.hospitalAddress||'').toLowerCase().includes(q) ||
+      (c._source||'').toLowerCase().includes(q)
+    );
+  }
+
+  if (state.selectedDate !== null) {
+    list = list.filter(c => dateKey(c.date) === state.selectedDate);
+  } else {
+    list = list.filter(c => {
+      const k = dateKey(c.date);
+      if (!k) return false;
+      const [dd, mm, yy] = k.split('/').map(Number);
+      return mm - 1 === state.currentMonth && yy === state.currentYear;
+    });
+  }
+
+  return list.sort(sortCards);
+}
+
+function renderAppointments() {
+  const list = getFiltered();
+  const showDateInline = state.selectedDate === null;
+
+  listCount.textContent = list.length;
+
+  if (state.selectedDate) {
+    listTitle.innerHTML = `📅 ${displayDate(state.selectedDate)}`;
+  } else {
+    listTitle.innerHTML = `📋 <span data-i18n="list.allAppts">${t('list.allAppts')}</span>`;
+  }
+
+  confirmedList.classList.toggle('show-date', showDateInline);
+  waitingList.classList.toggle('show-date', showDateInline);
+
+  if (!list.length) {
+    const emptyHtml = `
+      <div class="empty">
+        <span class="emoji">${state.searchQuery ? '🔍' : '📭'}</span>
+        <h3>${state.searchQuery ? t('search.results') : t('toast.noAppt')}</h3>
+        <p>${state.searchQuery ? '' : t('dropzone.title')}</p>
+      </div>
+    `;
+    confirmedList.innerHTML = emptyHtml;
+    waitingList.innerHTML = '';
+    confirmedCount.textContent = '0';
+    waitingCount.textContent = '0';
+    splitLists.classList.add('no-waiting');
+    waitingCol.style.display = 'none';
+    return;
+  }
+
+  if (state.selectedDate) {
+    const { confirmed, waiting } = splitByCapacity(list);
+    confirmedCount.textContent = `${confirmed.length}/${state.capacity}`;
+    waitingCount.textContent = waiting.length;
+
+    confirmedList.innerHTML = renderItems(confirmed, showDateInline, false);
+    waitingList.innerHTML = waiting.length
+      ? renderItems(waiting, showDateInline, true)
+      : `<div class="col-empty"><span class="emoji">⏳</span>${t('columns.waiting')} — 0</div>`;
+
+    waitingCol.style.display = 'flex';
+    splitLists.classList.toggle('no-waiting', false);
+  } else {
+    const byDay = {};
+    list.forEach(c => {
+      const k = dateKey(c.date) || 'Sem data';
+      (byDay[k] = byDay[k] || []).push(c);
+    });
+    const dayKeys = Object.keys(byDay).sort((a, b) => {
+      if (a === 'Sem data') return 1;
+      if (b === 'Sem data') return -1;
+      const da = parseDate(a), db = parseDate(b);
+      return da && db ? da - db : 0;
+    });
+
+    const allConfirmed = [], allWaiting = [];
+    dayKeys.forEach(k => {
+      const { confirmed, waiting } = splitByCapacity(byDay[k]);
+      allConfirmed.push({ date: k, items: confirmed });
+      if (waiting.length) allWaiting.push({ date: k, items: waiting });
+    });
+
+    confirmedCount.textContent = allConfirmed.reduce((s, g) => s + g.items.length, 0);
+    waitingCount.textContent = allWaiting.reduce((s, g) => s + g.items.length, 0);
+
+    confirmedList.innerHTML = allConfirmed.map(g => renderDayGroup(g.date, g.items, false, showDateInline)).join('') ||
+      `<div class="col-empty"><span class="emoji">📭</span>0</div>`;
+
+    waitingList.innerHTML = allWaiting.length
+      ? allWaiting.map(g => renderDayGroup(g.date, g.items, true, showDateInline)).join('')
+      : `<div class="col-empty"><span class="emoji">⏳</span>0</div>`;
+
+    waitingCol.style.display = 'flex';
+    splitLists.classList.toggle('no-waiting', false);
+  }
+
+  [confirmedList, waitingList].forEach(container => {
+    container.querySelectorAll('.appt-check').forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        toggleSelect(parseInt(el.dataset.idx));
+      };
+    });
+    container.querySelectorAll('[data-act]').forEach(el => {
+      el.onclick = e => {
+        e.stopPropagation();
+        const idx = parseInt(el.dataset.idx);
+        const act = el.dataset.act;
+        if (act === 'copy') copyCard(idx, el);
+        if (act === 'del') deleteCard(idx);
+        if (act === 'promote') promoteCard(idx);
+      };
+    });
+  });
+}
+
+function renderDayGroup(dateKeyStr, items, isWaiting, showDate) {
+  const cap = state.capacity;
+  let metric = isWaiting
+    ? `<span class="metric wait">${items.length} ${t('stats.waiting')}</span>`
+    : `<span class="metric conf">${items.length}/${cap}</span>`;
+  return `
+    <div class="day-group">
+      <div class="day-group-head">
+        <span class="date-label">📅 ${shortDate(dateKeyStr)}</span>
+        <span class="metrics">${metric}</span>
+      </div>
+      ${renderItems(items, showDate, isWaiting)}
+    </div>
+  `;
+}
+
+function renderItems(items, showDate, isWaiting) {
+  if (!items.length) return '';
+  const q = state.searchQuery.toLowerCase();
+
+  const hl = (text) => {
+    if (!q || !text) return escapeHtml(text || '');
+    const lower = text.toLowerCase();
+    const pos = lower.indexOf(q);
+    if (pos === -1) return escapeHtml(text);
+    return escapeHtml(text.slice(0, pos)) +
+      `<span style="color:var(--accent);font-weight:700">${escapeHtml(text.slice(pos, pos + q.length))}</span>` +
+      escapeHtml(text.slice(pos + q.length));
+  };
+
+  const ICON_PROMOTE = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>`;
+  const ICON_COPY    = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>`;
+  const ICON_DELETE  = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>`;
+
+  return items.map((c, i) => {
+    const idx = state.cards.indexOf(c);
+    const isSel = state.selected.has(idx);
+
+    const patient = c.pacient || '—';
+    const time = c.hour || '--:--';
+    const parts = [];
+    if (c.speciality) parts.push(hl(c.speciality));
+    if (c.hospitalName) parts.push(hl(c.hospitalName));
+    const meta = parts.join(' <span class="sep"></span> ');
+
+    return `
+      <div class="appt ${isSel ? 'selected' : ''} ${isWaiting ? 'waiting' : ''}" data-idx="${idx}" style="animation-delay:${Math.min(i * 12, 200)}ms">
+        <div class="appt-check ${isSel ? 'checked' : ''}" data-idx="${idx}">${isSel ? '✓' : ''}</div>
+        <div class="appt-time">${time}</div>
+        <div class="appt-main">
+          <div class="appt-name">${hl(patient)} ${showDate ? `<span class="appt-date-inline">${c.date || ''}</span>` : ''}</div>
+          <div class="appt-meta">${meta || '<span style="opacity:0.5">—</span>'}</div>
+        </div>
+        <div class="appt-actions">
+          ${isWaiting ? `<button class="appt-action promote" data-act="promote" data-idx="${idx}" title="Promote">${ICON_PROMOTE}</button>` : ''}
+          <button class="appt-action" data-act="copy" data-idx="${idx}" title="Copy">${ICON_COPY}</button>
+          <button class="appt-action danger" data-act="del" data-idx="${idx}" title="Delete">${ICON_DELETE}</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+function toggleSelect(idx) {
+  if (state.selected.has(idx)) state.selected.delete(idx);
+  else state.selected.add(idx);
+  renderAppointments();
+  updateSelectionBar();
+}
+
+function updateSelectionBar() {
+  const n = state.selected.size;
+  selectionInfo.innerHTML = `${n} ${t('selection.selected')}`;
+  deleteSelectedBtn.disabled = n === 0;
+  selectionBar.classList.toggle('visible', cardsWithData().length > 0);
+}
+
+selectAllBtn.onclick = () => {
+  const visible = getFiltered();
+  visible.forEach(c => {
+    const idx = state.cards.indexOf(c);
+    if (idx >= 0) state.selected.add(idx);
+  });
+  renderAppointments(); updateSelectionBar();
+};
+
+deselectAllBtn.onclick = () => {
+  state.selected.clear();
+  renderAppointments(); updateSelectionBar();
+};
+
+deleteSelectedBtn.onclick = () => {
+  const n = state.selected.size;
+  if (!n) return;
+  if (!confirm(`${t('toast.confirmDelete')} ${n}?`)) return;
+
+  const statuses = new Map();
+  state.selected.forEach(i => {
+    const c = state.cards[i];
+    if (c) statuses.set(i, { card: c, status: getStatusForCard(c) });
+  });
+
+  const idxs = Array.from(state.selected).sort((a, b) => b - a);
+  idxs.forEach(i => state.cards.splice(i, 1));
+  state.selected.clear();
+
+  const affectedDays = new Set();
+  statuses.forEach(({ card, status }) => {
+    if (status === 'confirmed') {
+      const k = dateKey(card.date);
+      if (k) affectedDays.add(k);
+    }
+  });
+
+  let promotedCount = 0;
+  affectedDays.forEach(k => {
+    const dayList = cardsWithData().filter(x => dateKey(x.date) === k).sort(sortCards);
+    if (dayList.length >= state.capacity) promotedCount++;
+  });
+
+  renderAll(); save();
+  toast(`${n} ${t('toast.removed')}${promotedCount ? ` · ${promotedCount} ${t('toast.promoted')}` : ''}`, 'success');
+};
+
+function deleteCard(idx) {
+  const c = state.cards[idx];
+  if (!c) return;
+  if (!confirm(`${t('toast.confirmDelete')} ${c.pacient || ''}?`)) return;
+
+  const wasStatus = getStatusForCard(c);
+  state.cards.splice(idx, 1);
+  state.selected.clear();
+
+  let promoted = null;
+  if (wasStatus === 'confirmed') {
+    const key = dateKey(c.date);
+    if (key) {
+      const dayList = cardsWithData().filter(x => dateKey(x.date) === key).sort(sortCards);
+      if (dayList.length >= state.capacity) promoted = dayList[state.capacity - 1];
+    }
+  }
+
+  renderAll(); save();
+  if (promoted) toast(`⬆ ${promoted.pacient} ${t('toast.promotedFromWait')}`, 'success');
+  else toast(t('toast.removed'), 'success');
+}
+
+function promoteCard(idx) {
+  const c = state.cards[idx];
+  if (!c) return;
+  const key = dateKey(c.date);
+  if (!key) return;
+
+  const dayList = cardsWithData().filter(x => dateKey(x.date) === key).sort(sortCards);
+  const cap = state.capacity;
+  const lastConfirmed = dayList[cap - 1];
+
+  if (!lastConfirmed) { renderAll(); return; }
+  if (dayList.indexOf(c) < cap) { toast(t('toast.alreadyConfirmed'), 'info'); return; }
+
+  const lastHour = lastConfirmed.hour || '23:59';
+  const [h, m] = lastHour.split(':').map(Number);
+  const newMin = m - 1;
+  let newH = h, newM = newMin;
+  if (newM < 0) { newH = Math.max(0, h - 1); newM = 59; }
+  c.hour = `${String(newH).padStart(2,'0')}:${String(newM).padStart(2,'0')}`;
+
+  state.cards.sort(sortCards);
+  save(); renderAll();
+  toast(`⬆ ${c.pacient} ${t('toast.promoted')}`, 'success');
+}
+
+function copyCard(idx, btn) {
+  const c = state.cards[idx];
+  if (!c) return;
+  let text = `👤 ${c.pacient || '—'}\n📅 ${c.date || '—'} • 🕐 ${c.hour || '—'}\n`;
+  if (c.speciality) text += `🔬 ${c.speciality}\n`;
+  if (c.hospitalName) text += `🏥 ${c.hospitalName}\n`;
+  if (c.hospitalAddress && c.hospitalAddress !== c.hospitalName) text += `📍 ${c.hospitalAddress}\n`;
+  copyText(text);
+
+  const original = btn.innerHTML;
+  btn.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+  btn.classList.add('copied');
+  setTimeout(() => { btn.innerHTML = original; btn.classList.remove('copied'); }, 1200);
+}
+
+/* ============================================================
+   SEARCH
+   ============================================================ */
+searchInput.addEventListener('input', () => {
+  state.searchQuery = searchInput.value.trim();
+  searchClear.classList.toggle('visible', state.searchQuery.length > 0);
+
+  if (state.searchQuery) {
+    const q = state.searchQuery.toLowerCase();
+    const results = cardsWithData().filter(c =>
+      (c.pacient||'').toLowerCase().includes(q) ||
+      (c.date||'').includes(q) ||
+      (c.speciality||'').toLowerCase().includes(q) ||
+      (c.hospitalName||'').toLowerCase().includes(q) ||
+      (c._source||'').toLowerCase().includes(q)
+    );
+    searchCount.textContent = results.length;
+    searchQueryDisplay.textContent = state.searchQuery;
+    searchInfo.classList.add('visible');
+    const withDate = results.find(c => c.date);
+    if (withDate) {
+      const d = parseDate(withDate.date);
+      if (d && (d.getMonth() !== state.currentMonth || d.getFullYear() !== state.currentYear)) {
+        state.currentMonth = d.getMonth(); state.currentYear = d.getFullYear();
+        renderCalendar(); renderDateChips();
+      }
+    }
+  } else {
+    searchInfo.classList.remove('visible');
+  }
+  renderAppointments();
+});
+
+searchClear.onclick = () => {
+  searchInput.value = '';
+  searchInput.dispatchEvent(new Event('input'));
+  searchInput.focus();
+};
+
+/* ============================================================
+   DOWNLOAD MENU
+   ============================================================ */
+downloadBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  dlMenu.classList.toggle('open');
+});
+
+document.addEventListener('click', e => {
+  if (!dlMenu.contains(e.target) && e.target !== downloadBtn) {
+    dlMenu.classList.remove('open');
+  }
+});
+
+function updateDlMenuLabel() {
+  if (state.selectedDate) {
+    dlMenuLabel.textContent = `${t('list.date')}: ${displayDate(state.selectedDate)}`;
+  } else {
+    dlMenuLabel.textContent = `${t('dl.completeList')} (${getFiltered().length})`;
+  }
+}
+
+function onlyConfirmed(list) {
+  const byDay = {};
+  list.forEach(c => {
+    const k = dateKey(c.date) || 'Sem data';
+    (byDay[k] = byDay[k] || []).push(c);
+  });
+  const result = [];
+  Object.values(byDay).forEach(dayList => {
+    const { confirmed } = splitByCapacity(dayList);
+    result.push(...confirmed);
+  });
+  return result.sort(sortCards);
+}
+
+dlMenu.querySelectorAll('[data-dl]').forEach(el => {
+  el.onclick = () => {
+    dlMenu.classList.remove('open');
+    const type = el.dataset.dl;
+    const list = getFiltered();
+    if (!list.length) { toast(t('toast.noAppt'), 'warning'); return; }
+
+    const scope = state.selectedDate ? `dia-${state.selectedDate.replace(/\//g, '-')}` : 'completo';
+
+    if (type === 'pdf') {
+      const confirmedOnly = onlyConfirmed(list);
+      if (!confirmedOnly.length) { toast(t('toast.noApptPdf'), 'warning'); return; }
+      downloadPdf(confirmedOnly, scope);
+    }
+    if (type === 'txt') downloadTxt(list, scope);
+    if (type === 'copy') {
+      const text = buildTxt(list, state.selectedDate);
+      copyText(text);
+    }
+  };
+});
+
+/* ============================================================
+   BUILD TEXT
+   ============================================================ */
+function buildTxt(list, dateFilter) {
+  const sep = '═'.repeat(60);
+  const sub = '─'.repeat(50);
+
+  const grouped = {};
+  list.forEach(c => {
+    const k = c.date || 'Sem data';
+    (grouped[k] = grouped[k] || []).push(c);
+  });
+
+  const keys = Object.keys(grouped).sort((a, b) => {
+    if (a === 'Sem data') return 1;
+    if (b === 'Sem data') return -1;
+    const da = parseDate(a), db = parseDate(b);
+    return da && db ? da - db : 0;
+  });
+
+  const lines = [];
+  lines.push(sep);
+  if (dateFilter) {
+    lines.push(`📋 ${t('pdf.title')} — ${displayDate(dateFilter)}`);
+  } else {
+    lines.push(`📋 ${t('report.title')}`);
+    lines.push(`📆 ${t('report.generated')} ${new Date().toLocaleString()}`);
+  }
+  lines.push(`📊 ${t('report.total')} ${list.length} · ${t('report.capacity')} ${state.capacity}${t('toast.perDay')}`);
+  lines.push(sep); lines.push('');
+
+  let n = 1;
+  let totalConfirmed = 0, totalWaiting = 0;
+
+  keys.forEach(k => {
+    const dayList = grouped[k].sort(sortCards);
+    const cap = state.capacity;
+    const confirmed = dayList.slice(0, cap);
+    const waiting = dayList.slice(cap);
+    totalConfirmed += confirmed.length;
+    totalWaiting += waiting.length;
+
+    lines.push(`📅 ${k} — ${dayList.length} · ${confirmed.length}/${cap}`);
+    lines.push(sub);
+    lines.push(`✅ ${t('report.confirmed')} (${confirmed.length}/${cap})`);
+    confirmed.forEach(c => {
+      lines.push(`${String(n).padStart(2, '0')}. 👤 ${c.pacient || '—'}`);
+      lines.push(`    🕐 ${c.hour || '--:--'}  |  🔬 ${c.speciality || '—'}`);
+      if (c.hospitalName) lines.push(`    🏥 ${c.hospitalName}`);
+      if (c.hospitalAddress && c.hospitalAddress !== c.hospitalName) lines.push(`    📍 ${c.hospitalAddress}`);
+      n++;
+    });
+
+    if (waiting.length) {
+      lines.push('');
+      lines.push(`⏳ ${t('report.waiting')} (${waiting.length})`);
+      waiting.forEach(c => {
+        lines.push(`${String(n).padStart(2, '0')}. ⏳ ${c.pacient || '—'}`);
+        lines.push(`    🕐 ${c.hour || '--:--'}  |  🔬 ${c.speciality || '—'}`);
+        if (c.hospitalName) lines.push(`    🏥 ${c.hospitalName}`);
+        if (c.hospitalAddress && c.hospitalAddress !== c.hospitalName) lines.push(`    📍 ${c.hospitalAddress}`);
+        n++;
+      });
+    }
+    lines.push('');
+  });
+
+  lines.push(sep);
+  lines.push(`📊 ${t('report.grandTotal')} ${list.length}`);
+  lines.push(`✅ ${t('report.confirmedTotal')} ${totalConfirmed}`);
+  lines.push(`⏳ ${t('report.waitingTotal')} ${totalWaiting}`);
+  lines.push(`🏥 ${new Set(list.map(c => c.hospitalName).filter(Boolean)).size} ${t('report.locations')}`);
+  lines.push(`👤 ${new Set(list.map(c => c.pacient).filter(Boolean)).size} ${t('report.patients')}`);
+  lines.push(sep);
+  lines.push(t('report.generatedBy'));
+  return lines.join('\r\n');
+}
+
+function buildFullTxt() { return buildTxt(cardsWithData().sort(sortCards), null); }
+
+function downloadTxt(list, scope) {
+  const text = buildTxt(list, state.selectedDate);
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `agendamentos_${scope}_${new Date().toISOString().slice(0, 10)}.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(t('toast.txtDownloaded'), 'success');
+}
+
+/* ============================================================
+   PDF GENERATION
+   ============================================================ */
+function downloadPdf(confirmedList, scope) {
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+  const pw = doc.internal.pageSize.getWidth();
+  const ph = doc.internal.pageSize.getHeight();
+  const margin = 18;
+
+  const headerH = 46;
+  doc.setFillColor(13, 88, 106);
+  doc.rect(0, 0, pw, headerH, 'F');
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(20);
+  doc.setFont('helvetica', 'bold');
+  doc.text(t('pdf.title'), pw / 2, 20, { align: 'center' });
+
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  const subtitleDate = state.selectedDate
+    ? displayDate(state.selectedDate)
+    : new Date().toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'es' ? 'es-ES' : 'pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  doc.text(subtitleDate, pw / 2, 30, { align: 'center' });
+
+  doc.setFontSize(10);
+  doc.setTextColor(215, 230, 235);
+  doc.text(`${t('pdf.total')} ${confirmedList.length} ${confirmedList.length !== 1 ? t('pdf.appointments') : t('pdf.appointment')}`, pw / 2, 38, { align: 'center' });
+
+  let y = headerH + 16;
+  const cardGap = 6, cardH = 22;
+  const cardLeft = margin, cardW = pw - margin * 2;
+
+  confirmedList.forEach((c, i) => {
+    if (y + cardH > ph - 20) { doc.addPage(); y = margin; }
+
+    doc.setFillColor(247, 250, 252);
+    doc.setDrawColor(220, 228, 234);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(cardLeft, y, cardW, cardH, 2.5, 2.5, 'FD');
+
+    const badgeX = cardLeft + 9;
+    const badgeY = y + cardH / 2;
+    const badgeR = 5;
+
+    doc.setFillColor(26, 148, 168);
+    doc.circle(badgeX, badgeY, badgeR, 'F');
+
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont('helvetica', 'bold');
+    doc.text(String(i + 1), badgeX, badgeY + 1.5, { align: 'center' });
+
+    const contentX = badgeX + badgeR + 6;
+
+    doc.setTextColor(20, 30, 40);
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'bold');
+    doc.text((c.pacient || '—').slice(0, 50), contentX, y + 7);
+
+    doc.setFontSize(9);
+    doc.setFont('helvetica', 'normal');
+    doc.setTextColor(90, 100, 110);
+    doc.text(`${t('pdf.hour')} ${c.hour || '—'}    |    ${t('pdf.specialty')} ${c.speciality || '—'}`, contentX, y + 14);
+
+    if (c.hospitalName) {
+      doc.setFontSize(8.5);
+      doc.setTextColor(120, 130, 140);
+      const localStr = (c.hospitalName + (c.hospitalAddress && c.hospitalAddress !== c.hospitalName ? ' — ' + c.hospitalAddress : '')).slice(0, 90);
+      doc.text(`${t('pdf.local')} ${localStr}`, contentX, y + 19.5);
+    }
+
+    y += cardH + cardGap;
+  });
+
+  const footerY = ph - 12;
+  doc.setDrawColor(180, 195, 205);
+  doc.setLineWidth(0.3);
+  doc.line(margin, footerY - 5, pw - margin, footerY - 5);
+
+  doc.setFontSize(7.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setTextColor(140, 150, 160);
+  const now = new Date();
+  const dateStr = now.toLocaleDateString(currentLang === 'en' ? 'en-US' : currentLang === 'es' ? 'es-ES' : 'pt-BR') + ' ' +
+                  now.toLocaleTimeString(currentLang === 'en' ? 'en-US' : currentLang === 'es' ? 'es-ES' : 'pt-BR');
+  doc.text(`${t('pdf.generatedBy')} ${dateStr}`, margin, footerY);
+
+  doc.save(`agendamentos_${scope}_${new Date().toISOString().slice(0, 10)}.pdf`);
+  toast(t('toast.pdfConfirmed'), 'success');
+}
+
+/* ============================================================
+   COPY
+   ============================================================ */
+function copyText(text) {
+  if (navigator.clipboard?.writeText) {
+    navigator.clipboard.writeText(text).then(() => toast(t('toast.copied'), 'success')).catch(() => fallbackCopy(text));
+  } else fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value = text;
+  ta.style.position = 'fixed';
+  ta.style.left = '-9999px';
+  document.body.appendChild(ta);
+  ta.select();
+  try { document.execCommand('copy'); toast(t('toast.copied'), 'success'); }
+  catch { toast(t('toast.copyError'), 'error'); }
+  document.body.removeChild(ta);
+}
+
+/* ============================================================
+   MENU
+   ============================================================ */
+menuBtn.addEventListener('click', e => {
+  e.stopPropagation();
+  menuDropdown.classList.toggle('open');
+});
+
+document.addEventListener('click', e => {
+  if (!menuDropdown.contains(e.target) && e.target !== menuBtn) {
+    menuDropdown.classList.remove('open');
+  }
+});
+
+$('exportDataBtn').onclick = () => {
+  const cards = cardsWithData();
+  if (!cards.length && !state.files.length && !state.fileMetadata.length) {
+    toast(t('toast.nothingClear'), 'warning'); return;
+  }
+  const data = {
+    version: state.dataVersion,
+    exportedAt: new Date().toISOString(),
+    capacity: state.capacity,
+    appointments: cards,
+    files: state.files.length ? state.files.map(f => ({ name: f.name, size: f.size, type: f.type })) : state.fileMetadata,
+    layoutCount: state.layoutCount
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `agenda_backup_${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(t('toast.dataExported'), 'success');
+  menuDropdown.classList.remove('open');
+};
+
+$('importDataBtn').onclick = () => {
+  $('importFileInput').click();
+  menuDropdown.classList.remove('open');
+};
+
+$('importFileInput').addEventListener('change', e => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.appointments || !Array.isArray(data.appointments)) {
+        toast(t('toast.invalidFile'), 'error'); return;
+      }
+      const unique = dedupe(data.appointments);
+      if (!confirm(`${t('toast.confirmImport')} ${unique.length} ${t('toast.confirmImport2')}`)) return;
+      state.cards = unique;
+      if (data.layoutCount) { state.layoutCount = data.layoutCount; layoutSelect.value = data.layoutCount; }
+      if (typeof data.capacity === 'number' && data.capacity > 0) {
+        state.capacity = data.capacity;
+        capacityInput.value = data.capacity;
+      }
+      if (data.files) { state.fileMetadata = data.files; state.files = []; }
+      state.selectedDate = null;
+      state.selected.clear();
+      const first = unique.find(c => c.date);
+      if (first) {
+        const d = parseDate(first.date);
+        if (d) { state.currentMonth = d.getMonth(); state.currentYear = d.getFullYear(); }
+      }
+      renderAll(); save();
+      toast(`${unique.length} ${t('toast.dataImported')}`, 'success');
+    } catch (err) {
+      toast(t('toast.pdfError') + ' ' + err.message, 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+});
+
+$('previewBtn').onclick = () => {
+  const text = buildFullTxt();
+  if (!text) return;
+  modalPreview.textContent = text;
+  modalBg.classList.add('open');
+  menuDropdown.classList.remove('open');
+};
+
+$('clearAllDataBtn').onclick = () => {
+  menuDropdown.classList.remove('open');
+  if (!confirm(t('toast.confirmDeleteAll'))) return;
+  if (!confirm(t('toast.confirmDeleteAll2'))) return;
+  state.cards = []; state.files = []; state.fileMetadata = [];
+  state.selected.clear(); state.selectedDate = null; state.searchQuery = '';
+  searchInput.value = '';
+  localStorage.removeItem(STORAGE_KEY);
+  renderAll();
+  toast(t('toast.allDeleted'), 'success');
+};
+
+/* ============================================================
+   MODAL
+   ============================================================ */
+$('modalCloseBtn').onclick = () => modalBg.classList.remove('open');
+$('modalCopyBtn').onclick = () => copyText(modalPreview.textContent);
+$('modalDownloadBtn').onclick = () => {
+  const text = modalPreview.textContent;
+  if (!text) return;
+  const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `agenda_relatorio_${new Date().toISOString().slice(0, 10)}.txt`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  toast(t('toast.txtDownloaded'), 'success');
+};
+
+modalBg.addEventListener('click', e => {
+  if (e.target === modalBg) modalBg.classList.remove('open');
+});
+
+/* ============================================================
+   RENDER ALL
+   ============================================================ */
+function renderAll() {
+  renderCalendar(); renderDateChips(); renderAppointments();
+  updateStats(); updateButtons(); updateSelectionBar();
+  updateDlMenuLabel(); renderFileChips(); applyWorkspaceCollapse();
+}
+
+/* ============================================================
+   LANGUAGE SELECTOR
+   ============================================================ */
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.onclick = () => setLanguage(btn.dataset.lang);
+});
+
+/* ============================================================
+   KEYBOARD
+   ============================================================ */
+document.addEventListener('keydown', e => {
+  const inInput = ['INPUT', 'TEXTAREA', 'SELECT'].includes(document.activeElement?.tagName);
+
+  if (e.key === 'Escape') {
+    if (modalBg.classList.contains('open')) modalBg.classList.remove('open');
+    if (dlMenu.classList.contains('open')) dlMenu.classList.remove('open');
+    if (menuDropdown.classList.contains('open')) menuDropdown.classList.remove('open');
+  }
+
+  if (e.ctrlKey && e.key === 'Enter' && !processBtn.disabled) {
+    e.preventDefault(); processPdfs();
+  }
+
+  if (e.ctrlKey && e.key === 'f') {
+    e.preventDefault();
+    searchInput.focus();
+    searchInput.select();
+  }
+
+  if (!inInput && e.key === 'ArrowLeft') prevMonthBtn.click();
+  if (!inInput && e.key === 'ArrowRight') nextMonthBtn.click();
+});
+
+/* ============================================================
+   INIT
+   ============================================================ */
+let savedLang = 'pt';
+try { savedLang = localStorage.getItem('agenda_lang') || 'pt'; } catch(e) {}
+if (!['pt', 'en', 'es'].includes(savedLang)) savedLang = 'pt';
+
+const loaded = load();
+state.selected.clear();
+capacityInput.value = state.capacity;
+applyWorkspaceCollapse();
+
+setLanguage(savedLang);
+
+if (loaded && cardsWithData().length) {
+  const first = cardsWithData().find(c => c.date);
+  if (first) {
+    const d = parseDate(first.date);
+    if (d) { state.currentMonth = d.getMonth(); state.currentYear = d.getFullYear(); }
+    renderAll();
+  }
+  toast(`${cardsWithData().length} ${t('toast.restored')}`, 'success');
+} else {
+  toast(t('toast.welcome'), 'info');
+}
+
+console.log('%c📅 Agenda · PDF Reader Pro v5.1 (fixed action buttons + i18n)', 'color:#22b8cf;font-weight:bold;font-size:14px');
+</script>
+</body>
+</html>
