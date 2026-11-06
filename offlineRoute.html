@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rotas Offline</title>
+<style>
+:root{--bg:#1f2023;--card:#2b2d31;--bd:#3a3d43;--tx:#e8eaed;--mut:#9aa0a6;--ac:#3b82f6}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px system-ui,sans-serif;display:flex;justify-content:center;padding:20px}
+.w{width:100%;max-width:560px;display:flex;flex-direction:column;gap:14px}
+.c{background:var(--card);border:1px solid var(--bd);border-radius:14px;padding:16px}
+h1{font-size:18px;margin:0}
+label{display:block;font-size:12px;color:var(--mut);margin:10px 0 4px}
+input,button{font:inherit;color:var(--tx);background:#1a1b1e;border:1px solid var(--bd);border-radius:10px;padding:10px;width:100%}
+button{cursor:pointer;background:var(--ac);border:0;font-weight:600}
+button.s{background:#3a3d43}
+.r{display:flex;gap:8px;align-items:flex-end}
+.r>*{flex:1}
+.r>.sw{flex:0 0 48px}
+.big{font-size:30px;font-weight:700;margin:4px 0}
+.mut{color:var(--mut);font-size:13px}
+.tag{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:#1a1b1e;border:1px solid var(--bd);color:var(--mut)}
+.tag.ok{color:#4ade80;border-color:#4ade80}
+.row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-top:1px solid var(--bd);font-size:13px}
+.row button{width:auto;padding:4px 10px;background:#3a3d43}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#mapc{padding:0;overflow:hidden;position:relative}
+#map{width:100%;height:380px;display:block;touch-action:none;cursor:grab;user-select:none}
+.mtb{position:absolute;top:10px;right:10px;display:flex;flex-direction:column;gap:6px}
+.mtb button{width:36px;height:36px;padding:0;font-size:18px;background:#1a1b1ee6;border:1px solid var(--bd)}
+#minfo{position:absolute;left:10px;right:10px;bottom:10px;background:#1a1b1eee;border:1px solid var(--bd);border-radius:12px;padding:10px 12px}
+#mapc.full{position:fixed;inset:0;z-index:50;border-radius:0;border:0}
+#mapc.full #map{height:100%}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="c">
+    <h1>🚗 Rotas Offline</h1>
+    <div class="r">
+      <div><label>Origem</label><input id="a" list="cid" placeholder="Cidade ou lat,lon"></div>
+      <button class="s sw" id="sw" title="Inverter">⇄</button>
+      <div><label>Destino</label><input id="b" list="cid" placeholder="Cidade ou lat,lon"></div>
+    </div>
+    <datalist id="cid"></datalist>
+    <button id="go" style="margin-top:12px">Buscar rota</button>
+    <div class="mut" id="st" style="margin-top:8px"></div>
+  </div>
+
+  <div class="c" id="res" style="display:none">
+    <span class="tag" id="tag"></span>
+    <div class="big" id="tm"></div>
+    <div id="km" style="font-size:18px"></div>
+    <div class="mut" id="ln"></div>
+    <div class="mut" id="eta"></div>
+  </div>
+
+  <div class="c" id="mapc" style="display:none">
+    <svg id="map"></svg>
+    <div class="mtb"><button class="s" id="mz1" title="Aproximar">+</button><button class="s" id="mz2" title="Afastar">−</button><button class="s" id="mz3" title="Ajustar à rota">⌖</button><button class="s" id="mz4" title="Tela cheia">⛶</button></div>
+    <div id="minfo" class="mut" style="display:none"></div>
+  </div>
+
+  <div class="c">
+    <div class="mut">Ajustes</div>
+    <div class="g2">
+      <div><label>Fator de estrada (× linha reta)</label><input id="f" type="number" step="0.05" min="1" placeholder="vazio = km da rota"></div>
+      <div><label>Velocidade média (km/h)</label><input id="v" type="number" step="1" min="1" placeholder="vazio = tempo da rota"></div>
+    </div>
+    <div class="mut" style="margin-top:8px">Fator: se preenchido, km = linha reta × fator em qualquer rota. Velocidade: se preenchida, tempo = km ÷ velocidade. Vazio = valores reais da rota.</div>
+  </div>
+
+  <div class="c">
+    <div class="mut">Histórico</div>
+    <div id="lst" style="margin-top:10px"></div>
+    <div class="g2" style="margin-top:10px">
+      <button class="s" id="ex">Exportar</button>
+      <button class="s" id="im">Importar</button>
+    </div>
+    <input type="file" id="fi" accept=".json" hidden>
+  </div>
+</div>
+
+<script>
+const C={
+"Maragogipe":[-12.7753,-38.9170],"Cruz das Almas":[-12.6675,-39.1008],"Salvador":[-12.9714,-38.5014],
+"Feira de Santana":[-12.2664,-38.9663],"Santo Antônio de Jesus":[-12.9686,-39.2614],"Cachoeira":[-12.6,-38.96],
+"São Félix":[-12.6075,-38.9708],"Muritiba":[-12.6283,-38.9858],"Governador Mangabeira":[-12.5986,-39.0383],
+"Sapeaçu":[-12.7225,-39.1858],"Conceição do Almeida":[-12.7814,-39.1708],"São Felipe":[-12.8428,-39.0881],
+"Nazaré":[-13.0236,-39.0058],"Jaguaripe":[-13.1156,-38.8933],"Salinas da Margarida":[-12.8742,-38.7569],
+"Itaparica":[-12.8886,-38.6786],"Vera Cruz":[-12.9553,-38.6086],"Valença":[-13.3689,-39.0733],
+"Amargosa":[-13.0292,-39.6097],"Castro Alves":[-12.7567,-39.4244],"Lauro de Freitas":[-12.8978,-38.3211],
+"Camaçari":[-12.6996,-38.3263],"Simões Filho":[-12.7844,-38.4031],"Candeias":[-12.6717,-38.5469],
+"São Francisco do Conde":[-12.6178,-38.6808],"Santo Amaro":[-12.5472,-38.7119],"Alagoinhas":[-12.1356,-38.4192],
+"Jequié":[-13.8508,-40.0836],"Itabuna":[-14.7876,-39.2781],"Ilhéus":[-14.7935,-39.0463],
+"Vitória da Conquista":[-14.8615,-40.8442],"Porto Seguro":[-16.4435,-39.0644],"Juazeiro":[-9.4164,-40.5031],
+"Paulo Afonso":[-9.4066,-38.2214],"Barreiras":[-12.1528,-44.99]
+};
+const $=i=>document.getElementById(i);
+const norm=s=>s.trim().toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"");
+const idx={};Object.keys(C).forEach(k=>idx[norm(k)]=k);
+$("cid").innerHTML=Object.keys(C).sort().map(k=>`<option value="${k}">`).join("");
+
+let saved={};
+try{saved=JSON.parse(localStorage.getItem("rotas")||"null")||{}}catch(e){}
+if(!Object.keys(saved).length) saved={"Cruz das Almas|Maragogipe":{km:37.9,min:70}};
+const persist=()=>{try{localStorage.setItem("rotas",JSON.stringify(saved))}catch(e){}};
+const key=(a,b)=>[a,b].sort().join("|");
+
+function parse(s){
+  const n=norm(s);if(!n)return null;
+  if(idx[n])return{name:idx[n],p:C[idx[n]]};
+  const m=s.match(/^\s*(-?\d+(?:[.,]\d+)?)\s*[,;\s]\s*(-?\d+(?:[.,]\d+)?)\s*$/);
+  if(m){const p=[parseFloat(m[1].replace(",",".")),parseFloat(m[2].replace(",","."))];
+    return{name:p[0].toFixed(4)+","+p[1].toFixed(4),p}}
+  if(geo[n])return geo[n];
+  const hit=Object.keys(idx).find(k=>k.startsWith(n));
+  return hit?{name:idx[hit],p:C[idx[hit]]}:null;
+}
+function hav(a,b){
+  const R=6371,r=x=>x*Math.PI/180;
+  const dl=r(b[0]-a[0]),dn=r(b[1]-a[1]);
+  const h=Math.sin(dl/2)**2+Math.cos(r(a[0]))*Math.cos(r(b[0]))*Math.sin(dn/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+const fmt=m=>{m=Math.round(m);const h=Math.floor(m/60);return h?`${h} h ${m%60} min`:`${m} min`};
+let cur=null;
+let geo={};try{geo=JSON.parse(localStorage.getItem("geo")||"{}")}catch(e){}
+function refreshDl(){
+  const all=Object.keys(C).concat(Object.values(geo).map(g=>g.name));
+  $("cid").innerHTML=[...new Set(all)].sort().map(k=>`<option value="${k}">`).join("");
+}
+async function fj(u,ms){
+  const c=new AbortController(),t=setTimeout(()=>c.abort(),ms||15000);
+  try{return await (await fetch(u,{signal:c.signal})).json()}finally{clearTimeout(t)}
+}
+let calcTok=0;
+async function geocode(s){
+  const j=await fj("https://nominatim.openstreetmap.org/search?format=json&limit=1&q="+encodeURIComponent(s));
+  if(!j.length)return null;
+  const g={name:s.trim(),p:[+j[0].lat,+j[0].lon]};
+  geo[norm(s)]=g;
+  try{localStorage.setItem("geo",JSON.stringify(geo))}catch(e){}
+  refreshDl();return g;
+}
+async function road(A,B){
+  const u=`https://router.project-osrm.org/route/v1/driving/${A.p[1]},${A.p[0]};${B.p[1]},${B.p[0]}?overview=full&geometries=geojson`;
+  const j=await fj(u);
+  if(!j.routes||!j.routes.length)throw new Error("sem rota");
+  const r=j.routes[0],k=key(A.name,B.name),old=saved[k]||{};
+  const c=r.geometry.coordinates,step=Math.max(1,Math.ceil(c.length/400));
+  const g2=c.filter((_,i)=>i%step===0||i===c.length-1).map(q=>[+q[1].toFixed(5),+q[0].toFixed(5)]);
+  saved[k]={km:old.km||+(r.distance/1000).toFixed(1),min:old.min||Math.round(r.duration/60),src:old.src||"online",geo:g2,places:old.places};
+  try{
+    const la=g2.map(q=>q[0]),lo=g2.map(q=>q[1]);
+    const mnla=Math.min(...la),mxla=Math.max(...la),mnlo=Math.min(...lo),mxlo=Math.max(...lo);
+    const pa=Math.max(mxla-mnla,0.15),po=Math.max(mxlo-mnlo,0.15);
+    const bb=[mnla-pa,mnlo-po,mxla+pa,mxlo+po].map(v=>v.toFixed(4)).join(",");
+    const q=`[out:json][timeout:20];node["place"~"^(city|town|village|hamlet|suburb)$"](${bb});out 500;`;
+    const o=await fj("https://overpass-api.de/api/interpreter?data="+encodeURIComponent(q),25000);
+    saved[k].places=o.elements.filter(x=>x.tags&&x.tags.name).map(x=>[x.tags.name,x.lat,x.lon,x.tags.place]);
+    saved[k].pv=2;
+  }catch(e){}
+  persist();list();
+}
+const MS={tiles:{},hits:[],sel:null,key:null,cand:[],P:null};
+let mapInit=false,mapRaf=0;
+const NSV="http://www.w3.org/2000/svg";
+const mxF=l=>(l+180)/360,myF=a=>{const r=a*Math.PI/180;return(1-Math.log(Math.tan(r)+1/Math.cos(r))/Math.PI)/2};
+const invLat=y=>Math.atan(Math.sinh(Math.PI*(1-2*y)))*180/Math.PI;
+function mapSize(){const sv=$("map");return[sv.clientWidth||600,sv.clientHeight||380]}
+function mapFit(){
+  const [W,H]=mapSize(),xs=MS.P.map(q=>q[0]),ys=MS.P.map(q=>q[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  MS.cx=(x0+x1)/2;MS.cy=(y0+y1)/2;
+  MS.s=Math.min(W/Math.max((x1-x0)*1.8,1e-7),H/Math.max((y1-y0)*1.8,1e-7));
+  MS.s0=MS.s;
+}
+function mapRender(){if(mapRaf)return;mapRaf=requestAnimationFrame(()=>{mapRaf=0;mapPaint()})}
+function zoomAt(px,py,f){
+  const [W,H]=mapSize();
+  if(px==null){px=W/2;py=H/2}
+  const ns=Math.min(256*2**18,Math.max(MS.s0*0.3,MS.s*f));
+  const mxp=MS.cx+(px-W/2)/MS.s,myp=MS.cy+(py-H/2)/MS.s;
+  MS.s=ns;MS.cx=mxp-(px-W/2)/ns;MS.cy=myp-(py-H/2)/ns;
+  mapRender();
+}
+function initMap(){
+  mapInit=true;
+  const sv=$("map");
+  sv.innerHTML='<rect width="100%" height="100%" fill="#1a1b1e"/><g id="tl"></g><g id="ov"></g>';
+  const ptrs=new Map();let moved=0,pd=0;
+  sv.addEventListener("pointerdown",e=>{
+    sv.setPointerCapture(e.pointerId);ptrs.set(e.pointerId,[e.clientX,e.clientY]);moved=0;
+    if(ptrs.size===2){const [a,b]=[...ptrs.values()];pd=Math.hypot(a[0]-b[0],a[1]-b[1])}
+    sv.style.cursor="grabbing";
+  });
+  sv.addEventListener("pointermove",e=>{
+    if(!ptrs.has(e.pointerId))return;
+    const o=ptrs.get(e.pointerId),dx=e.clientX-o[0],dy=e.clientY-o[1];
+    ptrs.set(e.pointerId,[e.clientX,e.clientY]);
+    moved+=Math.abs(dx)+Math.abs(dy);
+    const r=sv.getBoundingClientRect();
+    if(ptrs.size===1){MS.cx-=dx/MS.s;MS.cy-=dy/MS.s;mapRender()}
+    else if(ptrs.size===2){
+      const [a,b]=[...ptrs.values()],d=Math.hypot(a[0]-b[0],a[1]-b[1]);
+      if(pd>0)zoomAt((a[0]+b[0])/2-r.left,(a[1]+b[1])/2-r.top,d/pd);
+      pd=d;
+    }
+  });
+  const up=e=>{
+    const was=ptrs.has(e.pointerId);ptrs.delete(e.pointerId);sv.style.cursor="grab";
+    if(was&&e.type==="pointerup"&&ptrs.size===0&&moved<6){const r=sv.getBoundingClientRect();mapClick(e.clientX-r.left,e.clientY-r.top)}
+  };
+  sv.addEventListener("pointerup",up);
+  sv.addEventListener("pointercancel",up);
+  sv.addEventListener("wheel",e=>{e.preventDefault();const r=sv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,Math.pow(1.0015,-e.deltaY))},{passive:false});
+  sv.addEventListener("dblclick",e=>{const r=sv.getBoundingClientRect();zoomAt(e.clientX-r.left,e.clientY-r.top,2)});
+  $("mz1").onclick=()=>zoomAt(null,null,1.6);
+  $("mz2").onclick=()=>zoomAt(null,null,1/1.6);
+  $("mz3").onclick=()=>{mapFit();mapRender()};
+  $("mz4").onclick=()=>{$("mapc").classList.toggle("full");setTimeout(mapRender,30)};
+  window.addEventListener("resize",()=>{if($("mapc").style.display!=="none")mapRender()});
+}
+function mapClick(px,py){
+  let best=null,bd=18;
+  MS.hits.forEach(c=>{const d=Math.hypot(c.px-px,c.py-py);if(d<bd){bd=d;best=c}});
+  const inf=$("minfo");
+  if(!best){MS.sel=null;inf.style.display="none";mapRender();return}
+  MS.sel=best;
+  const dA=hav(MS.A.p,[best.la,best.lo]),dB=hav(MS.B.p,[best.la,best.lo]);
+  const tp=["Cidade","Cidade","Vila","Povoado / bairro"][best.r];
+  const f=v=>v.toFixed(1).replace(".",",")+" km";
+  inf.innerHTML="";
+  const t=document.createElement("div");
+  t.style.color="var(--tx)";
+  t.textContent=best.nm+" · "+tp+" · "+f(dA)+" de "+MS.A.name+" · "+f(dB)+" de "+MS.B.name+" (linha reta)";
+  const bs=document.createElement("div");bs.className="g2";bs.style.marginTop="8px";
+  [["Usar como origem","a"],["Usar como destino","b"]].forEach(([l,id])=>{
+    const b=document.createElement("button");b.className="s";b.textContent=l;
+    b.onclick=()=>{
+      const n=norm(best.nm);
+      if(!idx[n]&&!geo[n]){geo[n]={name:best.nm,p:[best.la,best.lo]};try{localStorage.setItem("geo",JSON.stringify(geo))}catch(e){}refreshDl()}
+      $(id).value=best.nm;calc(true);
+    };
+    bs.appendChild(b);
+  });
+  inf.append(t,bs);inf.style.display="";
+  mapRender();
+}
+function mapPaint(){
+  if(!MS.P||$("mapc").style.display==="none")return;
+  const sv=$("map"),[W,H]=mapSize(),cx=MS.cx,cy=MS.cy,s=MS.s,A=MS.A,B=MS.B,on=navigator.onLine;
+  sv.setAttribute("viewBox","0 0 "+W+" "+H);
+  const X=v=>W/2+(v-cx)*s,Y=v=>H/2+(v-cy)*s;
+  const tl=$("tl"),used=new Set();
+  if(on){
+    const z=Math.max(1,Math.min(18,Math.round(Math.log2(s/256)))),n=2**z,ts=s/n;
+    const ta=Math.floor((cx-W/2/s)*n),tb=Math.floor((cx+W/2/s)*n);
+    const tc=Math.max(0,Math.floor((cy-H/2/s)*n)),td=Math.min(n-1,Math.floor((cy+H/2/s)*n));
+    for(let tx=ta;tx<=tb;tx++)for(let ty=tc;ty<=td;ty++){
+      const wx=((tx%n)+n)%n,id=z+"/"+wx+"/"+ty+"/"+tx;
+      let im=MS.tiles[id];
+      if(!im){
+        im=document.createElementNS(NSV,"image");
+        im.setAttribute("href","https://a.basemaps.cartocdn.com/dark_nolabels/"+z+"/"+wx+"/"+ty+".png");
+        MS.tiles[id]=im;tl.appendChild(im);
+      }
+      im.setAttribute("x",X(tx/n).toFixed(1));im.setAttribute("y",Y(ty/n).toFixed(1));
+      im.setAttribute("width",(ts+0.6).toFixed(1));im.setAttribute("height",(ts+0.6).toFixed(1));
+      im.style.display="";used.add(id);
+    }
+  }
+  for(const id in MS.tiles)if(!used.has(id))MS.tiles[id].style.display="none";
+  if(Object.keys(MS.tiles).length>250)for(const id in MS.tiles)if(!used.has(id)){MS.tiles[id].remove();delete MS.tiles[id]}
+
+  let h="";
+  const bx=[],hit=a=>bx.some(b=>a[0]<b[2]&&a[2]>b[0]&&a[1]<b[3]&&a[3]>b[1]);
+  [A,B].forEach(o=>{const px=X(mxF(o.p[1])),py=Y(myF(o.p[0])),w=o.name.length*8+24;bx.push([px-w,py-26,px+w,py+12])});
+  MS.hits=[];
+  const seen={},nA=norm(A.name),nB=norm(B.name);let cnt=0;
+  MS.cand.forEach(c=>{
+    const k=norm(c.nm);
+    if(seen[k]||k===nA||k===nB||cnt>=140)return;
+    const px=X(c.x),py=Y(c.y);
+    if(px<6||px>W-8||py<14||py>H-8)return;
+    const w=c.nm.length*(c.r<3?6.2:5.3)+10,box=[px-4,py-12,px+w,py+6];
+    if(box[2]>W-4||hit(box))return;
+    seen[k]=1;bx.push(box);cnt++;
+    MS.hits.push({nm:c.nm,px:px,py:py,la:c.la,lo:c.lo,r:c.r});
+    h+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="'+(c.r<2?3:2.2)+'" fill="#9aa0a6"/><text x="'+(px+6).toFixed(1)+'" y="'+(py+4).toFixed(1)+'" fill="'+(c.r<3?"#c4c7cc":"#8b9096")+'" font-size="'+(c.r<2?12:c.r<3?11:9.5)+'" stroke="#1a1b1e" stroke-width="2.5" paint-order="stroke">'+c.nm+'</text>';
+  });
+  const d=MS.P.map(q=>X(q[0]).toFixed(1)+","+Y(q[1]).toFixed(1)).join(" ");
+  h+='<polyline points="'+d+'" fill="none" stroke="#0b3b4a" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/><polyline points="'+d+'" fill="none" stroke="#22d3ee" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>';
+  if(MS.sel){
+    const px=X(mxF(MS.sel.lo)),py=Y(myF(MS.sel.la));
+    h+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="9" fill="none" stroke="#22d3ee" stroke-width="2.5"/><text x="'+(px+12).toFixed(1)+'" y="'+(py-10).toFixed(1)+'" fill="#22d3ee" font-size="13" font-weight="700" stroke="#1a1b1e" stroke-width="3" paint-order="stroke">'+MS.sel.nm+'</text>';
+  }
+  if(MS.fa){const a=[X(mxF(A.p[1])),Y(myF(A.p[0]))],c=[X(mxF(B.p[1])),Y(myF(B.p[0]))];
+    h+='<line x1="'+a[0].toFixed(1)+'" y1="'+a[1].toFixed(1)+'" x2="'+c[0].toFixed(1)+'" y2="'+c[1].toFixed(1)+'" stroke="#fbbf24" stroke-width="2" stroke-dasharray="6 5"/>'}
+  const mk=(p,nm,col)=>{
+    const px=X(mxF(p[1])),py=Y(myF(p[0])),left=px>W*0.6;
+    return '<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="7" fill="'+col+'" stroke="#fff" stroke-width="2.5"/><text x="'+(px+(left?-11:11)).toFixed(1)+'" y="'+(py-9).toFixed(1)+'" text-anchor="'+(left?"end":"start")+'" fill="#fff" font-size="13" font-weight="700" stroke="#1a1b1e" stroke-width="3" paint-order="stroke">'+nm+'</text>';
+  };
+  h+=mk(A.p,A.name,"#1a1b1e")+mk(B.p,B.name,"#ef4444");
+  const kt=MS.km.toFixed(1).replace(".",",")+" km",tt=fmt(MS.min),bw=Math.max(86,(kt.length+tt.length)*7.5+30);
+  h+='<rect x="12" y="12" width="'+bw.toFixed(0)+'" height="26" rx="13" fill="#1a1b1e" opacity=".88"/><text x="'+(12+bw/2).toFixed(0)+'" y="30" fill="#fff" font-size="13" text-anchor="middle">'+kt+' · '+tt+'</text>';
+  const mp=MS.P[Math.floor(MS.P.length/2)],bx2=X(mp[0]),by2=Y(mp[1]),lw=tt.length*7.5+20;
+  h+='<g><rect x="'+(bx2-lw/2).toFixed(1)+'" y="'+(by2-32).toFixed(1)+'" width="'+lw.toFixed(0)+'" height="24" rx="6" fill="#1a1b1e" stroke="#22d3ee" stroke-width="1.5"/><text x="'+bx2.toFixed(1)+'" y="'+(by2-15).toFixed(1)+'" fill="#fff" font-size="13" font-weight="700" text-anchor="middle">'+tt+'</text></g>';
+  const lat=invLat(cy),mpp=40075016.686*Math.cos(lat*Math.PI/180)/s;
+  const nice=[50,100,200,500,1000,2000,5000,10000,20000,50000,100000,200000,500000,1000000];
+  let L=nice[0];for(const v of nice)if(v/mpp<=130)L=v;
+  const wpx=L/mpp,lab=L>=1000?(L/1000)+" km":L+" m";
+  h+='<g transform="translate(14,'+(H-16)+')"><path d="M0 -5V0H'+wpx.toFixed(1)+'V-5" fill="none" stroke="#e8eaed" stroke-width="2"/><text x="'+(wpx/2).toFixed(1)+'" y="-8" fill="#e8eaed" font-size="11" text-anchor="middle" stroke="#1a1b1e" stroke-width="3" paint-order="stroke">'+lab+'</text></g>';
+  if(on)h+='<text x="'+(W-6)+'" y="'+(H-6)+'" text-anchor="end" fill="#9aa0a6" font-size="9">© OpenStreetMap © CARTO</text>';
+  $("ov").innerHTML=h;
+}
+function drawMap(pts,A,B,km,places){
+  const m=$("mapc");
+  if(!pts||pts.length<2){
+    m.style.display="none";
+    if(!$("st").textContent)$("st").textContent="Trajeto no mapa: clique em Buscar rota com internet uma vez.";
+    return;
+  }
+  m.style.display="";
+  if(!mapInit)initMap();
+  MS.A=A;MS.B=B;MS.km=km;
+  MS.P=pts.map(q=>[mxF(q[1]),myF(q[0])]);
+  const cand=[];
+  (places||[]).forEach(q=>cand.push({nm:String(q[0]).replace(/[&<>"]/g,""),la:q[1],lo:q[2],r:q[3]==="city"?0:q[3]==="town"?1:q[3]==="village"?2:3}));
+  Object.entries(C).forEach(([nm,p])=>cand.push({nm:nm,la:p[0],lo:p[1],r:1}));
+  cand.sort((a,b)=>a.r-b.r);
+  cand.forEach(c=>{c.x=mxF(c.lo);c.y=myF(c.la)});
+  MS.cand=cand;
+  if(MS.key!==cur){MS.key=cur;MS.sel=null;$("minfo").style.display="none";mapFit()}
+  mapPaint();
+}
+refreshDl();
+
+async function calc(online){
+  if(online)await calc();
+  const tk=++calcTok;
+  const sa=$("a").value,sb=$("b").value,st=$("st");
+  let A=parse(sa),B=parse(sb);
+  st.textContent="";
+  if(online){
+    if(!navigator.onLine)st.textContent="Sem internet — só cidades da lista ou já buscadas.";
+    else{
+      try{
+        st.textContent="Buscando…";
+        if(!A&&sa.trim())A=await geocode(sa);
+        if(!B&&sb.trim())B=await geocode(sb);
+        st.textContent="";
+        if(A&&B){const k0=key(A.name,B.name);if(!saved[k0]||!saved[k0].geo||saved[k0].pv!==2)await road(A,B)}
+      }catch(e){st.textContent="Falha na busca online ("+(e.name==="AbortError"?"tempo esgotado":e.message)+")."}
+      if(tk!==calcTok)return;
+    }
+  }
+  if(!A||!B){
+    $("res").style.display="none";$("mapc").style.display="none";cur=null;
+    if(!st.textContent&&sa.trim()&&sb.trim())st.textContent=online?"Cidade não encontrada.":"Cidade fora da lista — clique em Buscar rota (precisa de internet).";
+    return;
+  }
+  cur=key(A.name,B.name);
+  const d=hav(A.p,B.p);
+  let km,min,exact=false;
+  const s=saved[cur];
+  const sp=+$("v").value;
+  const fa=+$("f").value;
+  if(s){km=s.km;min=s.min;exact=true;if(fa>0){km=d*fa;min=s.min*km/s.km}}
+  else{km=d*(fa||1.5);min=km/(sp||55)*60}
+  if(exact&&sp>0)min=km/sp*60;
+  $("res").style.display="";
+  $("tm").textContent=fmt(min);
+  $("km").textContent=km.toFixed(1).replace(".",",")+" km";
+  $("ln").textContent="Linha reta: "+d.toFixed(1).replace(".",",")+" km";
+  const t=$("tag");t.textContent=(exact?(s.src==="online"?"rota online (salva)":"rota real salva"):"estimativa")+(exact&&fa>0?" · km = reta × "+fa:"")+(sp>0?" · tempo a "+sp+" km/h":"");t.className="tag"+(exact?" ok":"");
+  const e=new Date(Date.now()+min*60000);
+  $("eta").textContent="Saindo agora, chega às "+e.toLocaleTimeString("pt-BR",{hour:"2-digit",minute:"2-digit"});
+  MS.min=min;MS.fa=exact&&fa>0;
+  drawMap(s&&s.geo,A,B,km,s&&s.places);
+}
+function list(){
+  const k=Object.keys(saved);
+  $("lst").innerHTML=k.length?k.map(x=>`<div class="row" data-go="${x}" style="cursor:pointer"><span>${x.replace("|"," ⇄ ")}<br><span class="mut">${saved[x].km} km · ${fmt(saved[x].min)}</span></span><button data-k="${x}">Remover</button></div>`).join(""):'<div class="mut">Nenhuma rota salva.</div>';
+}
+$("lst").onclick=e=>{
+  const k=e.target.dataset.k;
+  if(k){delete saved[k];persist();list();calc();return}
+  const r=e.target.closest("[data-go]");
+  if(r){const [x,y]=r.dataset.go.split("|");$("a").value=x;$("b").value=y;calc(true);window.scrollTo({top:0,behavior:"smooth"})}
+};
+$("sw").onclick=()=>{const t=$("a").value;$("a").value=$("b").value;$("b").value=t;calc()};
+try{const g=JSON.parse(localStorage.getItem("cfg")||"{}");if(g.f)$("f").value=g.f;if(g.v)$("v").value=g.v}catch(e){}
+["a","b","f","v"].forEach(i=>$(i).addEventListener("input",()=>{
+  if(i==="f"||i==="v"){try{localStorage.setItem("cfg",JSON.stringify({f:$("f").value,v:$("v").value}))}catch(e){}}
+  calc();
+}));
+["a","b"].forEach(i=>$(i).addEventListener("keydown",e=>{if(e.key==="Enter")calc(true)}));
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){
+    if($("mapc").classList.contains("full")){$("mapc").classList.remove("full");mapRender();return}
+    $("a").value=$("b").value="";
+    $("st").textContent="";calc();$("a").focus();
+  }
+});
+$("go").onclick=()=>calc(true);
+$("ex").onclick=()=>{
+  const u=URL.createObjectURL(new Blob([JSON.stringify(saved,null,2)],{type:"application/json"}));
+  const l=document.createElement("a");l.href=u;l.download="rotas-salvas.json";l.click();URL.revokeObjectURL(u);
+};
+$("im").onclick=()=>$("fi").click();
+$("fi").onchange=e=>{
+  const f=e.target.files[0];if(!f)return;
+  f.text().then(t=>{try{Object.assign(saved,JSON.parse(t));persist();list();calc()}catch(x){alert("Arquivo inválido")}});
+  e.target.value="";
+};
+$("a").value="Maragogipe";$("b").value="Cruz das Almas";
+list();calc(navigator.onLine);
+</script>
+</body>
+</html>
